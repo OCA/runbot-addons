@@ -38,6 +38,13 @@ class runbot_repo(orm.Model):
             'Custom Server Path',
             help="Relative path of starter script",
         ),
+        'custom_server_params': fields.char(
+            'Custom Server Flags', help="""\
+Arguments to add to the openerp script
+- Use %(custom_build_dir)s for relative custom build directory.
+- Use %(custom_server_path)s for relative custom server path.
+""",
+        ),
         'custom_pre_build_cmd': fields.char(
             'Custom Pre-build Command', help="""\
 - Use %(custom_build_dir)s for relative custom build directory.

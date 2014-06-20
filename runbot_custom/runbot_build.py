@@ -57,8 +57,17 @@ def custom_build(func):
 
 class runbot_build(orm.Model):
     _inherit = "runbot.build"
-    _columns = {
-    }
+
+    def sub_cmd(self, build, cmd):
+        if not cmd:
+            return []
+        if type(cmd) is str:
+            cmd = cmd.split()
+        internal_vals = {
+            'custom_build_dir': build.repo_id.custom_build_dir or '',
+            'custom_server_path': build.repo_id.custom_server_path,
+        }
+        return [i % internal_vals for i in cmd]
 
     def pre_build(self, cr, uid, ids, context=None):
         """Run pre-build command if there is one
@@ -69,15 +78,9 @@ class runbot_build(orm.Model):
         pushd = os.getcwd()
         try:
             for build in self.browse(cr, uid, ids, context=context):
-                repo_id = build.branch_id.repo_id
-                internal_vals = {
-                    'custom_build_dir': repo_id.custom_build_dir or '',
-                    'custom_server_path': repo_id.custom_server_path,
-                }
-                cmd = build.branch_id.repo_id.custom_pre_build_cmd
+                cmd = self.sub_cmd(build, build.repo_id.custom_pre_build_cmd)
                 if not cmd:
                     continue
-                cmd = [i % internal_vals for i in cmd.split()]
                 log_path = build.path("logs", "job_00_prebuild.txt")
                 os.chdir(build.path())
                 with open(log_path, "w") as out:
@@ -101,11 +104,11 @@ class runbot_build(orm.Model):
 
             # checkout branch
             build_path = build.path()
-            custom_build_dir = build.branch_id.repo_id.custom_build_dir
+            custom_build_dir = build.repo_id.custom_build_dir
             if custom_build_dir:
                 mkdirs([build.path(custom_build_dir)])
                 build_path = os.path.join(build_path, custom_build_dir)
-            build.branch_id.repo_id.git_export(build.name, build_path)
+            build.repo_id.git_export(build.name, build_path)
         self.pre_build(cr, uid, ids, context=context)
 
     @custom_build
@@ -117,8 +120,9 @@ class runbot_build(orm.Model):
         Disable multiworker
         """
         build = self.browse(cr, uid, ids[0], context=context)
-        server_path = build.path(build.branch_id.repo_id.custom_server_path)
+        server_path = build.path(build.repo_id.custom_server_path)
         mods = build.repo_id.modules
+        params = self.sub_cmd(build, build.custom_server_params)
         # commandline
         cmd = [
             sys.executable,
@@ -126,6 +130,6 @@ class runbot_build(orm.Model):
             "--no-xmlrpcs",
             "--xmlrpc-port=%d" % build.port,
             "--db_user=%s" % openerp.tools.config['db_user'],
-            "--workers=0"
-        ]
+            "--workers=0",
+        ] + params
         return cmd, mods
