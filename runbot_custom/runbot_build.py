@@ -61,7 +61,7 @@ class runbot_build(orm.Model):
     def sub_cmd(self, build, cmd):
         if not cmd:
             return []
-        if type(cmd) is str:
+        if isinstance(cmd, basestring):
             cmd = cmd.split()
         internal_vals = {
             'custom_build_dir': build.repo_id.custom_build_dir or '',
@@ -122,7 +122,7 @@ class runbot_build(orm.Model):
         build = self.browse(cr, uid, ids[0], context=context)
         server_path = build.path(build.repo_id.custom_server_path)
         mods = build.repo_id.modules
-        params = self.sub_cmd(build, build.custom_server_params)
+        params = self.sub_cmd(build, build.repo_id.custom_server_params)
         # commandline
         cmd = [
             sys.executable,
