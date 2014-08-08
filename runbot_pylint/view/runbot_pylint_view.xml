@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_runbot_pylint_repo_inherit_form" model="ir.ui.view">
+            <field name="name">Runbot pylint view Form inherit</field>
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='token']" position="after">
+                    <field name="pylint_test"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
