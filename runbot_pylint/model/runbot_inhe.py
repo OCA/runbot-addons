@@ -22,19 +22,9 @@ class runbot_build(osv.osv):
     def job_30_run(self, cr, uid, build, lock_path, log_path, args=None):
         logger = logging.getLogger('runbot-job')
         res = super(runbot_build, self).job_30_run(cr, uid, build, lock_path, log_path)
-        print build.path(), "KKKKKKKKKKKKKKKKKKKKK"
-        print build.result, 'buildddddddddddddddddd'
-        #~ if build.result == 'ok':
         logger.info("running pylint tests...")
-        #~ if True:
-        #~ try:
-        print args, 'ARGSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS'
         build_openerp_path=build.path()+'/odoo.py'
-        #~ env = self.env_from_args(args, 'all')
-        #~ add_env_lib( env )
-        #~ pylint_log = os.path.join(self.args.log_prefix, pylint_test_log_path)
         command = ['--msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}"', "-d", "all", "-e", "E0601", "-e", "E1124", "-e", "E0602", "-e", "E1306", "-e", "E0101"]
-        #~ openerp_path = os.path.join( self.args.server_path, "openerp" )
         if os.path.exists( build_openerp_path ):
             command.append( build_openerp_path )
             self.run_command(None, 'pylint', command, build_openerp_path)
