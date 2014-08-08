@@ -7,6 +7,7 @@
     'author': 'OpenERP SA',
     'depends': ['runbot'],
     'external_dependencies': {
+        'bin': ['pylint'],
     },
     'data': [
         "view/runbot_pylint_view.xml"
