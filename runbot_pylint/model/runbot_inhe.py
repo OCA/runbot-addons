@@ -1,4 +1,28 @@
+#!/usr/bin/python
 # -*- encoding: utf-8 -*-
+#
+#    Module Writen to OpenERP, Open Source Management Solution
+#
+#    Copyright (c) 2014 Vauxoo - http://www.vauxoo.com/
+#    All Rights Reserved.
+#    info Vauxoo (info@vauxoo.com)
+#
+#    Coded by: vauxoo consultores (info@vauxoo.com)
+#
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import argparse
 from openerp.osv import fields, osv
@@ -13,7 +37,7 @@ class runbot_repo(osv.osv):
     _inherit = 'runbot.repo'
 
     _columns = {
-        'pylint_test': fields.boolean('Test Pylint'),
+        'pylint_config': fields.many2one('pylint.conf', string = 'Pylint Config'),
     }
 
 class runbot_build(osv.osv):
@@ -22,47 +46,12 @@ class runbot_build(osv.osv):
     def job_30_run(self, cr, uid, build, lock_path, log_path, args=None):
         logger = logging.getLogger('runbot-job')
         res = super(runbot_build, self).job_30_run(cr, uid, build, lock_path, log_path)
-        if build.repo_id.pylint_test:
+        errors = []
+        if build.repo_id and build.repo_id.pylint_config:
+            for err in build.repo_id.pylint_config.error_ids:
+                errors.append("-e")
+                errors.append(err.code)
             logger.info("running pylint tests...")
             build_openerp_path=build.path()+'/odoo.py'
-            command = ['--msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}"', "-d", "all", "-e", "E0601", "-e", "E1124", "-e", "E0602", "-e", "E1306", "-e", "E0101"]
-            if os.path.exists( build_openerp_path ):
-                command.append( build_openerp_path )
-                self.run_command(None, 'pylint', command, build_openerp_path)
-            else:
-                logger.info("not exists path [%s]"%(build_openerp_path) )
+            self.pool.get("pylint.conf")._run_test_pylint(cr, uid, errors, build_openerp_path)
         return res
-    
-    
-    def run_command(self, log_path, app, command, server_path):
-        """
-        Small wrapper around the `anyone` command. It is used like:
-            command ({..}, path_to_logs, 'initialize --tests')
-        return tuple (bool:finished, int:return_code)
-        """
-        hide_stderr=False
-        if log_path is None:
-            log_file = None
-        else:
-            log_file = open(log_path, 'w')
-
-        if isinstance(command, basestring):
-            command = command.split()
-        logger.info("running command `%s %s`", app, ' '.join(command))
-        stderr = open(os.devnull, 'w') if hide_stderr else log_file
-        app_path = os.path.join( os.path.realpath( os.path.join( os.path.dirname(__file__) ) ), app )
-        app_server = os.path.join( server_path, app )
-        if os.path.exists( app_server ):
-            app_path = app_server
-        elif os.path.exists( app_path ):
-            app_path = app_path
-        else:
-            app_path = app
-        export_str = ""
-        command = [ app_path ] + command
-        export_str += '\n' + ' '.join( command )
-        p = subprocess.Popen(command,
-                             stdout=log_file, stderr=stderr,
-                             close_fds=True, env={})
-        r = [True, 0]
-        return tuple(r)

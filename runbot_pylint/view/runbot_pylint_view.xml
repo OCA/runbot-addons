@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="runbot.view_repo_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='token']" position="after">
-                    <field name="pylint_test"/>
+                    <field name="pylint_config"/>
                 </xpath>
             </field>
         </record>
