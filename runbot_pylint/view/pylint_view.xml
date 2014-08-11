@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_pylint_conf_form" model="ir.ui.view">
+            <field name="name">Pylint Conf view Form</field>
+            <field name="model">pylint.conf</field>
+            <field name="arch" type="xml">
+                <form version="7.0">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="error_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_pylint_error_form" model="ir.ui.view">
+            <field name="name">Pylint Error view Form</field>
+            <field name="model">pylint.error</field>
+            <field name="arch" type="xml">
+                <form version="7.0">
+                    <sheet>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id="view_pylint_error_filter" model="ir.ui.view">
+            <field name="name">Pylint Error view Search</field>
+            <field name="model">pylint.error</field>
+            <field name="arch" type="xml">
+                <search string="Pylint Error Search">
+                    <field name="name" filter_domain="['|', ('name','ilike',self), ('code','ilike',self)]" string="Error"/>
+                </search>
+            </field>
+        </record>
+        
+        <record id="view_pylint_error_tree" model="ir.ui.view">
+            <field name="model">pylint.error</field>
+            <field name="arch" type="xml">
+                <tree string="Errors">
+                    <field name="code"/>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_view_pylint_error" model="ir.actions.act_window">
+            <field name="name">Pylint Error</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pylint.error</field>
+            <field name="view_type">form</field>
+        </record>
+        <record id="action_view_pylint_conf" model="ir.actions.act_window">
+            <field name="name">Pylint Conf</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pylint.conf</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <menuitem id="menu_pylint" name="Pylint setting" parent="runbot.menu_runbot"/>
+        <menuitem id="menu_pylint_error" action="action_view_pylint_error" name="Pylint Errors" parent="menu_pylint"/>
+        <menuitem id="menu_pylint_conf" action="action_view_pylint_conf" name="Pylint Conf" parent="menu_pylint"/>
+
+    </data>
+</openerp>

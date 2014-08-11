@@ -1,0 +1,716 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id='error_E0103' model='pylint.error'>
+            <field name='code'>E0103</field>
+            <field name='name'> %r not properly in loop</field>
+        </record>
+        <record id='error_W1501' model='pylint.error'>
+            <field name='code'>W1501</field>
+            <field name='name'> "%s" is not a valid mode for open.</field>
+        </record>
+        <record id='error_E1101' model='pylint.error'>
+            <field name='code'>E1101</field>
+            <field name='name'> %s %r has no %r member</field>
+        </record>
+        <record id='error_E1103' model='pylint.error'>
+            <field name='code'>E1103</field>
+            <field name='name'> %s %r has no %r member (but some types could not be inferred)</field>
+        </record>
+        <record id='error_E0102' model='pylint.error'>
+            <field name='code'>E0102</field>
+            <field name='name'> %s already defined line %s</field>
+        </record>
+        <record id='error_E1102' model='pylint.error'>
+            <field name='code'>E1102</field>
+            <field name='name'> %s is not callable</field>
+        </record>
+        <record id='error_F0002' model='pylint.error'>
+            <field name='code'>F0002</field>
+            <field name='name'> %s: %s (message varies)</field>
+        </record>
+        <record id='error_C0326' model='pylint.error'>
+            <field name='code'>C0326</field>
+            <field name='name'> %s space %s %s %sn%s</field>
+        </record>
+        <record id='error_W0150' model='pylint.error'>
+            <field name='code'>W0150</field>
+            <field name='name'> %s statement in finally block may swallow exception</field>
+        </record>
+        <record id='error_R0922' model='pylint.error'>
+            <field name='code'>R0922</field>
+            <field name='name'> Abstract class is only referenced %s times</field>
+        </record>
+        <record id='error_R0921' model='pylint.error'>
+            <field name='code'>R0921</field>
+            <field name='name'> Abstract class not referenced</field>
+        </record>
+        <record id='error_W0212' model='pylint.error'>
+            <field name='code'>W0212</field>
+            <field name='name'> Access to a protected member %s of a client class</field>
+        </record>
+        <record id='error_E0203' model='pylint.error'>
+            <field name='code'>E0203</field>
+            <field name='name'> Access to member %r before its definition line %s</field>
+        </record>
+        <record id='error_E0202' model='pylint.error'>
+            <field name='code'>E0202</field>
+            <field name='name'> An attribute affected in %s line %s hide this method</field>
+        </record>
+        <record id='error_W1401' model='pylint.error'>
+            <field name='code'>W1401</field>
+            <field name='name'> Anomalous backslash in string: '%s'. String constant might be missing an r prefix.</field>
+        </record>
+        <record id='error_W1402' model='pylint.error'>
+            <field name='code'>W1402</field>
+            <field name='name'> Anomalous Unicode escape in byte string: '%s'. String constant might be missing an r or u prefix.</field>
+        </record>
+        <record id='error_W0221' model='pylint.error'>
+            <field name='code'>W0221</field>
+            <field name='name'> Arguments number differs from %s method</field>
+        </record>
+        <record id='error_W0199' model='pylint.error'>
+            <field name='code'>W0199</field>
+            <field name='name'> Assert called on a 2-uple. Did you mean 'assert x,y'?</field>
+        </record>
+        <record id='error_E1111' model='pylint.error'>
+            <field name='code'>E1111</field>
+            <field name='name'> Assigning to function call which doesn't return</field>
+        </record>
+        <record id='error_W1111' model='pylint.error'>
+            <field name='code'>W1111</field>
+            <field name='name'> Assigning to function call which only returns None</field>
+        </record>
+        <record id='error_W0633' model='pylint.error'>
+            <field name='code'>W0633</field>
+            <field name='name'> Attempting to unpack a non-sequence%s</field>
+        </record>
+        <record id='error_W0201' model='pylint.error'>
+            <field name='code'>W0201</field>
+            <field name='name'> Attribute %r defined outside __init__</field>
+        </record>
+        <record id='error_E0701' model='pylint.error'>
+            <field name='code'>E0701</field>
+            <field name='name'> Bad except clauses order (%s)</field>
+        </record>
+        <record id='error_E1003' model='pylint.error'>
+            <field name='code'>E1003</field>
+            <field name='name'> Bad first argument %r given to super()</field>
+        </record>
+        <record id='error_W0311' model='pylint.error'>
+            <field name='code'>W0311</field>
+            <field name='name'> Bad indentation. Found %s %s, expected %s</field>
+        </record>
+        <record id='error_E0012' model='pylint.error'>
+            <field name='code'>E0012</field>
+            <field name='name'> Bad option value %r</field>
+        </record>
+        <record id='error_C0102' model='pylint.error'>
+            <field name='code'>C0102</field>
+            <field name='name'> Black listed name "%s"</field>
+        </record>
+        <record id='error_W0703' model='pylint.error'>
+            <field name='code'>W0703</field>
+            <field name='name'> Catching too general exception %s</field>
+        </record>
+        <record id='error_W0512' model='pylint.error'>
+            <field name='code'>W0512</field>
+            <field name='name'> Cannot decode using encoding "%s", unexpected byte at position %d</field>
+        </record>
+        <record id='error_E0712' model='pylint.error'>
+            <field name='code'>E0712</field>
+            <field name='name'> Catching an exception which doesn't inherit from BaseException: %s</field>
+        </record>
+        <record id='error_W0232' model='pylint.error'>
+            <field name='code'>W0232</field>
+            <field name='name'> Class has no __init__ method</field>
+        </record>
+        <record id='error_C0202' model='pylint.error'>
+            <field name='code'>C0202</field>
+            <field name='name'> Class method %s should have cls as first argument</field>
+        </record>
+        <record id='error_R0401' model='pylint.error'>
+            <field name='code'>R0401</field>
+            <field name='name'> Cyclic import (%s)</field>
+        </record>
+        <record id='error_W0102' model='pylint.error'>
+            <field name='code'>W0102</field>
+            <field name='name'> Dangerous default value %s as argument</field>
+        </record>
+        <record id='error_I0022' model='pylint.error'>
+            <field name='code'>I0022</field>
+            <field name='name'> Deprecated pragma "pylint:disable-msg" or "pylint:enable-msg"</field>
+        </record>
+        <record id='error_E0108' model='pylint.error'>
+            <field name='code'>E0108</field>
+            <field name='name'> Duplicate argument name %s in function definition</field>
+        </record>
+        <record id='error_W0109' model='pylint.error'>
+            <field name='code'>W0109</field>
+            <field name='name'> Duplicate key %r in dictionary</field>
+        </record>
+        <record id='error_W0120' model='pylint.error'>
+            <field name='code'>W0120</field>
+            <field name='name'> Else clause on loop without a break statement</field>
+        </record>
+        <record id='error_C0112' model='pylint.error'>
+            <field name='code'>C0112</field>
+            <field name='name'> Empty %s docstring</field>
+        </record>
+        <record id='error_F0010' model='pylint.error'>
+            <field name='code'>F0010</field>
+            <field name='name'> error while code parsing: %s</field>
+        </record>
+        <record id='error_W0704' model='pylint.error'>
+            <field name='code'>W0704</field>
+            <field name='name'> Except doesn't do anything</field>
+        </record>
+        <record id='error_W0710' model='pylint.error'>
+            <field name='code'>W0710</field>
+            <field name='name'> Exception doesn't inherit from standard "Exception" class</field>
+        </record>
+        <record id='error_W0711' model='pylint.error'>
+            <field name='code'>W0711</field>
+            <field name='name'> Exception to catch is the result of a binary "%s" operation</field>
+        </record>
+        <record id='error_E1303' model='pylint.error'>
+            <field name='code'>E1303</field>
+            <field name='name'> Expected mapping for format string, not %s</field>
+        </record>
+        <record id='error_E0101' model='pylint.error'>
+            <field name='code'>E0101</field>
+            <field name='name'> Explicit return in __init__</field>
+        </record>
+        <record id='error_W0106' model='pylint.error'>
+            <field name='code'>W0106</field>
+            <field name='name'> Expression "%s" is assigned to nothing</field>
+        </record>
+        <record id='error_F0220' model='pylint.error'>
+            <field name='code'>F0220</field>
+            <field name='name'> failed to resolve interfaces implemented by %s (%s)</field>
+        </record>
+        <record id='error_C0304' model='pylint.error'>
+            <field name='code'>C0304</field>
+            <field name='name'> Final newline missing</field>
+        </record>
+        <record id='error_W1300' model='pylint.error'>
+            <field name='code'>W1300</field>
+            <field name='name'> Format string dictionary key should be a string, not %s</field>
+        </record>
+        <record id='error_E1301' model='pylint.error'>
+            <field name='code'>E1301</field>
+            <field name='name'> Format string ends in middle of conversion specifier</field>
+        </record>
+        <record id='error_W0312' model='pylint.error'>
+            <field name='code'>W0312</field>
+            <field name='name'> Found indentation with %ss instead of %ss</field>
+        </record>
+        <record id='error_W0601' model='pylint.error'>
+            <field name='code'>W0601</field>
+            <field name='name'> Global variable %r undefined at the module level</field>
+        </record>
+        <record id='error_F0003' model='pylint.error'>
+            <field name='code'>F0003</field>
+            <field name='name'> ignored builtin module %s</field>
+        </record>
+        <record id='error_I0013' model='pylint.error'>
+            <field name='code'>I0013</field>
+            <field name='name'> Ignoring entire file</field>
+        </record>
+        <record id='error_W0712' model='pylint.error'>
+            <field name='code'>W0712</field>
+            <field name='name'> Implicit unpacking of exceptions is not supported in Python 3</field>
+        </record>
+        <record id='error_R0923' model='pylint.error'>
+            <field name='code'>R0923</field>
+            <field name='name'> Interface not implemented</field>
+        </record>
+        <record id='error_E0221' model='pylint.error'>
+            <field name='code'>E0221</field>
+            <field name='name'> Interface resolved to %s is not a class</field>
+        </record>
+        <record id='error_C0103' model='pylint.error'>
+            <field name='code'>C0103</field>
+            <field name='name'> Invalid %s name "%s"</field>
+        </record>
+        <record id='error_E0604' model='pylint.error'>
+            <field name='code'>E0604</field>
+            <field name='name'> Invalid object %r in __all__, must contain only strings</field>
+        </record>
+        <record id='error_W0234' model='pylint.error'>
+            <field name='code'>W0234</field>
+            <field name='name'> iter returns non-iterator</field>
+        </record>
+        <record id='error_W0108' model='pylint.error'>
+            <field name='code'>W0108</field>
+            <field name='name'> Lambda may not be necessary</field>
+        </record>
+        <record id='error_C0301' model='pylint.error'>
+            <field name='code'>C0301</field>
+            <field name='name'> Line too long (%s/%s)</field>
+        </record>
+        <record id='error_I0011' model='pylint.error'>
+            <field name='code'>I0011</field>
+            <field name='name'> Locally disabling %s</field>
+        </record>
+        <record id='error_I0012' model='pylint.error'>
+            <field name='code'>I0012</field>
+            <field name='name'> Locally enabling %s</field>
+        </record>
+        <record id='error_E1201' model='pylint.error'>
+            <field name='code'>E1201</field>
+            <field name='name'> Logging format string ends in middle of conversion specifier</field>
+        </record>
+        <record id='error_W0110' model='pylint.error'>
+            <field name='code'>W0110</field>
+            <field name='name'> map/filter on lambda could be replaced by comprehension</field>
+        </record>
+        <record id='error_C0204' model='pylint.error'>
+            <field name='code'>C0204</field>
+            <field name='name'> Metaclass class method %s should have %s as first argument</field>
+        </record>
+        <record id='error_C0203' model='pylint.error'>
+            <field name='code'>C0203</field>
+            <field name='name'> Metaclass method %s should have mcs as first argument</field>
+        </record>
+        <record id='error_W0223' model='pylint.error'>
+            <field name='code'>W0223</field>
+            <field name='name'> Method %r is abstract in class %r but is not overridden</field>
+        </record>
+        <record id='error_R0201' model='pylint.error'>
+            <field name='code'>R0201</field>
+            <field name='name'> Method could be a function</field>
+        </record>
+        <record id='error_E0211' model='pylint.error'>
+            <field name='code'>E0211</field>
+            <field name='name'> Method has no argument</field>
+        </record>
+        <record id='error_E0213' model='pylint.error'>
+            <field name='code'>E0213</field>
+            <field name='name'> Method should have "self" as first argument</field>
+        </record>
+        <record id='error_E1004' model='pylint.error'>
+            <field name='code'>E1004</field>
+            <field name='name'> Missing argument to super()</field>
+        </record>
+        <record id='error_C0111' model='pylint.error'>
+            <field name='code'>C0111</field>
+            <field name='name'> Missing %s docstring</field>
+        </record>
+        <record id='error_E1304' model='pylint.error'>
+            <field name='code'>E1304</field>
+            <field name='name'> Missing key %r in format string dictionary</field>
+        </record>
+        <record id='error_E0222' model='pylint.error'>
+            <field name='code'>E0222</field>
+            <field name='name'> Missing method %r from %s interface</field>
+        </record>
+        <record id='error_C0121' model='pylint.error'>
+            <field name='code'>C0121</field>
+            <field name='name'> Missing required attribute "%s"</field>
+        </record>
+        <record id='error_E1302' model='pylint.error'>
+            <field name='code'>E1302</field>
+            <field name='name'> Mixing named and unnamed conversion specifiers in format string</field>
+        </record>
+        <record id='error_W0406' model='pylint.error'>
+            <field name='code'>W0406</field>
+            <field name='name'> Module import itself</field>
+        </record>
+        <record id='error_C0321' model='pylint.error'>
+            <field name='code'>C0321</field>
+            <field name='name'> More than one statement on a single line</field>
+        </record>
+        <record id='error_W0702' model='pylint.error'>
+            <field name='code'>W0702</field>
+            <field name='name'> No exception type(s) specified</field>
+        </record>
+        <record id='error_E0611' model='pylint.error'>
+            <field name='code'>E0611</field>
+            <field name='name'> No name %r in module %r</field>
+        </record>
+        <record id='error_E1306' model='pylint.error'>
+            <field name='code'>E1306</field>
+            <field name='name'> Not enough arguments for format string</field>
+        </record>
+        <record id='error_E1206' model='pylint.error'>
+            <field name='code'>E1206</field>
+            <field name='name'> Not enough arguments for logging format string</field>
+        </record>
+        <record id='error_E0711' model='pylint.error'>
+            <field name='code'>E0711</field>
+            <field name='name'> NotImplemented raised - should raise NotImplementedError</field>
+        </record>
+        <record id='error_E1120' model='pylint.error'>
+            <field name='code'>E1120</field>
+            <field name='name'> No value passed for parameter %s in function call</field>
+        </record>
+        <record id='error_C1001' model='pylint.error'>
+            <field name='code'>C1001</field>
+            <field name='name'> Old-style class defined.</field>
+        </record>
+        <record id='error_E1124' model='pylint.error'>
+            <field name='code'>E1124</field>
+            <field name='name'> Parameter %r passed as both positional and keyword argument</field>
+        </record>
+        <record id='error_E1123' model='pylint.error'>
+            <field name='code'>E1123</field>
+            <field name='name'> Passing unexpected keyword argument %r in function call</field>
+        </record>
+        <record id='error_W0632' model='pylint.error'>
+            <field name='code'>W0632</field>
+            <field name='name'> Possible unbalanced tuple unpacking with sequence%s: …</field>
+        </record>
+        <record id='error_E0702' model='pylint.error'>
+            <field name='code'>E0702</field>
+            <field name='name'> Raising %s while only classes, instances or string are allowed</field>
+        </record>
+        <record id='error_E0710' model='pylint.error'>
+            <field name='code'>E0710</field>
+            <field name='name'> Raising a new style class which doesn't inherit from BaseException</field>
+        </record>
+        <record id='error_W0701' model='pylint.error'>
+            <field name='code'>W0701</field>
+            <field name='name'> Raising a string exception</field>
+        </record>
+        <record id='error_W0622' model='pylint.error'>
+            <field name='code'>W0622</field>
+            <field name='name'> Redefining built-in %r</field>
+        </record>
+        <record id='error_W0621' model='pylint.error'>
+            <field name='code'>W0621</field>
+            <field name='name'> Redefining name %r from outer scope (line %s)</field>
+        </record>
+        <record id='error_W0623' model='pylint.error'>
+            <field name='code'>W0623</field>
+            <field name='name'> Redefining name %r from %s in exception handler</field>
+        </record>
+        <record id='error_W0404' model='pylint.error'>
+            <field name='code'>W0404</field>
+            <field name='name'> Reimport %r (imported line %s)</field>
+        </record>
+        <record id='error_W0403' model='pylint.error'>
+            <field name='code'>W0403</field>
+            <field name='name'> Relative import %r, should be %r</field>
+        </record>
+        <record id='error_E0104' model='pylint.error'>
+            <field name='code'>E0104</field>
+            <field name='name'> Return outside function</field>
+        </record>
+        <record id='error_E0106' model='pylint.error'>
+            <field name='code'>E0106</field>
+            <field name='name'> Return with argument inside generator</field>
+        </record>
+        <record id='error_W0222' model='pylint.error'>
+            <field name='code'>W0222</field>
+            <field name='name'> Signature differs from %s method</field>
+        </record>
+        <record id='error_R0801' model='pylint.error'>
+            <field name='code'>R0801</field>
+            <field name='name'> Similar lines in %s files</field>
+        </record>
+        <record id='error_W1201' model='pylint.error'>
+            <field name='code'>W1201</field>
+            <field name='name'> Specify string format arguments as logging function parameters</field>
+        </record>
+        <record id='error_W0104' model='pylint.error'>
+            <field name='code'>W0104</field>
+            <field name='name'> Statement seems to have no effect</field>
+        </record>
+        <record id='error_W0211' model='pylint.error'>
+            <field name='code'>W0211</field>
+            <field name='name'> Static method with %r as first argument</field>
+        </record>
+        <record id='error_W0105' model='pylint.error'>
+            <field name='code'>W0105</field>
+            <field name='name'> String statement has no effect</field>
+        </record>
+        <record id='error_I0020' model='pylint.error'>
+            <field name='code'>I0020</field>
+            <field name='name'> Suppressed %s (from line %d)</field>
+        </record>
+        <record id='error_E1310' model='pylint.error'>
+            <field name='code'>E1310</field>
+            <field name='name'> Suspicious argument in %s.%s call</field>
+        </record>
+        <record id='error_R0903' model='pylint.error'>
+            <field name='code'>R0903</field>
+            <field name='name'> Too few public methods (%s/%s)</field>
+        </record>
+        <record id='error_R0901' model='pylint.error'>
+            <field name='code'>R0901</field>
+            <field name='name'> Too many ancestors (%s/%s)</field>
+        </record>
+        <record id='error_E1305' model='pylint.error'>
+            <field name='code'>E1305</field>
+            <field name='name'> Too many arguments for format string</field>
+        </record>
+        <record id='error_E1205' model='pylint.error'>
+            <field name='code'>E1205</field>
+            <field name='name'> Too many arguments for logging format string</field>
+        </record>
+        <record id='error_R0913' model='pylint.error'>
+            <field name='code'>R0913</field>
+            <field name='name'> Too many arguments (%s/%s)</field>
+        </record>
+        <record id='error_R0912' model='pylint.error'>
+            <field name='code'>R0912</field>
+            <field name='name'> Too many branches (%s/%s)</field>
+        </record>
+        <record id='error_R0902' model='pylint.error'>
+            <field name='code'>R0902</field>
+            <field name='name'> Too many instance attributes (%s/%s)</field>
+        </record>
+        <record id='error_C0302' model='pylint.error'>
+            <field name='code'>C0302</field>
+            <field name='name'> Too many lines in module (%s)</field>
+        </record>
+        <record id='error_R0914' model='pylint.error'>
+            <field name='code'>R0914</field>
+            <field name='name'> Too many local variables (%s/%s)</field>
+        </record>
+        <record id='error_E1121' model='pylint.error'>
+            <field name='code'>E1121</field>
+            <field name='name'> Too many positional arguments for function call</field>
+        </record>
+        <record id='error_R0904' model='pylint.error'>
+            <field name='code'>R0904</field>
+            <field name='name'> Too many public methods (%s/%s)</field>
+        </record>
+        <record id='error_R0911' model='pylint.error'>
+            <field name='code'>R0911</field>
+            <field name='name'> Too many return statements (%s/%s)</field>
+        </record>
+        <record id='error_R0915' model='pylint.error'>
+            <field name='code'>R0915</field>
+            <field name='name'> Too many statements (%s/%s)</field>
+        </record>
+        <record id='error_C0303' model='pylint.error'>
+            <field name='code'>C0303</field>
+            <field name='name'> Trailing whitespace</field>
+        </record>
+        <record id='error_F0202' model='pylint.error'>
+            <field name='code'>F0202</field>
+            <field name='name'> Unable to check methods signature (%s / %s)</field>
+        </record>
+        <record id='error_I0010' model='pylint.error'>
+            <field name='code'>I0010</field>
+            <field name='name'> Unable to consider inline option %r</field>
+        </record>
+        <record id='error_F0401' model='pylint.error'>
+            <field name='code'>F0401</field>
+            <field name='name'> Unable to import %s</field>
+        </record>
+        <record id='error_I0001' model='pylint.error'>
+            <field name='code'>I0001</field>
+            <field name='name'> Unable to run raw checkers on built-in module %s</field>
+        </record>
+        <record id='error_E0603' model='pylint.error'>
+            <field name='code'>E0603</field>
+            <field name='name'> Undefined variable name %r in __all__</field>
+        </record>
+        <record id='error_E0602' model='pylint.error'>
+            <field name='code'>E0602</field>
+            <field name='name'> Undefined variable %r</field>
+        </record>
+        <record id='error_F0004' model='pylint.error'>
+            <field name='code'>F0004</field>
+            <field name='name'> unexpected inferred value %s</field>
+        </record>
+        <record id='error_C0325' model='pylint.error'>
+            <field name='code'>C0325</field>
+            <field name='name'> Unnecessary parens after %r keyword</field>
+        </record>
+        <record id='error_W0107' model='pylint.error'>
+            <field name='code'>W0107</field>
+            <field name='name'> Unnecessary pass statement</field>
+        </record>
+        <record id='error_W0301' model='pylint.error'>
+            <field name='code'>W0301</field>
+            <field name='name'> Unnecessary semicolon</field>
+        </record>
+        <record id='error_W0101' model='pylint.error'>
+            <field name='code'>W0101</field>
+            <field name='name'> Unreachable code</field>
+        </record>
+        <record id='error_E0011' model='pylint.error'>
+            <field name='code'>E0011</field>
+            <field name='name'> Unrecognized file option %r</field>
+        </record>
+        <record id='error_E1300' model='pylint.error'>
+            <field name='code'>E1300</field>
+            <field name='name'> Unsupported format character %r (%#02x) at index %d</field>
+        </record>
+        <record id='error_E1200' model='pylint.error'>
+            <field name='code'>E1200</field>
+            <field name='name'> Unsupported logging format character %r (%#02x) at index %d</field>
+        </record>
+        <record id='error_W0613' model='pylint.error'>
+            <field name='code'>W0613</field>
+            <field name='name'> Unused argument %r</field>
+        </record>
+        <record id='error_W0611' model='pylint.error'>
+            <field name='code'>W0611</field>
+            <field name='name'> Unused import %s</field>
+        </record>
+        <record id='error_W0614' model='pylint.error'>
+            <field name='code'>W0614</field>
+            <field name='name'> Unused import %s from wildcard import</field>
+        </record>
+        <record id='error_W1301' model='pylint.error'>
+            <field name='code'>W1301</field>
+            <field name='name'> Unused key %r in format string dictionary</field>
+        </record>
+        <record id='error_W0612' model='pylint.error'>
+            <field name='code'>W0612</field>
+            <field name='name'> Unused variable %r</field>
+        </record>
+        <record id='error_W0141' model='pylint.error'>
+            <field name='code'>W0141</field>
+            <field name='name'> Used builtin function %r</field>
+        </record>
+        <record id='error_I0014' model='pylint.error'>
+            <field name='code'>I0014</field>
+            <field name='name'> Used deprecated directive "pylint:disable-all" or "pylint:disable=all"</field>
+        </record>
+        <record id='error_W0332' model='pylint.error'>
+            <field name='code'>W0332</field>
+            <field name='name'> Use of "l" as long integer identifier</field>
+        </record>
+        <record id='error_I0021' model='pylint.error'>
+            <field name='code'>I0021</field>
+            <field name='name'> Useless suppression of %s</field>
+        </record>
+        <record id='error_W1001' model='pylint.error'>
+            <field name='code'>W1001</field>
+            <field name='name'> Use of "property" on an old style class</field>
+        </record>
+        <record id='error_W0331' model='pylint.error'>
+            <field name='code'>W0331</field>
+            <field name='name'> Use of the &#60;&#62; operator</field>
+        </record>
+        <record id='error_W0122' model='pylint.error'>
+            <field name='code'>W0122</field>
+            <field name='name'> Use of exec</field>
+        </record>
+        <record id='error_E0107' model='pylint.error'>
+            <field name='code'>E0107</field>
+            <field name='name'> Use of the non-existent %s operator</field>
+        </record>
+        <record id='error_W0333' model='pylint.error'>
+            <field name='code'>W0333</field>
+            <field name='name'> Use of the `` operator</field>
+        </record>
+        <record id='error_W0121' model='pylint.error'>
+            <field name='code'>W0121</field>
+            <field name='name'> Use raise ErrorClass(args) instead of raise ErrorClass, args.</field>
+        </record>
+        <record id='error_E1002' model='pylint.error'>
+            <field name='code'>E1002</field>
+            <field name='name'> Use of super on an old style class</field>
+        </record>
+        <record id='error_E1001' model='pylint.error'>
+            <field name='code'>E1001</field>
+            <field name='name'> Use of __slots__ on an old style class</field>
+        </record>
+        <record id='error_W0142' model='pylint.error'>
+            <field name='code'>W0142</field>
+            <field name='name'> Used * or ** magic</field>
+        </record>
+        <record id='error_W0141' model='pylint.error'>
+            <field name='code'>W0141</field>
+            <field name='name'> Used builtin function %r</field>
+        </record>
+        <record id='error_W0402' model='pylint.error'>
+            <field name='code'>W0402</field>
+            <field name='name'> Uses of a deprecated module %r</field>
+        </record>
+        <record id='error_W0602' model='pylint.error'>
+            <field name='code'>W0602</field>
+            <field name='name'> Using global for %r but no assigment is done</field>
+        </record>
+        <record id='error_W0631' model='pylint.error'>
+            <field name='code'>W0631</field>
+            <field name='name'> Using possibly undefined loop variable %r</field>
+        </record>
+        <record id='error_W0603' model='pylint.error'>
+            <field name='code'>W0603</field>
+            <field name='name'> Using the global statement</field>
+        </record>
+        <record id='error_W0604' model='pylint.error'>
+            <field name='code'>W0604</field>
+            <field name='name'> Using the global statement at the module level</field>
+        </record>
+        <record id='error_E0601' model='pylint.error'>
+            <field name='code'>E0601</field>
+            <field name='name'> Using variable %r before assignment</field>
+        </record>
+        <record id='error_W0401' model='pylint.error'>
+            <field name='code'>W0401</field>
+            <field name='name'> Wildcard import %s</field>
+        </record>
+        <record id='error_E0105' model='pylint.error'>
+            <field name='code'>E0105</field>
+            <field name='name'> Yield outside function</field>
+        </record>
+        <record id='error_E0235' model='pylint.error'>
+            <field name='code'>E0235</field>
+            <field name='name'> __exit__ must accept 3 arguments: type, value, traceback</field>
+        </record>
+        <record id='error_W0410' model='pylint.error'>
+            <field name='code'>W0410</field>
+            <field name='name'> __future__ import is not the first non docstring statement</field>
+        </record>
+        <record id='error_W0233' model='pylint.error'>
+            <field name='code'>W0233</field>
+            <field name='name'> __init__ method from a non direct base class %r is called</field>
+        </record>
+        <record id='error_W0231' model='pylint.error'>
+            <field name='code'>W0231</field>
+            <field name='name'> __init__ method from base class %r is not called</field>
+        </record>
+        <record id='error_E0100' model='pylint.error'>
+            <field name='code'>E0100</field>
+            <field name='name'> __init__ method is a generator</field>
+        </record>
+        <record id='error_RP0002' model='pylint.error'>
+            <field name='code'>RP0002</field>
+            <field name='name'> % errors / warnings by module</field>
+        </record>
+        <record id='error_RP0801' model='pylint.error'>
+            <field name='code'>RP0801</field>
+            <field name='name'> Duplication</field>
+        </record>
+        <record id='error_RP0401' model='pylint.error'>
+            <field name='code'>RP0401</field>
+            <field name='name'> External dependencies</field>
+        </record>
+        <record id='error_RP0004' model='pylint.error'>
+            <field name='code'>RP0004</field>
+            <field name='name'> Global evaluation</field>
+        </record>
+        <record id='error_RP0003' model='pylint.error'>
+            <field name='code'>RP0003</field>
+            <field name='name'> Messages</field>
+        </record>
+        <record id='error_RP0001' model='pylint.error'>
+            <field name='code'>RP0001</field>
+            <field name='name'> Messages by category</field>
+        </record>
+        <record id='error_RP0402' model='pylint.error'>
+            <field name='code'>RP0402</field>
+            <field name='name'> Modules dependencies graph</field>
+        </record>
+        <record id='error_RP0701' model='pylint.error'>
+            <field name='code'>RP0701</field>
+            <field name='name'> Raw metrics</field>
+        </record>
+        <record id='error_RP0101' model='pylint.error'>
+            <field name='code'>RP0101</field>
+            <field name='name'> Statistics by type</field>
+        </record>
+
+
+    </data>
+</openerp>
