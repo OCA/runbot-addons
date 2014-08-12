@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='token']" position="after">
                     <field name="pylint_config"/>
+                    <field name="path_to_test"/>
                 </xpath>
             </field>
         </record>

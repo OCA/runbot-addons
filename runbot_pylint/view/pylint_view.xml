@@ -11,6 +11,7 @@
                         <group>
                             <field name="name"/>
                             <field name="error_ids"/>
+                            <field name="ignore"/>
                         </group>
                     </sheet>
                 </form>
