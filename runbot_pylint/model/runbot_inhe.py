@@ -45,30 +45,30 @@ class runbot_build(osv.osv):
     _inherit = "runbot.build"
     
     def job_30_run(self, cr, uid, build, lock_path, log_path, args=None):
-        #~ logger = logging.getLogger('runbot-job') #TODO show in the log server which is running
+        _logger = logging.getLogger("runbot-job")
         res = super(runbot_build, self).job_30_run(cr, uid, build, lock_path, log_path)
         errors = []
         paths_to_test = []
         ignore = []
-        build_openerp_path_base = os.path.join(build.path(),"openerp") #os.path.join
+        build_openerp_path_base = os.path.join(build.path(),"openerp")
         if build.repo_id and build.repo_id.pylint_config:
             for err in build.repo_id.pylint_config.error_ids:
                 errors.append("-e")
                 errors.append(err.code)
-            #~ logger.info("running pylint tests...")
+            _logger.info("running pylint tests...")
             if build.repo_id.path_to_test:
-                for path_str in build.repo_id.path_to_test.split(","):
+                for path_str in build.repo_id.path_to_test.strip(' ').split(","):
                     if os.path.exists(os.path.join(build_openerp_path_base, path_str)):
                         paths_to_test.append(os.path.join(build_openerp_path_base, path_str))
-                    #~ else:
-                    #~ logger.info("not exists path [%s]" % (build_openerp_path_base + path_str))
+                    else:
+                        _logger.info("not exists path [%s]" % (build_openerp_path_base + path_str))
             else:
                 if os.path.exists(build_openerp_path_base):
                     paths_to_test.append(build_openerp_path_base)
-                #~ else:
-                #~ logger.info("not exists path [%s]" % (build_openerp_path))
+                else:
+                    _logger.info("not exists path [%s]" % (build_openerp_path))
             sys.path.append(build_openerp_path_base)
             if build.repo_id.pylint_config.ignore:
                 ignore.append("--ignore=" + build.repo_id.pylint_config.ignore)
-            self.pool.get("pylint.conf")._run_test_pylint(cr, uid, errors, paths_to_test, build.path(), ignore)
+            self.pool.get("pylint.conf")._run_test_pylint(cr, uid, errors, paths_to_test, build_openerp_path_base, ignore)
         return res

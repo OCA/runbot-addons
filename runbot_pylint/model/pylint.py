@@ -32,6 +32,8 @@ import os
 import subprocess
 import logging
 #~ logger = logging.get_logger('runbot-job')
+_logger = logging.getLogger("runbot-job")
+ORIGINAL_PATH = os.environ.get('PATH', '').split(':')
 
 class PylintConf(osv.osv):
     """
@@ -52,13 +54,18 @@ class PylintConf(osv.osv):
         """
         method docstring
         """
+        path_server = [build_openerp_path_base]
+        env = {
+            'PYTHONPATH': ':'.join(build_openerp_path_base),
+            'PATH': ':'.join(path_server + ORIGINAL_PATH),
+        }
         command = [
             '--msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] ' +
             '{msg}"', "-d", "all", "-r", "n"] + errors + paths_to_test + ignore
-        self.run_command(None, 'pylint', command)
+        self.run_command(None, 'pylint', command, env)
         return True
 
-    def run_command(self, log_path, app, command):
+    def run_command(self, log_path, app, command, env=None):
         """
         Small wrapper around the `anyone` command. It is used like:
             command ({..}, path_to_logs, 'initialize --tests')
@@ -71,7 +78,7 @@ class PylintConf(osv.osv):
             log_file = open(log_path, 'w')
         if isinstance(command, basestring):
             command = command.split()
-        #~ logger.info("running command `%s %s`", app, ' '.join(command))
+        _logger.info("running command `%s %s`", app, ' '.join(command))
         stderr = open(os.devnull, 'w') if hide_stderr else log_file
         app_path = os.path.join(
             os.path.realpath(os.path.join(os.path.dirname(__file__))), app)
@@ -81,7 +88,7 @@ class PylintConf(osv.osv):
             app_path = app
         command = [app_path] + command
         subprocess.Popen(command, stdout=log_file, stderr=stderr,
-                         close_fds=True, env={})
+                         close_fds=True, env=env)
         returned = [True, 0]
         return tuple(returned)
 
