@@ -22,7 +22,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-    This file is used to add the field lang in runbot.build and runbot.prebuild and the function
+    This file is used to add the field lang in runbot.build and the function
     that install and assign the language to the users in the instance generated.
 '''
 from openerp.osv import fields, osv
@@ -30,22 +30,9 @@ import oerplib
 from openerp import tools
 import logging
 
-
-class runbot_prebuild(osv.osv):
-    '''
-    Inherit class runbot_prebuild to add field to select the language.
-    '''
-    _inherit = "runbot.prebuild"
-
-    _columns = {
-        'lang': fields.selection(tools.scan_languages(), 'Language', help='Language to change '
-                                 'instance after of run test.', copy=True),
-    }
-
-
 class runbot_build(osv.osv):
     '''
-    Inherit class runbot_prebuild to add field to select the language & the function with a job
+    Inherit class runbot_build to add field to select the language & the function with a job
     to install and assign the language to users if this is captured.
     '''
     _inherit = "runbot.build"

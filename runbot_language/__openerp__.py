@@ -30,7 +30,7 @@
     "website": "http://www.vauxoo.com/",
     'description': "Runbot with posibility to indicate the language in the instances generated",
     'author': 'Vauxoo',
-    'depends': ['runbot_prebuild'],
+    'depends': ['runbot'],
     'data': [
         'view/runbot_language_view.xml',
     ],
