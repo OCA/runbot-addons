@@ -38,37 +38,46 @@ class runbot_repo(osv.osv):
 
     _columns = {
         'pylint_config': fields.many2one('pylint.conf', string = 'Pylint Config'),
-        'path_to_test': fields.char(string = "Path to test"),
     }
 
+
 class runbot_build(osv.osv):
+
     _inherit = "runbot.build"
-    
-    def job_30_run(self, cr, uid, build, lock_path, log_path, args=None):
+
+    _columns = {
+        'pylint_config': fields.many2one('pylint.conf', string = 'Pylint Config'),
+    }
+
+    def create(self, cr, uid, values, context=None):
+        super(runbot_build, self).create(cr, uid, values, context=context)
+        branch_id = self.pool.get('runbot.branch').browse(cr, uid, values['branch_id'])
+        build_id = self.search(cr, uid, [('branch_id', '=', values['branch_id'])])
+        self.write(cr, uid, build_id, {'pylint_config' : branch_id.repo_id and branch_id.repo_id.pylint_config and branch_id.repo_id.pylint_config.id or False}, context=context)
+
+    def job_60_run(self, cr, uid, build, lock_path, log_path, args=None):
         _logger = logging.getLogger("runbot-job")
-        res = super(runbot_build, self).job_30_run(cr, uid, build, lock_path, log_path)
         errors = []
         paths_to_test = []
         ignore = []
-        build_openerp_path_base = os.path.join(build.path(),"openerp")
-        if build.repo_id and build.repo_id.pylint_config:
-            for err in build.repo_id.pylint_config.error_ids:
+        result = False
+        if build.pylint_config:
+            for err in build.pylint_config.error_ids:
                 errors.append("-e")
                 errors.append(err.code)
             _logger.info("running pylint tests...")
-            if build.repo_id.path_to_test:
-                for path_str in build.repo_id.path_to_test.strip(' ').split(","):
-                    if os.path.exists(os.path.join(build_openerp_path_base, path_str)):
-                        paths_to_test.append(os.path.join(build_openerp_path_base, path_str))
+            if build.pylint_config.path_to_test:
+                for path_str in build.pylint_config.path_to_test.strip(' ').split(","):
+                    if os.path.exists(os.path.join(build.server(), path_str)):
+                        paths_to_test.append(os.path.join(build.server(), path_str))
                     else:
-                        _logger.info("not exists path [%s]" % (build_openerp_path_base + path_str))
+                        _logger.info("not exists path [%s]" % ( os.path.join(build.server(), path_str), ) )
             else:
-                if os.path.exists(build_openerp_path_base):
-                    paths_to_test.append(build_openerp_path_base)
+                if os.path.exists(build.server()):
+                    paths_to_test.append(build.server())
                 else:
                     _logger.info("not exists path [%s]" % (build_openerp_path))
-            sys.path.append(build_openerp_path_base)
-            if build.repo_id.pylint_config.ignore:
-                ignore.append("--ignore=" + build.repo_id.pylint_config.ignore)
-            self.pool.get("pylint.conf")._run_test_pylint(cr, uid, errors, paths_to_test, build_openerp_path_base, ignore)
-        return res
+            if build.pylint_config.ignore:
+                ignore.append("--ignore=" + build.pylint_config.ignore)
+            result = self.pool.get("pylint.conf")._run_test_pylint(cr, uid, errors, paths_to_test, build.server(), ignore, log_path, lock_path)
+        return result

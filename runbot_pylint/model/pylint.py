@@ -31,7 +31,6 @@ from openerp.osv import fields, osv, expression
 import os
 import subprocess
 import logging
-#~ logger = logging.get_logger('runbot-job')
 _logger = logging.getLogger("runbot-job")
 ORIGINAL_PATH = os.environ.get('PATH', '').split(':')
 
@@ -44,53 +43,31 @@ class PylintConf(osv.osv):
 
     _columns = {
         'name': fields.char("Name"),
-        'ignore': fields.char("Ignore files"),
+        'path_to_test': fields.char(string = "Path to test"),
+        'ignore': fields.char(string = "Ignore files"),
         'error_ids': fields.many2many(
             'pylint.error', 'pylint_conf_rel_error', 'conf_id', 'error_id',
             "Errors"),
     }
 
-    def _run_test_pylint(self, cr, uid, errors, paths_to_test, build_openerp_path_base, ignore):
+    _defaults = {
+        'ignore' : "__openerp__.py"
+    }
+
+    def _run_test_pylint(self, cr, uid, errors, paths_to_test, build_openerp_path_base, ignore, log_path, lock_path):
         """
         method docstring
         """
+        build_pool = self.pool.get('runbot.build')
         path_server = [build_openerp_path_base]
         env = {
             'PYTHONPATH': ':'.join(build_openerp_path_base),
             'PATH': ':'.join(path_server + ORIGINAL_PATH),
         }
-        command = [
+        cmd = ['pylint',
             '--msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] ' +
             '{msg}"', "-d", "all", "-r", "n"] + errors + paths_to_test + ignore
-        self.run_command(None, 'pylint', command, env)
-        return True
-
-    def run_command(self, log_path, app, command, env=None):
-        """
-        Small wrapper around the `anyone` command. It is used like:
-            command ({..}, path_to_logs, 'initialize --tests')
-        return tuple (bool:finished, int:return_code)
-        """
-        hide_stderr = False
-        if log_path is None:
-            log_file = None
-        else:
-            log_file = open(log_path, 'w')
-        if isinstance(command, basestring):
-            command = command.split()
-        _logger.info("running command `%s %s`", app, ' '.join(command))
-        stderr = open(os.devnull, 'w') if hide_stderr else log_file
-        app_path = os.path.join(
-            os.path.realpath(os.path.join(os.path.dirname(__file__))), app)
-        if os.path.exists(app_path):
-            app_path = app_path
-        else:
-            app_path = app
-        command = [app_path] + command
-        subprocess.Popen(command, stdout=log_file, stderr=stderr,
-                         close_fds=True, env=env)
-        returned = [True, 0]
-        return tuple(returned)
+        return build_pool.spawn(cmd, lock_path, log_path, cpu_limit=2100, env=env)
 
 
 class PylintError(osv.osv):
@@ -120,9 +97,8 @@ class PylintError(osv.osv):
                     cr, user, ['|', ('code', '=like', name + "%"),
                                  ('name', operator, name)] + args, limit=limit)
                 if not ids and len(name.split()) >= 2:
-                    # Separating code and name of account for searching
                     operand1, operand2 = name.split(
-                        ' ', 1)  # name can contain spaces e.g. OpenERP S.A.
+                        ' ', 1)
                     ids = self.search(cr, user, [('code', operator, operand1),
                                       ('name', operator, operand2)] + args,
                                       limit=limit)
@@ -131,10 +107,9 @@ class PylintError(osv.osv):
                                   ('code', '=like', name + "%"),
                                   ('name', operator, name)] + args,
                                   limit=limit)
-                # as negation want to restric, do if already have results
                 if ids and len(name.split()) >= 2:
                     operand1, operand2 = name.split(
-                        ' ', 1)  # name can contain spaces e.g. OpenERP S.A.
+                        ' ', 1)
                     ids = self.search(cr, user, [('code', operator, operand1),
                                       ('name', operator, operand2),
                                       ('id', 'in', ids)]

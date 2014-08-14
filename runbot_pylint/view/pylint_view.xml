@@ -12,6 +12,7 @@
                             <field name="name"/>
                             <field name="error_ids"/>
                             <field name="ignore"/>
+                            <field name="path_to_test"/>
                         </group>
                     </sheet>
                 </form>
