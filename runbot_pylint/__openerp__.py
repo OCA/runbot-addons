@@ -29,8 +29,10 @@
     'category': 'Website',
     'summary': 'Runbot',
     'version': '1.0',
-    'description': "Runbot",
-    'author': 'OpenERP SA',
+    'description': """This module create model, view and method for execute 
+pylint test into runbot. 
+You can select type of error to test, path to test, ignore files...""",
+    'author': 'Vauxoo',
     'depends': ['runbot'],
     'external_dependencies': {
         'bin': ['pylint'],
