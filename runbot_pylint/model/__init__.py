@@ -24,5 +24,5 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import runbot_inhe
-import pylint
+import runbot
+import runbot_pylint
