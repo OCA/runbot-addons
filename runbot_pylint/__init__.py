@@ -24,6 +24,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 """
-module docstring
+This file is used to import class of files in model folder
 """
 import openerp.addons.runbot_pylint.model

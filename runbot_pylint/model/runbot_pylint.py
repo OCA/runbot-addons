@@ -24,39 +24,49 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 """
-module docstring
+This module added new pylint test, this improvement quality of development,
+    following standard guidelines of python language.
 """
 
 from openerp.osv import fields, osv, expression
 import os
-import subprocess
-import logging
-_logger = logging.getLogger("runbot-job")
 ORIGINAL_PATH = os.environ.get('PATH', '').split(':')
 
+
 class PylintConf(osv.osv):
+
     """
-    class docstring
+    This new class is used to select errors, path to test, and files to ignore.
     """
 
     _name = "pylint.conf"
 
     _columns = {
         'name': fields.char("Name"),
-        'path_to_test': fields.char(string = "Path to test"),
-        'ignore': fields.char(string = "Ignore files"),
+        'path_to_test': fields.char(string="Path to test"),
+        'ignore': fields.char(string="Ignore files"),
         'error_ids': fields.many2many(
             'pylint.error', 'pylint_conf_rel_error', 'conf_id', 'error_id',
             "Errors"),
     }
 
     _defaults = {
-        'ignore' : "__openerp__.py"
+        'ignore': "__openerp__.py"
     }
 
-    def _run_test_pylint(self, cr, uid, errors, paths_to_test, build_openerp_path_base, ignore, log_path, lock_path):
+    def _run_test_pylint(self, cr, uid, errors, paths_to_test,
+                         build_openerp_path_base, ignore, log_path, lock_path):
         """
-        method docstring
+        This method is used to run pylint test, takes the parameters:
+
+        :param errors: list of strings with the errors to test.
+        :param paths_to_test: list of strings with the paths to test.
+        :param build_openerp_path_base: string with the server path.
+        :param build_openerp_path_base: list of strings with the files or 
+                                            directories to ignore in the test.
+        :param log_path: path of log file, this parameter is string, where are 
+                            has saved the log of test.
+        :param lock_path: path of lock file, this parameter is string.
         """
         build_pool = self.pool.get('runbot.build')
         path_server = [build_openerp_path_base]
@@ -65,14 +75,17 @@ class PylintConf(osv.osv):
             'PATH': ':'.join(path_server + ORIGINAL_PATH),
         }
         cmd = ['pylint',
-            '--msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] ' +
-            '{msg}"', "-d", "all", "-r", "n"] + errors + paths_to_test + ignore
-        return build_pool.spawn(cmd, lock_path, log_path, cpu_limit=2100, env=env)
+               '--msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] ' +
+               '{msg}"', "-d", "all", "-r", "n"] + errors + paths_to_test + \
+               ignore
+        return build_pool.spawn(cmd, lock_path, log_path, cpu_limit=2100,
+                                env=env)
 
 
 class PylintError(osv.osv):
+
     """
-    class docstring
+    This class is used to save catalog of errors pylint.
     """
 
     _name = "pylint.error"
@@ -85,7 +98,7 @@ class PylintError(osv.osv):
     def name_search(self, cr, user, name, args=None, operator='ilike',
                     context=None, limit=100):
         """
-        method docstring
+        This method is used to search errors by code or name.
         """
         if not args:
             args = []
@@ -120,7 +133,8 @@ class PylintError(osv.osv):
 
     def name_get(self, cr, uid, ids, context=None):
         """
-        method docstring
+        This method is used to show in the views the error with the following
+            format: code error + description.
         """
         if not ids:
             return []
