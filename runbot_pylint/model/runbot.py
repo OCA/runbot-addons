@@ -29,7 +29,6 @@ This module is used to create new fields in the inherited classes.
 from openerp.osv import fields, osv
 import logging
 import os
-import oerplib
 
 
 class RunbotRepo(osv.osv):
