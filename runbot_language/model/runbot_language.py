@@ -30,10 +30,23 @@ import oerplib
 from openerp import tools
 import logging
 
+class runbot_repo(osv.osv):
+    '''
+    Inherit class runbot_repo to add field to select the language that must be assigned to builds 
+    that genere the repo.
+    '''
+    _inherit = "runbot.repo"
+
+    _columns = {
+        'lang': fields.selection(tools.scan_languages(), 'Language', help='Language to change '
+                                 'instance after of run test.', copy=True),
+    }
+
 class runbot_build(osv.osv):
     '''
     Inherit class runbot_build to add field to select the language & the function with a job
-    to install and assign the language to users if this is captured.
+    to install and assign the language to users if this is captured too is added with an super the 
+    function create to assign the language from repo in the builds.
     '''
     _inherit = "runbot.build"
 
@@ -41,6 +54,18 @@ class runbot_build(osv.osv):
         'lang': fields.selection(tools.scan_languages(), 'Language', help='Language to change '
                                  'instance after of run test.', copy=True),
     }
+    
+    def create(self, cr, uid, values, context=None):
+        """
+        This method set language from repo in the build.
+        """
+        super(runbot_build, self).create(cr, uid, values, context=context)
+        if values.get('branch_id', False):
+            branch_id = self.pool.get('runbot.branch').browse(cr, uid,
+                                                              values['branch_id'])
+            build_id = self.search(cr, uid, [('branch_id', '=', values['branch_id'])])
+            self.write(cr, uid, build_id, {'lang': branch_id.repo_id and \
+                 branch_id.repo_id.lang or False}, context=context)
 
     def job_50_load_lang(self, cr, uid, build, lock_path, log_path):
         """
