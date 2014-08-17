@@ -62,14 +62,11 @@ class RunbotBuild(osv.osv):
         This method set configuration of pylint.
         """
         new_id = super(RunbotBuild, self).create(cr, uid, values, context=context)
-        pylint_config_id = self.read(cr, uid, [new_id], ['pylint_config'], context=context)[0]['pylint_config']
-        if values.get('branch_id', False) and not pylint_config_id:
+        if values.get('branch_id', False) and not values.has_key('pylint_config'):
             branch_id = self.pool.get('runbot.branch').browse(cr, uid,
                                                               values['branch_id'])
-            build_id = self.search(cr, uid, [('branch_id', '=',
-                                              values['branch_id'])])
             self.write(
-                cr, uid, build_id,
+                cr, uid, [new_id],
                  {'pylint_config': branch_id.repo_id and \
                  branch_id.repo_id.pylint_config and \
                  branch_id.repo_id.pylint_config.id or False}, context=context)
