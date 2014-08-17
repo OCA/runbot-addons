@@ -59,13 +59,15 @@ class runbot_build(osv.osv):
         """
         This method set language from repo in the build.
         """
-        super(runbot_build, self).create(cr, uid, values, context=context)
-        if values.get('branch_id', False):
+        new_id = super(runbot_build, self).create(cr, uid, values, context=context)
+        lang = self.read(cr, uid, [new_id], ['lang'], context=context)[0]['lang']
+        if values.get('branch_id', False) and not lang:
             branch_id = self.pool.get('runbot.branch').browse(cr, uid,
                                                               values['branch_id'])
             build_id = self.search(cr, uid, [('branch_id', '=', values['branch_id'])])
             self.write(cr, uid, build_id, {'lang': branch_id.repo_id and \
                  branch_id.repo_id.lang or False}, context=context)
+        return new_id
 
     def job_50_load_lang(self, cr, uid, build, lock_path, log_path):
         """
