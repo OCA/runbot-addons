@@ -81,35 +81,43 @@ class runbot_build(osv.osv):
         _logger = logging.getLogger("runbot-job")
         _logger.info(
             "start with the process that load and assign translation...")
-        db_name = build.dest + '-all'
-        port = build.port
-        user = 'admin'
-        passwd = 'admin'
-        server = 'localhost'
         code_lang = build.lang
-        connect = oerplib.OERP(
-            server=server,
-            database=db_name,
-            port=port,
-            timeout=10,
-        )
-
-        connect.login(user, passwd)
-        connect.config['timeout'] = 300
         if code_lang:
-            lang_id = connect.search('res.lang', [('code', '=', code_lang)])
-            if not lang_id:
-                base_lang_obj = connect.get('base.language.install')
-                try:
-                    _logger.info('install the language %s...' % (code_lang,))
-                    lang_create_id = connect.create(
-                        'base.language.install', {'lang': code_lang, })
-                    base_lang_obj.lang_install([lang_create_id])
-                except Exception as exception:
-                    _logger.error(exception.oerp_traceback)
-                lang_id = connect.search('res.lang', [
-                    ('code', '=', code_lang)])
-            if lang_id:
-                _logger.info('assign the language to users in the instance...')
-                connect.write('res.users', connect.search(
-                    'res.users', []), {'lang': code_lang})
+            db_name = build.dest + '-all'
+            port = build.port
+            user = 'admin'
+            passwd = 'admin'
+            server = 'localhost'
+            connect = False
+            lang_id = False
+            try:
+                connect = oerplib.OERP(
+                    server=server,
+                    database=db_name,
+                    port=port,
+                    timeout=10,
+                )
+                connect.login(user, passwd)
+                connect.config['timeout'] = 300
+                lang_id = connect.search('res.lang', [('code', '=', code_lang)])
+            except Exception as exception:
+                _logger.error(exception.oerp_traceback)
+            if connect:
+                if not lang_id:
+                    try:
+                        _logger.info('install the language %s...' % (code_lang,))
+                        base_lang_obj = connect.get('base.language.install')
+                        lang_create_id = connect.create(
+                            'base.language.install', {'lang': code_lang, })
+                        base_lang_obj.lang_install([lang_create_id])
+                        lang_id = connect.search('res.lang', [
+                            ('code', '=', code_lang)])
+                    except Exception as exception:
+                        _logger.error(exception.oerp_traceback)
+                if lang_id:
+                    _logger.info('assign the language to users in the instance...')
+                    try:
+                        connect.write('res.users', connect.search(
+                            'res.users', []), {'lang': code_lang})
+                    except Exception as exception:
+                        _logger.error(exception.oerp_traceback)
