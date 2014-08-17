@@ -61,11 +61,10 @@ class runbot_build(osv.osv):
         """
         new_id = super(runbot_build, self).create(cr, uid, values, context=context)
         lang = self.read(cr, uid, [new_id], ['lang'], context=context)[0]['lang']
-        if values.get('branch_id', False) and not lang:
+        if values.get('branch_id', False) and not values.has_key('lang'):
             branch_id = self.pool.get('runbot.branch').browse(cr, uid,
                                                               values['branch_id'])
-            build_id = self.search(cr, uid, [('branch_id', '=', values['branch_id'])])
-            self.write(cr, uid, build_id, {'lang': branch_id.repo_id and \
+            self.write(cr, uid, [new_id], {'lang': branch_id.repo_id and \
                  branch_id.repo_id.lang or False}, context=context)
         return new_id
 
