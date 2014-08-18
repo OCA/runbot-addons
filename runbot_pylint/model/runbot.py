@@ -30,6 +30,8 @@ from openerp.osv import fields, osv
 import logging
 import os
 
+_logger = logging.getLogger(__name__)
+
 
 class RunbotRepo(osv.osv):
     """
@@ -72,7 +74,7 @@ class RunbotBuild(osv.osv):
                  branch_id.repo_id.pylint_config.id or False}, context=context)
         return new_id
 
-    def job_60_run(self, cr, uid, build, lock_path, log_path, args=None):
+    def job_60_pylint(self, cr, uid, build, lock_path, log_path, args=None):
         """
         This method is used to run pylint test, getting parameters of the
         pylint configuration, the parameters errors and files to ignore has
@@ -84,9 +86,9 @@ class RunbotBuild(osv.osv):
                             has saved the log of test.
         :param args: this parameter not is required, not is used.
         """
-        _logger = logging.getLogger("runbot-job")
         if args == None:
             args = {}
+        build._log('pylint_script', 'Start pylint script')
         errors = []
         paths_to_test = []
         ignore = []

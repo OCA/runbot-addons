@@ -30,6 +30,8 @@ import oerplib
 from openerp import tools
 import logging
 
+_logger = logging.getLogger(__name__)
+
 class runbot_repo(osv.osv):
     '''
     Inherit class runbot_repo to add field to select the language that must be assigned to builds 
@@ -78,11 +80,9 @@ class runbot_build(osv.osv):
         :param log_path: path of log file, this parameter is string, where are
                             has saved the log of test.
         """
-        _logger = logging.getLogger("runbot-job")
-        _logger.info(
-            "start with the process that load and assign translation...")
         code_lang = build.lang
         if code_lang:
+            build._log('load_lang', 'Start load language')
             db_name = build.dest + '-all'
             port = build.port
             user = 'admin'
