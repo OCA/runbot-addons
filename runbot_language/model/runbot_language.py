@@ -29,6 +29,7 @@ from openerp.osv import fields, osv
 import oerplib
 from openerp import tools
 import logging
+import traceback
 
 _logger = logging.getLogger(__name__)
 
@@ -100,8 +101,11 @@ class runbot_build(osv.osv):
                 connect.login(user, passwd)
                 connect.config['timeout'] = 300
                 lang_id = connect.search('res.lang', [('code', '=', code_lang)])
-            except Exception as exception:
-                _logger.error(exception.oerp_traceback)
+            #except Exception as exception:
+            except Exception, e:
+                error = tools.ustr( traceback.format_exc() )
+                #_logger.error(exception.oerp_traceback)
+                _logger.error( error )
             if connect:
                 if not lang_id:
                     try:
@@ -112,12 +116,16 @@ class runbot_build(osv.osv):
                         base_lang_obj.lang_install([lang_create_id])
                         lang_id = connect.search('res.lang', [
                             ('code', '=', code_lang)])
-                    except Exception as exception:
-                        _logger.error(exception.oerp_traceback)
+                    #except Exception as exception:
+                        #_logger.error(exception.oerp_traceback)
+                    except Exception, e:
+                        error = tools.ustr( traceback.format_exc() )
+                        _logger.error( error )
                 if lang_id:
                     _logger.info('assign the language to users in the instance...')
                     try:
                         connect.write('res.users', connect.search(
                             'res.users', []), {'lang': code_lang})
-                    except Exception as exception:
-                        _logger.error(exception.oerp_traceback)
+                    except Exception, e:
+                        error = tools.ustr( traceback.format_exc() )
+                        _logger.error( error )
