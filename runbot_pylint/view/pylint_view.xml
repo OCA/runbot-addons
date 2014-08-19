@@ -71,27 +71,12 @@
         <menuitem id="menu_pylint_error" action="action_view_pylint_error" name="Pylint Errors" parent="menu_pylint"/>
         <menuitem id="menu_pylint_conf" action="action_view_pylint_conf" name="Pylint Conf" parent="menu_pylint"/>
 
-<!--TODO: inherit runbot/runbot.xml view for add this field after of <li><a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_20_test_all.txt">Full all logs <i class="fa fa-file-text-o"/></a></li>
-ONLY IF build.pylint_config is set
-                    <li><a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_15_pylint.txt">Pylint log<i class="fa fa-file-text-o"/></a></li>
-example
-    <template id="runbot_inherit_build" inherit_id="runbot.build" optional="enabled" name="Runbot Build">
-        <xpath expr="//a[1]" position="replace">
-            <t t-if="repo and not team">
-                <a class="navbar-brand" t-attf-href="/runbot/repo/#{ slug(repo) }"><b><t t-esc="repo.base"/></b></a>
-            </t>
-            <t t-if="team">
-                <a class="navbar-brand" t-attf-href="/runbot/team/#{ slug(team) }"><b><t t-esc="team.name"/></b></a>
-            </t>
-        </xpath>
-    </template>
-
--->
-<!--
+        <!--Inherit runbot qweb view-->
         <template id="build_button_pylint" inherit_id="runbot.build_button">
-            <xpath expr="//div/" position="replace">
+            <xpath expr="//li[7]" position="after">
+                <li><a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_15_pylint.txt">Pylint logs <i class="fa fa-file-text-o"/></a></li>
             </xpath>
         </template>
--->
+
     </data>
 </openerp>
