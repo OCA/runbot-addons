@@ -87,10 +87,11 @@ example
     </template>
 
 -->
+<!--
         <template id="build_button_pylint" inherit_id="runbot.build_button">
             <xpath expr="//div/" position="replace">
             </xpath>
         </template>
-
+-->
     </data>
 </openerp>
