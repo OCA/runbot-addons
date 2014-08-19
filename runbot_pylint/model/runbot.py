@@ -74,7 +74,7 @@ class RunbotBuild(osv.osv):
                  branch_id.repo_id.pylint_config.id or False}, context=context)
         return new_id
 
-    def job_60_pylint(self, cr, uid, build, lock_path, log_path, args=None):
+    def job_15_pylint(self, cr, uid, build, lock_path, log_path, args=None):
         """
         This method is used to run pylint test, getting parameters of the
         pylint configuration, the parameters errors and files to ignore has

@@ -71,7 +71,13 @@ class runbot_build(osv.osv):
                  branch_id.repo_id.lang or False}, context=context)
         return new_id
 
-    def job_50_load_lang(self, cr, uid, build, lock_path, log_path):
+    def job_30_run(self, cr, uid, build, lock_path, log_path):
+        res = super(runbot_build, self).job_30_run(cr, uid, build, lock_path, log_path)
+        self.load_lang(cr, uid, build, lock_path, log_path)
+        return res
+
+    #def job_50_load_lang(self, cr, uid, build, lock_path, log_path):#Generate a instance without a connect button. Lock file job_30_run ever
+    def load_lang(self, cr, uid, build, lock_path, log_path):
         """
         This method is used to install a lang if this not is installed and assign this to the users
         in the instances that generated runbot.
