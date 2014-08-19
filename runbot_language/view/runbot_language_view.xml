@@ -54,5 +54,13 @@
             </field>
         </record>
         
+
+        <!--Inherit runbot qweb view-->
+        <template id="build_button_language" inherit_id="runbot.build_button">
+            <xpath expr="//li[7]" position="after">
+                <li><a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_30_run.txt">Run instance logs<i class="fa fa-file-text-o"/></a></li>
+            </xpath>
+        </template>
+
     </data>
 </openerp>
