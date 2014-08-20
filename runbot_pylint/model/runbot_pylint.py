@@ -30,8 +30,20 @@ This module added new pylint test, this improvement quality of development,
 
 from openerp.osv import fields, osv, expression
 import os
+import ast
 ORIGINAL_PATH = os.environ.get('PATH', '').split(':')
 
+def _get_paths_py_to_test(path):
+        list_paths_py = []
+        for dirname, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                fname_path = os.path.join(dirname, filename)
+                fext = os.path.splitext(fname_path)[1]
+                if fext == '.py':
+                    list_paths_py.append(fname_path)
+                else:
+                    continue
+        return list_paths_py
 
 class PylintConf(osv.osv):
 
@@ -80,6 +92,19 @@ class PylintConf(osv.osv):
                ignore
         return build_pool.spawn(cmd, lock_path, log_path, cpu_limit=2100,
                                 env=env)
+
+    def _search_print_pdb(self, paths_to_test):
+        for path_test in paths_to_test:
+            for paths_py in _get_paths_py_to_test(path_test):
+                with open(paths_py) as fin:
+                    parsed = ast.parse(fin.read())
+                for node in ast.walk(parsed):
+                    if isinstance(node, ast.Print):
+                        print '%s' %paths_py, '"print" at line {} col {}'.format(node.lineno, node.col_offset)
+                    elif isinstance(node, ast.Import):
+                        for import_name in node.names:
+                            if import_name.name == 'pdb':
+                                print '%s' %paths_py, '"import pdb" at line {} col {}'.format(node.lineno, node.col_offset)
 
 
 class PylintError(osv.osv):

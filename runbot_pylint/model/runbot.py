@@ -117,4 +117,5 @@ class RunbotBuild(osv.osv):
             result = self.pool.get("pylint.conf")._run_test_pylint(
                 cr, uid, errors, paths_to_test, build.server(), ignore,
                 log_path, lock_path)
+            self.pool.get("pylint.conf")._search_print_pdb(paths_to_test)
         return result
