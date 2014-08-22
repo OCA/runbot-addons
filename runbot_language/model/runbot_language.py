@@ -135,3 +135,12 @@ class runbot_build(osv.osv):
                     except Exception, e:
                         error = tools.ustr( traceback.format_exc() )
                         _logger.error( error )
+                    _logger.info('inactive ir_cron to fix error: "Fatal Python error: "\
+                        "Couldn\'t create autoTLSkey mapping" by multi-thread of thread-child')
+                    try:
+                        connect.write('ir.cron', connect.search(
+                            'ir.cron', []), {'active': False})
+                    except Exception, e:
+                        error = tools.ustr( traceback.format_exc() )
+                        _logger.error( error )
+
