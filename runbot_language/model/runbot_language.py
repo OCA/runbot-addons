@@ -30,6 +30,8 @@ import oerplib
 from openerp import tools
 import logging
 import traceback
+from openerp.addons.runbot.runbot import run
+import time
 
 _logger = logging.getLogger(__name__)
 
@@ -72,7 +74,11 @@ class runbot_build(osv.osv):
         return new_id
 
     def job_30_run(self, cr, uid, build, lock_path, log_path):
+        _logger.info('inactive ir_cron to fix error: "Fatal Python error: "\
+            "Couldn\'t create autoTLSkey mapping" by multi-thread of thread-child')
+        run(['psql', build.dest + '-all', '-c', "UPDATE ir_cron SET active=False"])
         res = super(runbot_build, self).job_30_run(cr, uid, build, lock_path, log_path)
+        time.sleep(60)#TODO: Read module loaded into log file of run instance
         self.load_lang(cr, uid, build, lock_path, log_path)
         return res
 
@@ -115,7 +121,7 @@ class runbot_build(osv.osv):
             if connect:
                 if not lang_id:
                     try:
-                        _logger.info('install the language %s...' % (code_lang,))
+                        _logger.info('install language %s...' % (code_lang,))
                         base_lang_obj = connect.get('base.language.install')
                         lang_create_id = connect.create(
                             'base.language.install', {'lang': code_lang, })
@@ -135,12 +141,3 @@ class runbot_build(osv.osv):
                     except Exception, e:
                         error = tools.ustr( traceback.format_exc() )
                         _logger.error( error )
-                    _logger.info('inactive ir_cron to fix error: "Fatal Python error: "\
-                        "Couldn\'t create autoTLSkey mapping" by multi-thread of thread-child')
-                    try:
-                        connect.write('ir.cron', connect.search(
-                            'ir.cron', []), {'active': False})
-                    except Exception, e:
-                        error = tools.ustr( traceback.format_exc() )
-                        _logger.error( error )
-
