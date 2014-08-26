@@ -60,6 +60,9 @@ class PylintConf(osv.osv):
         'error_ids': fields.many2many(
             'pylint.error', 'pylint_conf_rel_error', 'conf_id', 'error_id',
             "Errors"),
+        'check_print': fields.boolean(string='Check Prints'),
+        'check_pdb': fields.boolean(string='Check Pdb'),
+        'conf_file': fields.char(string="File of configuration")
     }
 
     _defaults = {
@@ -93,18 +96,40 @@ class PylintConf(osv.osv):
         return build_pool.spawn(cmd, lock_path, log_path, cpu_limit=2100,
                                 env=env)
 
-    def _search_print_pdb(self, paths_to_test):
+    def _search_print_pdb(self, cr, uid, build, paths_to_test, context=None):
+        if context is None:
+            context = {}
         for path_test in paths_to_test:
             for paths_py in _get_paths_py_to_test(path_test):
                 with open(paths_py) as fin:
                     parsed = ast.parse(fin.read())
                 for node in ast.walk(parsed):
-                    if isinstance(node, ast.Print):
-                        print '%s' %paths_py, '"print" at line {} col {}'.format(node.lineno, node.col_offset)
-                    elif isinstance(node, ast.Import):
+                    if build.pylint_config.check_print and isinstance(node, ast.Print):
+                        message = '"print" at line {} col {} of file: %s'.format(node.lineno, node.col_offset)%paths_py
+                        self.pool['ir.logging'].create(cr, uid, {
+                                                                'build_id': build.id,
+                                                                'level': 'WARNING',
+                                                                'type': 'runbot',
+                                                                'name': 'odoo.runbot',
+                                                                'message': message,
+                                                                'path': paths_py,
+                                                                'func': 'Detect print',
+                                                                'line': node.lineno,
+                                                            }, context=context)
+                    elif build.pylint_config.check_pdb and isinstance(node, ast.Import):
                         for import_name in node.names:
                             if import_name.name == 'pdb':
-                                print '%s' %paths_py, '"import pdb" at line {} col {}'.format(node.lineno, node.col_offset)
+                                message = '"import pdb" at line {} col {} of file: %s'.format(node.lineno, node.col_offset)%paths_py
+                                self.pool['ir.logging'].create(cr, uid, {
+                                                                'build_id': build.id,
+                                                                'level': 'WARNING',
+                                                                'type': 'runbot',
+                                                                'name': 'odoo.runbot',
+                                                                'message': message,
+                                                                'path': paths_py,
+                                                                'func': 'Detect pdb',
+                                                                'line': node.lineno,
+                                                            }, context=context)
 
 
 class PylintError(osv.osv):

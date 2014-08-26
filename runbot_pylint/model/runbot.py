@@ -94,6 +94,11 @@ class RunbotBuild(osv.osv):
         ignore = []
         result = False
         if build.pylint_config:
+            path_pylint_part = os.path.join('conf', 'pylint_vauxoo.cfg')
+            path_pylint_conf = os.path.join(os.path.split(build.server())[0], path_pylint_part)
+            if path_pylint_conf:
+                if os.path.isfile(path_pylint_conf):
+                    print path_pylint_conf, 'EL PATH DEL CONFFFFFFFFFFFF'
             for err in build.pylint_config.error_ids:
                 errors.append("-e")
                 errors.append(err.code)
@@ -117,5 +122,7 @@ class RunbotBuild(osv.osv):
             result = self.pool.get("pylint.conf")._run_test_pylint(
                 cr, uid, errors, paths_to_test, build.server(), ignore,
                 log_path, lock_path)
-            self.pool.get("pylint.conf")._search_print_pdb(paths_to_test)
+            if build.pylint_config and build.pylint_config.check_print or \
+                 build.pylint_config and build.pylint_config.check_pdb:
+                self.pool.get("pylint.conf")._search_print_pdb(cr, uid, build, paths_to_test)
         return result
