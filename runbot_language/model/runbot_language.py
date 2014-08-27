@@ -30,6 +30,8 @@ import oerplib
 from openerp import tools
 import logging
 import traceback
+from openerp.addons.runbot.runbot import run
+import time
 
 _logger = logging.getLogger(__name__)
 
@@ -57,7 +59,14 @@ class runbot_build(osv.osv):
         'lang': fields.selection(tools.scan_languages(), 'Language', help='Language to change '
                                  'instance after of run test.', copy=True),
     }
-    
+    def cmd(self, cr, uid, ids, context=None):
+        """Return a list describing the command to start the build"""
+        cmd, modules = super(runbot_build, self).cmd(cr, uid, ids, context=context)
+        for build in self.browse(cr, uid, ids, context=context):
+            if build.lang and build.job == 'job_30_run':
+                cmd.append("--load-language=es_VE")
+        return cmd, modules
+
     def create(self, cr, uid, values, context=None):
         """
         This method set language from repo in the build.
@@ -70,68 +79,4 @@ class runbot_build(osv.osv):
             self.write(cr, uid, [new_id], {'lang': branch_id.repo_id and \
                  branch_id.repo_id.lang or False}, context=context)
         return new_id
-
-    def job_30_run(self, cr, uid, build, lock_path, log_path):
-        res = super(runbot_build, self).job_30_run(cr, uid, build, lock_path, log_path)
-        self.load_lang(cr, uid, build, lock_path, log_path)
-        return res
-
-    #def job_50_load_lang(self, cr, uid, build, lock_path, log_path):#Generate a instance without a connect button. Lock file job_30_run ever
-    def load_lang(self, cr, uid, build, lock_path, log_path):
-        """
-        This method is used to install a lang if this not is installed and assign this to the users
-        in the instances that generated runbot.
-
-        :param build: object build of runbot.
-        :param lock_path: path of lock file, this parameter is string.
-        :param log_path: path of log file, this parameter is string, where are
-                            has saved the log of test.
-        """
-        code_lang = build.lang
-        if code_lang:
-            build._log('load_lang', 'Start load language')
-            db_name = build.dest + '-all'
-            port = build.port
-            user = 'admin'
-            passwd = 'admin'
-            server = 'localhost'
-            connect = False
-            lang_id = False
-            try:
-                connect = oerplib.OERP(
-                    server=server,
-                    database=db_name,
-                    port=port,
-                    timeout=10,
-                )
-                connect.login(user, passwd)
-                connect.config['timeout'] = 300
-                lang_id = connect.search('res.lang', [('code', '=', code_lang)])
-            #except Exception as exception:
-            except Exception, e:
-                error = tools.ustr( traceback.format_exc() )
-                #_logger.error(exception.oerp_traceback)
-                _logger.error( error )
-            if connect:
-                if not lang_id:
-                    try:
-                        _logger.info('install the language %s...' % (code_lang,))
-                        base_lang_obj = connect.get('base.language.install')
-                        lang_create_id = connect.create(
-                            'base.language.install', {'lang': code_lang, })
-                        base_lang_obj.lang_install([lang_create_id])
-                        lang_id = connect.search('res.lang', [
-                            ('code', '=', code_lang)])
-                    #except Exception as exception:
-                        #_logger.error(exception.oerp_traceback)
-                    except Exception, e:
-                        error = tools.ustr( traceback.format_exc() )
-                        _logger.error( error )
-                if lang_id:
-                    _logger.info('assign the language to users in the instance...')
-                    try:
-                        connect.write('res.users', connect.search(
-                            'res.users', []), {'lang': code_lang})
-                    except Exception, e:
-                        error = tools.ustr( traceback.format_exc() )
-                        _logger.error( error )
+    #TODO: Force build or rebuild function not get lang of old build
