@@ -89,19 +89,23 @@ class RunbotBuild(osv.osv):
         if args == None:
             args = {}
         build._log('pylint_script', 'Start pylint script')
+        params_extra = []
         errors = []
         paths_to_test = []
         ignore = []
         result = False
         if build.pylint_config:
-            path_pylint_part = os.path.join('conf', 'pylint_vauxoo.cfg')
-            path_pylint_conf = os.path.join(os.path.split(build.server())[0], path_pylint_part)
-            if path_pylint_conf:
+            if build.pylint_config.conf_file:
+                path_pylint_part = os.path.join('conf', build.pylint_config.conf_file)
+                path_pylint_conf = os.path.join(os.path.split(build.server())[0], path_pylint_part)
                 if os.path.isfile(path_pylint_conf):
-                    print path_pylint_conf, 'EL PATH DEL CONFFFFFFFFFFFF'
-            for err in build.pylint_config.error_ids:
-                errors.append("-e")
-                errors.append(err.code)
+                    params_extra.append("--rcfile=" + path_pylint_conf)
+            if build.pylint_config.error_ids:
+                errors.append("-d")
+                errors.append("all")
+                for err in build.pylint_config.error_ids:
+                    errors.append("-e")
+                    errors.append(err.code)
             _logger.info("running pylint tests...")
             if build.pylint_config.path_to_test:
                 for path_str in build.pylint_config.\
@@ -121,7 +125,7 @@ class RunbotBuild(osv.osv):
                 ignore.append("--ignore=" + build.pylint_config.ignore)
             result = self.pool.get("pylint.conf")._run_test_pylint(
                 cr, uid, errors, paths_to_test, build.server(), ignore,
-                log_path, lock_path)
+                log_path, lock_path, params_extra)
             if build.pylint_config and build.pylint_config.check_print or \
                  build.pylint_config and build.pylint_config.check_pdb:
                 self.pool.get("pylint.conf")._search_print_pdb(cr, uid, build, paths_to_test)

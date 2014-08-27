@@ -70,7 +70,8 @@ class PylintConf(osv.osv):
     }
 
     def _run_test_pylint(self, cr, uid, errors, paths_to_test,
-                         build_openerp_path_base, ignore, log_path, lock_path):
+                         build_openerp_path_base, ignore, log_path, lock_path,
+                         params_extra):
         """
         This method is used to run pylint test, takes the parameters:
 
@@ -91,8 +92,8 @@ class PylintConf(osv.osv):
         }
         cmd = ['pylint',
                '--msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] ' +
-               '{msg}"', "-d", "all", "-r", "n"] + errors + paths_to_test + \
-               ignore
+               '{msg}"', "-r", "n"] + errors + paths_to_test + \
+               ignore + params_extra
         return build_pool.spawn(cmd, lock_path, log_path, cpu_limit=2100,
                                 env=env)
 
