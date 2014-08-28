@@ -63,10 +63,12 @@ class RunbotBuild(osv.osv):
         """
         This method set configuration of pylint.
         """
-        new_id = super(RunbotBuild, self).create(cr, uid, values, context=context)
-        if values.get('branch_id', False) and not values.has_key('pylint_config'):
+        new_id = super(RunbotBuild, self).create(cr, uid, values,
+                                                             context=context)
+        if values.get('branch_id', False) and not values\
+                                                    .has_key('pylint_config'):
             branch_id = self.pool.get('runbot.branch').browse(cr, uid,
-                                                              values['branch_id'])
+                                                         values['branch_id'])
             self.write(
                 cr, uid, [new_id],
                  {'pylint_config': branch_id.repo_id and \
@@ -82,7 +84,7 @@ class RunbotBuild(osv.osv):
 
         :param build: object build of runbot.
         :param lock_path: path of lock file, this parameter is string.
-        :param log_path: path of log file, this parameter is string, where are 
+        :param log_path: path of log file, this parameter is string, where are
                             has saved the log of test.
         :param args: this parameter not is required, not is used.
         """
@@ -96,8 +98,10 @@ class RunbotBuild(osv.osv):
         result = False
         if build.pylint_config:
             if build.pylint_config.conf_file:
-                path_pylint_part = os.path.join('conf', build.pylint_config.conf_file)
-                path_pylint_conf = os.path.join(os.path.split(build.server())[0], path_pylint_part)
+                path_pylint_part = os.path.join('conf',
+                                                 build.pylint_config.conf_file)
+                path_pylint_conf = os.path\
+                    .join(os.path.split(build.server())[0], path_pylint_part)
                 if os.path.isfile(path_pylint_conf):
                     params_extra.append("--rcfile=" + path_pylint_conf)
             if build.pylint_config.error_ids:
@@ -128,5 +132,6 @@ class RunbotBuild(osv.osv):
                 log_path, lock_path, params_extra)
             if build.pylint_config and build.pylint_config.check_print or \
                  build.pylint_config and build.pylint_config.check_pdb:
-                self.pool.get("pylint.conf")._search_print_pdb(cr, uid, build, paths_to_test)
+                self.pool.get("pylint.conf")._search_print_pdb(cr,
+                                                     uid, build, paths_to_test)
         return result

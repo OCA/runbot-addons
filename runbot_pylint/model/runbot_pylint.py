@@ -34,16 +34,21 @@ import ast
 ORIGINAL_PATH = os.environ.get('PATH', '').split(':')
 
 def _get_paths_py_to_test(path):
-        list_paths_py = []
-        for dirname, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                fname_path = os.path.join(dirname, filename)
-                fext = os.path.splitext(fname_path)[1]
-                if fext == '.py':
-                    list_paths_py.append(fname_path)
-                else:
-                    continue
-        return list_paths_py
+    """
+    This method is used to search py files in the path.
+
+    :param path: Path of search py files.
+    """
+    list_paths_py = []
+    for dirname, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            fname_path = os.path.join(dirname, filename)
+            fext = os.path.splitext(fname_path)[1]
+            if fext == '.py':
+                list_paths_py.append(fname_path)
+            else:
+                continue
+    return list_paths_py
 
 class PylintConf(osv.osv):
 
@@ -78,9 +83,9 @@ class PylintConf(osv.osv):
         :param errors: list of strings with the errors to test.
         :param paths_to_test: list of strings with the paths to test.
         :param build_openerp_path_base: string with the server path.
-        :param build_openerp_path_base: list of strings with the files or 
+        :param build_openerp_path_base: list of strings with the files or
                                             directories to ignore in the test.
-        :param log_path: path of log file, this parameter is string, where are 
+        :param log_path: path of log file, this parameter is string, where are
                             has saved the log of test.
         :param lock_path: path of lock file, this parameter is string.
         """
@@ -98,6 +103,13 @@ class PylintConf(osv.osv):
                                 env=env)
 
     def _search_print_pdb(self, cr, uid, build, paths_to_test, context=None):
+        """
+        This method is used to search all prints and import pdbs,
+        for each paths to test.
+
+        :param build: object build of runbot.
+        :param paths_to_test: list of strings with the paths to test.
+        """
         if context is None:
             context = {}
         for path_test in paths_to_test:
@@ -105,31 +117,36 @@ class PylintConf(osv.osv):
                 with open(paths_py) as fin:
                     parsed = ast.parse(fin.read())
                 for node in ast.walk(parsed):
-                    if build.pylint_config.check_print and isinstance(node, ast.Print):
-                        message = '"print" at line {} col {} of file: %s'.format(node.lineno, node.col_offset)%paths_py
+                    if build.pylint_config.check_print and isinstance(node,\
+                                                                    ast.Print):
+                        message = '"print" at line {} col {} of file: %s'\
+                            .format(node.lineno, node.col_offset)%paths_py
                         self.pool['ir.logging'].create(cr, uid, {
-                                                                'build_id': build.id,
-                                                                'level': 'WARNING',
-                                                                'type': 'runbot',
-                                                                'name': 'odoo.runbot',
-                                                                'message': message,
-                                                                'path': paths_py,
-                                                                'func': 'Detect print',
-                                                                'line': node.lineno,
-                                                            }, context=context)
-                    elif build.pylint_config.check_pdb and isinstance(node, ast.Import):
+                                                    'build_id': build.id,
+                                                    'level': 'WARNING',
+                                                    'type': 'runbot',
+                                                    'name': 'odoo.runbot',
+                                                    'message': message,
+                                                    'path': paths_py,
+                                                    'func': 'Detect print',
+                                                    'line': node.lineno,
+                                                }, context=context)
+                    elif build.pylint_config.check_pdb and isinstance(node,\
+                                                                 ast.Import):
                         for import_name in node.names:
                             if import_name.name == 'pdb':
-                                message = '"import pdb" at line {} col {} of file: %s'.format(node.lineno, node.col_offset)%paths_py
+                                message = '"import pdb" at line {} col {}' + \
+                                 'of file: %s'.format(node.lineno,
+                                                    node.col_offset)%paths_py
                                 self.pool['ir.logging'].create(cr, uid, {
-                                                                'build_id': build.id,
-                                                                'level': 'WARNING',
-                                                                'type': 'runbot',
-                                                                'name': 'odoo.runbot',
-                                                                'message': message,
-                                                                'path': paths_py,
-                                                                'func': 'Detect pdb',
-                                                                'line': node.lineno,
+                                                        'build_id': build.id,
+                                                        'level': 'WARNING',
+                                                        'type': 'runbot',
+                                                        'name': 'odoo.runbot',
+                                                        'message': message,
+                                                        'path': paths_py,
+                                                        'func': 'Detect pdb',
+                                                        'line': node.lineno,
                                                             }, context=context)
 
 
