@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Odoo, Open Source Management Solution
-#    This module copyright (C) 2010 - 2014 Savoir-faire Linux
+#    This module copyright (C) 2010 Savoir-faire Linux
 #    (<http://www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -20,9 +20,25 @@
 #
 ##############################################################################
 
-from . import (
-    runbot_repo,
-    runbot_branch,
-    runbot_build,
-    controllers,
-)
+from openerp import models, fields, api
+
+
+class runbot_build(models.Model):
+    _inherit = "runbot.build"
+    dest = fields.Char(
+        string='Dest',
+        compute='_get_dest',
+        readonly=True,
+        store=True,
+    )
+
+    @api.multi
+    def _get_dest(self):
+        default_builds = self.browse(
+            [b.id for b in self if not b.branch_id.merge_request_id]
+        )
+        res = super(runbot_build, default_builds)._get_dest(
+            field_name=None, arg=None
+        )
+        for build in self:
+            self.dest = res.get(build.id, '')

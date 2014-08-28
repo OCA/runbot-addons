@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Odoo, Open Source Management Solution
-#    This module copyright (C) 2010 - 2014 Savoir-faire Linux
+#    This module copyright (C) 2010 Savoir-faire Linux
 #    (<http://www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -21,10 +21,10 @@
 ##############################################################################
 
 import re
-import simplejson
 import logging
 from gitlab3 import GitLab
 from openerp import models, fields, api
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +38,21 @@ def gitlab_api(func):
             return func(self, *args, **kwargs)
         else:
             regular_func = getattr(super(runbot_repo, self), func.func_name)
-            return regular_func(self, *args, **kwargs)
+            return regular_func(*args, **kwargs)
     return gitlab_func
+
+
+def get_gitlab_project(base, token, id=None):
+    mo = re.search('([^/]+)/([^/]+)/([^/.]+)(\.git)?', base)
+    if not mo:
+        return
+    domain = mo.group(1)
+    namespace = mo.group(2)
+    name = mo.group(3)
+    gl = GitLab("https://%s" % domain, token)
+    if id:
+        return gl.project(id)
+    return gl.find_project(path_with_namespace='%s/%s' % (namespace, name))
 
 
 class runbot_repo(models.Model):
@@ -49,18 +62,11 @@ class runbot_repo(models.Model):
     @api.one
     @gitlab_api
     def github(self, url, payload=None, delete=False):
-        mo = re.search('([^/]+)/([^/]+)/([^/.]+)(\.git)?', self.base)
-        if not mo:
-            return
-        domain = mo.group(1)
-        owner = mo.group(2)
-        name = mo.group(3)
-        url = url.replace(':owner', owner)
-        url = url.replace(':repo', name)
-        url = 'https://api.%s%s' % (domain, url)
-        gl = GitLab("https://%s" % domain, self.token)
+        project = get_gitlab_project(self.base, self.token)
         if payload:
-            logger.exception("Wanted to post payload %s at %s" % (url, payload))
+            logger.exception(
+                "Wanted to post payload %s at %s" % (url, payload)
+            )
             # r = gl._post(url, data=simplejson.dumps(payload))
             r = {}
         elif delete:
@@ -73,3 +79,97 @@ class runbot_repo(models.Model):
             # r = gl._get(url)
             r = {}
         return r
+
+    @api.one
+    @gitlab_api
+    def update(self):
+        project = get_gitlab_project(self.base, self.token)
+
+        merge_requests = project.find_merge_request(
+            find_all=True
+        )
+        # Find new MRs and new builds
+        for mr in project.find_merge_request(
+                find_all=True,
+                cached=merge_requests,
+                state='opened'):
+            source_project = get_gitlab_project(
+                self.base, self.token, mr.source_project_id
+            )
+            name = mr.source_branch
+            source_branch = source_project.branch(name)
+            commit = source_branch.commit
+            sha = commit['id']
+            date = commit['committed_date']
+            # TODO: TMP workaround for tzinfo bug
+            # https://github.com/alexvh/python-gitlab3/issues/15
+            date.tzinfo.dst = lambda _: None
+            author = commit['author']['name']
+            committer = commit['committer']['name']
+            subject = commit['message']
+            title = mr.title
+            # Create or get branch
+            branch_ids = self.env['runbot.branch'].search([
+                ('repo_id', '=', self.id),
+                ('project_id', '=', project.id),
+                ('merge_request_id', '=', mr.id),
+            ])
+            if branch_ids:
+                branch_id = branch_ids[0]
+            else:
+                logger.debug('repo %s found new Merge Proposal %s',
+                             self.name, title)
+                branch_id = self.env['runbot.branch'].create({
+                    'repo_id': self.id,
+                    'name': title,
+                    'project_id': project.id,
+                    'merge_request_id': mr.id,
+                })
+            # Create build (and mark previous builds as skipped) if not found
+            build_ids = self.env['runbot.build'].search([
+                ('branch_id', '=', branch_id.id),
+                ('name', '=', sha),
+            ])
+            if not build_ids:
+                logger.debug(
+                    'repo %s merge request %s new build found commit %s',
+                    branch_id.repo_id.name,
+                    branch_id.name,
+                    sha,
+                )
+                self.env['runbot.build'].create({
+                    'branch_id': branch_id.id,
+                    'name': sha,
+                    'author': author,
+                    'committer': committer,
+                    'subject': subject,
+                    'date': date.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
+                    'modules': branch_id.repo_id.modules,
+                })
+
+        # Clean-up old MRs
+        closed_mrs = list(i.id for i in project.find_merge_request(
+            find_all=True,
+            cached=merge_requests,
+            state='closed'
+        ))
+
+        closed_mrs = self.env['runbot.branch'].search([
+            ('merge_request_id', 'in', closed_mrs),
+        ])
+
+        for mr in closed_mrs:
+            mr.unlink()
+
+        super(runbot_repo, self).update()
+
+        # Skip non-sticky non-merge proposal builds
+        branches = self.env['runbot.branch'].search([
+            ('sticky', '=', False),
+            ('repo_id', 'in', [i.id for i in self]),
+            ('project_id', '=', False),
+            ('merge_request_id', '=', False),
+        ])
+        for build in self.env['runbot.build'].search([
+                ('branch_id', 'in', [b.id for b in branches])]):
+            build.skip()

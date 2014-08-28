@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Odoo, Open Source Management Solution
-#    This module copyright (C) 2010 - 2014 Savoir-faire Linux
+#    This module copyright (C) 2010 Savoir-faire Linux
 #    (<http://www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -20,9 +20,10 @@
 #
 ##############################################################################
 
-from . import (
-    runbot_repo,
-    runbot_branch,
-    runbot_build,
-    controllers,
-)
+from openerp import models, fields
+
+
+class runbot_branch(models.Model):
+    _inherit = "runbot.branch"
+    project_id = fields.Integer('VCS Project', select=1)
+    merge_request_id = fields.Integer('Merge Request', select=1)

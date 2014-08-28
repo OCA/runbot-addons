@@ -6,9 +6,15 @@
       <field name="model">runbot.repo</field>
       <field name="inherit_id" ref="runbot.view_repo_form"/>
       <field name="arch" type="xml">
+
         <field name="token" position="before">
           <field name="uses_gitlab"/>
         </field>
+
+        <field name="token" position="attributes">
+          <attribute name="string">API Token</attribute>
+        </field>
+
       </field>
     </record>
 
