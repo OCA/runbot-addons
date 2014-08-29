@@ -21,7 +21,6 @@
 ##############################################################################
 
 import logging
-import os
 import simplejson
 import werkzeug
 from werkzeug.wrappers import Response
@@ -65,7 +64,8 @@ class GitlabCIController(http.Controller):
         try:
             registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
             build_id = registry['runbot.build'].search(
-                cr, uid, [('name', '=', sha), ('result', '!=', 'skipped')], limit=1
+                cr, uid, [('name', '=', sha), ('result', '!=', 'skipped')],
+                limit=1
             )[0]
         except (IndexError, KeyError):
             return werkzeug.utils.redirect('/runbot/repo/%s' % repo_id)
@@ -113,10 +113,11 @@ class GitlabCIController(http.Controller):
     @http.route(CONTROLLER_PREFIX + "/status.png", type="http", auth="public")
     def status_badge(self, repo_id, ref):
         logger.info("I want the status badge for branch %s" % ref)
-        return werkzeug.utils.redirect('/runbot/badge/%s/%s.svg' % (repo_id, ref))
+        return werkzeug.utils.redirect(
+            '/runbot/badge/%s/%s.svg' % (repo_id, ref)
+        )
 
     @http.route("/<namespace>/<repo>/services/gitlab_ci/edit",
                 type="json", auth="public")
     def edit(self, namespace, repo):
         logger.exception("Edit for %s/%s" % (namespace, repo))
-
