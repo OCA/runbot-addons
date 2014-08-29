@@ -80,10 +80,31 @@ class GitlabCIController(http.Controller):
         try:
             logger.info("build with token %s" % token)
             logger.info("I want the status of commit %s" % sha)
+            registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
+            build_id = registry['runbot.build'].search(
+                cr, uid, [
+                    ('name', '=', sha),
+                ], limit=1
+            )[0]
+            build = registry['runbot.build'].browse(cr, uid, build_id)
+            result = build.result
+            state = build.state
+            if result == 'ko':
+                status = 'failed'
+            elif state == 'pending':
+                status = 'pending'
+            elif state == 'testing':
+                status = 'pending'
+            elif state == 'running':
+                status = 'running'
+            elif result in ['ok', 'warn']:
+                status = 'success'
+            else:
+                status = 'unknown'
             res = {
-                'id': 6,
+                'id': repo_id,
                 'sha': sha,
-                'status': 'pending',
+                'status': status,
             }
         finally:
             res = simplejson.dumps(res)
