@@ -92,9 +92,7 @@ class GitlabCIController(http.Controller):
     @http.route(CONTROLLER_PREFIX + "/status.png", type="http", auth="public")
     def status_badge(self, repo_id, ref):
         logger.info("I want the status badge for branch %s" % ref)
-        return open(
-            os.path.join(os.path.dirname(__file__), '../status.png')
-        ).read()
+        return werkzeug.utils.redirect('/runbot/badge/%s/%s.svg' % (repo_id, ref))
 
     @http.route("/<namespace>/<repo>/services/gitlab_ci/edit",
                 type="json", auth="public")
