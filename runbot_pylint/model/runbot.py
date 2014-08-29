@@ -76,6 +76,39 @@ class RunbotBuild(osv.osv):
                  branch_id.repo_id.pylint_config.id or False}, context=context)
         return new_id
 
+    def get_module_depends(self, cr, uid, build_id, modules, context=None):
+        
+
+    def get_repo_build_paths(self, cr, uid, build_id, repo_id, filter=None, isdir=True, check_module_depends=True, context=None):
+        if filter is None:
+            filter = []
+        repo_pool = self.pool['runbot.repo']
+        repo = repo_pool.browse(cr, uid, [repo_id], context=context)[0]
+        build = self.browse(cr, uid, [build_id], context=context)[0]
+        #TODO: Add version or sha and replace by master
+        repo_paths_str = repo.git(['ls-tree', 'master', '--name-only'])
+        repo_paths_list = repo_paths_str and repo_paths_str.rstrip().split('\n') or []
+        paths = []
+        if repo_paths_list:
+            #if repo.type == 'main':
+            base_path = repo.type == 'module' and build.server('addons') or \
+                repo.type == 'main' and build.path() or False
+            if base_path:
+                for repo_path in repo_paths_list:
+                    repo_full_path = os.path.join(base_path, repo_path)
+                    if os.path.isdir(repo_full_path) and isdir:
+                        paths.append( repo_full_path )
+                    elif os.path.isfile(repo_full_path) and \
+                           (os.path.splitext(repo_full_path)[1] in filter or not filter):
+                        paths.append( repo_full_path )
+        return paths
+
+    def job_01_pylint(self, cr, uid, build, lock_path, log_path, args=None):
+        #TODO: Comment this function. Uncomment only to test pylint script fast.
+        build._log('pylint_script', 'Start pylint script before all test')
+        build.checkout()
+        return self.job_15_pylint(cr, uid, build, lock_path, log_path, args=args)
+
     def job_15_pylint(self, cr, uid, build, lock_path, log_path, args=None):
         """
         This method is used to run pylint test, getting parameters of the
@@ -98,12 +131,17 @@ class RunbotBuild(osv.osv):
         result = False
         if build.pylint_config:
             if build.pylint_config.conf_file:
-                path_pylint_part = os.path.join('conf',
-                                                 build.pylint_config.conf_file)
                 path_pylint_conf = os.path\
-                    .join(os.path.split(build.server())[0], path_pylint_part)
+                    .join(os.path.split(build.server())[0], \
+                    build.pylint_config.conf_file)
+
+                import pdb;pdb.set_trace()
+                repo_paths = self.get_repo_build_paths(cr, uid, build.id, \
+                    build.repo_id.id, filter=['.py'])
                 if os.path.isfile(path_pylint_conf):
                     params_extra.append("--rcfile=" + path_pylint_conf)
+                else:
+                    _logger.warning("rcfile %s not found"%( path_pylint_conf ))
             if build.pylint_config.error_ids:
                 errors.append("-d")
                 errors.append("all")
@@ -127,6 +165,7 @@ class RunbotBuild(osv.osv):
                     _logger.info("not exists path [%s]" % (build.server()))
             if build.pylint_config.ignore:
                 ignore.append("--ignore=" + build.pylint_config.ignore)
+
             result = self.pool.get("pylint.conf")._run_test_pylint(
                 cr, uid, errors, paths_to_test, build.server(), ignore,
                 log_path, lock_path, params_extra)
