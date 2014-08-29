@@ -167,6 +167,18 @@ class runbot_repo(models.Model):
 
         super(runbot_repo, self).update()
 
+        # Put all protected branches as sticky
+        protected_branches = set(
+            b.name for b in project.find_branch(find_all=True, protected=True)
+        )
+        protected_branches.add(project.default_branch)
+
+        for branch in self.env['runbot.branch'].search([
+                ('branch_name', 'in', list(protected_branches)),
+                ('sticky', '=', False),
+        ]):
+            branch.write({'sticky': True})
+
         # Skip non-sticky non-merge proposal builds
         branches = self.env['runbot.branch'].search([
             ('sticky', '=', False),
