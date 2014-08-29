@@ -23,29 +23,57 @@
 import logging
 import os
 import simplejson
+import werkzeug
 from werkzeug.wrappers import Response
 
-from openerp import http
+from openerp import http, SUPERUSER_ID
+from openerp.http import request
 
 logger = logging.getLogger(__name__)
 
 
 class GitlabCIController(http.Controller):
-    CONTROLLER_PREFIX = '/gitlab_ci'
+    CONTROLLER_PREFIX = '/gitlab-ci/<repo_id>'
 
     @http.route(CONTROLLER_PREFIX, type="http", auth="public")
-    def repo_view(self, ref=None):
+    def repo_view(self, repo_id, ref=None):
         """Redirect to runbot page related to current repo"""
-        logger.exception("Call to see repo with branch %s" % ref)
+        try:
+            registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
+
+            branch_id = registry['runbot.branch'].search(
+                cr, uid, [('branch_name', '=', ref)]
+            )[0]
+            build_id = registry['runbot.build'].search(
+                cr, uid, [('branch_id', '=', branch_id)], limit=1
+            )[0]
+        except IndexError:
+            return werkzeug.utils.redirect('/runbot/repo/%s' % repo_id)
+        else:
+            return werkzeug.utils.redirect('/runbot/build/%d' % build_id)
 
     @http.route(CONTROLLER_PREFIX + "/build", type="json", auth="public")
-    def build(self, token=None):
+    def build(self, repo_id, token=None):
         """Call to start build for regular push"""
         logger.info("build with token %s" % token)
         return {}
 
-    @http.route(CONTROLLER_PREFIX + "/builds/<sha>/status.json", type="http", auth="public")
-    def builds(self, sha, token=None):
+    @http.route(CONTROLLER_PREFIX + "/builds/<sha>",
+                type="http", auth="public")
+    def build_view(self, repo_id, sha):
+        """Call on merge request open/close"""
+        registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
+        build_id = registry['runbot.build'].search(
+            cr, uid, [('name', '=', sha), ('result', '!=', 'skipped')], limit=1
+        )[0]
+        data = registry['runbot.build'].read(
+            cr, uid, build_id, ['state']
+        )[0]
+        return werkzeug.utils.redirect('/runbot/build/%d' % build_id)
+
+    @http.route(CONTROLLER_PREFIX + "/builds/<sha>/status.json",
+                type="http", auth="public")
+    def builds(self, repo_id, sha, token=None):
         """Call on merge request open/close"""
         res = None
         try:
@@ -61,11 +89,14 @@ class GitlabCIController(http.Controller):
             return Response(res, mimetype='application/json')
 
     @http.route(CONTROLLER_PREFIX + "/status.png", type="http", auth="public")
-    def status_badge(self, ref):
+    def status_badge(self, repo_id, ref):
         logger.info("I want the status badge for branch %s" % ref)
-        return open(os.path.join(os.path.dirname(__file__), '../status.png')).read()
+        return open(
+            os.path.join(os.path.dirname(__file__), '../status.png')
+        ).read()
 
-    @http.route("/<namespace>/<repo>/services/gitlab_ci/edit", type="json", auth="public")
+    @http.route("/<namespace>/<repo>/services/gitlab_ci/edit",
+                type="json", auth="public")
     def edit(self, namespace, repo):
         logger.exception("Edit for %s/%s" % (namespace, repo))
 

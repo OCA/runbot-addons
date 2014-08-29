@@ -22,11 +22,16 @@
 
 import re
 import logging
+from urllib import quote_plus
+import requests
 from gitlab3 import GitLab
 from openerp import models, fields, api
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
+from openerp.tools.translate import _
 
 logger = logging.getLogger(__name__)
+
+GITLAB_CI_SETTINGS_URL = '%s/api/v3/projects/%s/services/gitlab-ci'
 
 
 def gitlab_api(func):
@@ -42,7 +47,7 @@ def gitlab_api(func):
     return gitlab_func
 
 
-def get_gitlab_project(base, token, id=None):
+def get_gitlab_params(base):
     mo = re.search('([^/]+)(/(\d+))/([^/]+)/([^/.]+)(\.git)?', base)
     if not mo:
         return
@@ -53,15 +58,63 @@ def get_gitlab_project(base, token, id=None):
     prefix = 'http' if base.startswith('http/') else 'https'
     if port:
         domain += ":%d" % int(port)
-    gl = GitLab("%s://%s" % (prefix, domain), token)
+    domain = "%s://%s" % (prefix, domain)
+    name = '%s/%s' % (namespace, name)
+    return domain, name
+
+
+def get_gitlab_project(base, token, id=None):
+    domain, name = get_gitlab_params(base)
+    gl = GitLab(domain, token)
     if id:
         return gl.project(id)
-    return gl.find_project(path_with_namespace='%s/%s' % (namespace, name))
+    return gl.find_project(path_with_namespace=name)
+
+
+def set_gitlab_ci_conf(token, gitlab_url, runbot_domain, repo_id):
+    if not token:
+        raise models.except_orm(
+            _('Error!'),
+            _('Gitlab repo requires an API token from a user with '
+              'admin access to repo.')
+        )
+    domain, name = get_gitlab_params(gitlab_url.replace(':', '/'))
+    url = GITLAB_CI_SETTINGS_URL % (domain, quote_plus(name))
+    project_url = "http://%s/gitlab-ci/%s" % (runbot_domain, repo_id)
+    data = {
+        "token": token,
+        "project_url": project_url,
+    }
+    headers = {
+        "PRIVATE-TOKEN": token,
+    }
+    requests.put(url, data=data, headers=headers)
 
 
 class runbot_repo(models.Model):
     _inherit = "runbot.repo"
     uses_gitlab = fields.Boolean('Use Gitlab')
+
+    @api.one
+    def create(self, vals):
+        repo_id = super(runbot_repo, self).create(vals)
+        set_gitlab_ci_conf(
+            vals.get('token'),
+            vals.get('name'),
+            self.env['ir.config_parameter'].get_param('runbot.domain'),
+            repo_id,
+        )
+
+    @api.one
+    def write(self, vals):
+        super(runbot_repo, self).write(vals)
+        set_gitlab_ci_conf(
+            vals.get('token', self.token),
+            vals.get('name', self.name),
+            self.env['ir.config_parameter'].get_param('runbot.domain'),
+            self.id,
+        )
+
 
     @api.one
     @gitlab_api
