@@ -20,25 +20,32 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api
+from openerp.osv import orm, fields
 
 
-class runbot_build(models.Model):
+class runbot_build(orm.Model):
     _inherit = "runbot.build"
-    dest = fields.Char(
-        string='Dest',
-        compute='_get_dest',
-        readonly=True,
-        store=True,
-    )
 
-    @api.multi
-    def _get_dest(self):
-        default_builds = self.browse(
-            [b.id for b in self if not b.branch_id.merge_request_id]
-        )
-        res = super(runbot_build, default_builds)._get_dest(
-            field_name=None, arg=None
-        )
-        for build in self:
-            self.dest = res.get(build.id, '')
+    def _get_dest(self, cr, uid, ids, field_name=None, arg=None, context=None):
+        r = {}
+        for build in self.browse(cr, uid, ids, context=context):
+            if build.branch_id.merge_request_id:
+                nickname = build.branch_id.name.replace(' ', '-')
+                r[build.id] = "%05d-%s-%s" % (
+                    build.id, nickname, build.name[:6]
+                )
+            else:
+                r.update(super(runbot_build, self)._get_dest(
+                    cr, uid, ids, field_name, arg, context=context
+                ))
+        return r
+
+    _columns = {
+        'dest': fields.function(
+            _get_dest,
+            type='char',
+            string='Dest',
+            readonly=1,
+            store=True,
+        ),
+    }

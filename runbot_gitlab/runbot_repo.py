@@ -95,23 +95,24 @@ class runbot_repo(models.Model):
     _inherit = "runbot.repo"
     uses_gitlab = fields.Boolean('Use Gitlab')
 
-    @api.one
+    @api.model
     def create(self, vals):
         repo_id = super(runbot_repo, self).create(vals)
         set_gitlab_ci_conf(
             vals.get('token'),
             vals.get('name'),
-            self.env['ir.config_parameter'].get_param('runbot.domain'),
-            repo_id,
+            self.domain(),
+            repo_id.id,
         )
+        return repo_id
 
-    @api.one
+    @api.multi
     def write(self, vals):
         super(runbot_repo, self).write(vals)
         set_gitlab_ci_conf(
             vals.get('token', self.token),
             vals.get('name', self.name),
-            self.env['ir.config_parameter'].get_param('runbot.domain'),
+            self.domain(),
             self.id,
         )
 

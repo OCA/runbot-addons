@@ -62,14 +62,15 @@ class GitlabCIController(http.Controller):
                 type="http", auth="public")
     def build_view(self, repo_id, sha):
         """Call on merge request open/close"""
-        registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
-        build_id = registry['runbot.build'].search(
-            cr, uid, [('name', '=', sha), ('result', '!=', 'skipped')], limit=1
-        )[0]
-        data = registry['runbot.build'].read(
-            cr, uid, build_id, ['state']
-        )[0]
-        return werkzeug.utils.redirect('/runbot/build/%d' % build_id)
+        try:
+            registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
+            build_id = registry['runbot.build'].search(
+                cr, uid, [('name', '=', sha), ('result', '!=', 'skipped')], limit=1
+            )[0]
+        except (IndexError, KeyError):
+            return werkzeug.utils.redirect('/runbot/repo/%s' % repo_id)
+        else:
+            return werkzeug.utils.redirect('/runbot/build/%d' % build_id)
 
     @http.route(CONTROLLER_PREFIX + "/builds/<sha>/status.json",
                 type="http", auth="public")
