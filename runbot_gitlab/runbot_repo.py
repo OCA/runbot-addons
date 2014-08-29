@@ -43,13 +43,17 @@ def gitlab_api(func):
 
 
 def get_gitlab_project(base, token, id=None):
-    mo = re.search('([^/]+)/([^/]+)/([^/.]+)(\.git)?', base)
+    mo = re.search('([^/]+)(/(\d+))/([^/]+)/([^/.]+)(\.git)?', base)
     if not mo:
         return
     domain = mo.group(1)
-    namespace = mo.group(2)
-    name = mo.group(3)
-    gl = GitLab("https://%s" % domain, token)
+    port = mo.group(3)
+    namespace = mo.group(4)
+    name = mo.group(5)
+    prefix = 'http' if base.startswith('http/') else 'https'
+    if port:
+        domain += ":%d" % int(port)
+    gl = GitLab("%s://%s" % (prefix, domain), token)
     if id:
         return gl.project(id)
     return gl.find_project(path_with_namespace='%s/%s' % (namespace, name))
