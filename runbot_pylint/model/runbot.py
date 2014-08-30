@@ -31,7 +31,8 @@ import logging
 import os
 
 _logger = logging.getLogger(__name__)
-
+list_no_rep = {}
+list_dependences = []
 
 class RunbotRepo(osv.osv):
     """
@@ -44,6 +45,7 @@ class RunbotRepo(osv.osv):
     _columns = {
         'pylint_config': fields.many2one('pylint.conf',
                                          string='Pylint Config'),
+        'check_pylint': fields.boolean(string='Check pylint'),
     }
 
 
@@ -76,17 +78,35 @@ class RunbotBuild(osv.osv):
                  branch_id.repo_id.pylint_config.id or False}, context=context)
         return new_id
 
-    def get_module_depends(self, cr, uid, build_id, modules, context=None):
-        
+    def get_module_depends(self, cr, uid, build_id, module, context=None):
+        dict_tmp = {}
+        build = self.browse(cr, uid, [build_id], context=context)[0]
+        base_path = build.server('addons')
+        #~ print base_path, 'EEEEEEEEEEE', build.path(), 'RRRRRR', build.server('addons')
+        mod_openerp = os.path.join(base_path, module, '__openerp__.py')
+        print mod_openerp, 'EEEEEEEEEEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd'
+        file_openerp = open(mod_openerp)
+        text_file = file_openerp.read()
+        list_depends = eval(text_file).get('depends', False)
+        file_openerp.close()
+        if list_depends:
+            for depend in list_depends:
+                list_dependences.extend(self.get_module_depends(cr, uid, build_id, depend))
+                if not depend in list_dependences:
+                    list_dependences.append(depend)
+            #~ dict_dependences.update({'static': dict_tmp})
+        return list_dependences
 
     def get_repo_build_paths(self, cr, uid, build_id, repo_id, filter=None, isdir=True, check_module_depends=True, context=None):
+        #~ import pdb;pdb.set_trace()
         if filter is None:
             filter = []
         repo_pool = self.pool['runbot.repo']
         repo = repo_pool.browse(cr, uid, [repo_id], context=context)[0]
         build = self.browse(cr, uid, [build_id], context=context)[0]
         #TODO: Add version or sha and replace by master
-        repo_paths_str = repo.git(['ls-tree', 'master', '--name-only'])
+        version_build = build.branch_id and build.branch_id.branch_name
+        repo_paths_str = repo.git(['ls-tree', version_build, '--name-only'])
         repo_paths_list = repo_paths_str and repo_paths_str.rstrip().split('\n') or []
         paths = []
         if repo_paths_list:
@@ -135,9 +155,12 @@ class RunbotBuild(osv.osv):
                     .join(os.path.split(build.server())[0], \
                     build.pylint_config.conf_file)
 
-                import pdb;pdb.set_trace()
-                repo_paths = self.get_repo_build_paths(cr, uid, build.id, \
-                    build.repo_id.id, filter=['.py'])
+                if build.repo_id.check_pylint:
+                    repo_paths = self.get_repo_build_paths(cr, uid, build.id, \
+                        build.repo_id.id, filter=['.py'])
+                    print repo_paths
+                for module in build.modules.split(','):
+                    print self.get_module_depends(cr, uid, build.id, module), 'TTTTTTTTTTTTTTT'
                 if os.path.isfile(path_pylint_conf):
                     params_extra.append("--rcfile=" + path_pylint_conf)
                 else:
