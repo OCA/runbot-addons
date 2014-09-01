@@ -82,30 +82,29 @@ class RunbotBuild(osv.osv):
         dict_tmp = {}
         build = self.browse(cr, uid, [build_id], context=context)[0]
         base_path = build.server('addons')
-        #~ print base_path, 'EEEEEEEEEEE', build.path(), 'RRRRRR', build.server('addons')
         mod_openerp = os.path.join(base_path, module, '__openerp__.py')
-        print mod_openerp, 'EEEEEEEEEEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd'
         file_openerp = open(mod_openerp)
         text_file = file_openerp.read()
         list_depends = eval(text_file).get('depends', False)
         file_openerp.close()
-        if list_depends:
-            for depend in list_depends:
-                list_dependences.extend(self.get_module_depends(cr, uid, build_id, depend))
-                if not depend in list_dependences:
-                    list_dependences.append(depend)
-            #~ dict_dependences.update({'static': dict_tmp})
+        for depend in list_depends:
+            if not os.path.join(base_path, depend) in list_dependences:
+                list_dependences.append(os.path.join(base_path, depend))
+            list_dependences.extend([element for element in self.get_module_depends(cr, uid, build_id, depend) if element not in list_dependences])
         return list_dependences
 
     def get_repo_build_paths(self, cr, uid, build_id, repo_id, filter=None, isdir=True, check_module_depends=True, context=None):
-        #~ import pdb;pdb.set_trace()
         if filter is None:
             filter = []
         repo_pool = self.pool['runbot.repo']
         repo = repo_pool.browse(cr, uid, [repo_id], context=context)[0]
         build = self.browse(cr, uid, [build_id], context=context)[0]
         #TODO: Add version or sha and replace by master
-        version_build = build.branch_id and build.branch_id.branch_name
+        version_build = build.branch_id and build.branch_id.branch_base_name or build.branch_id.branch_name
+        import pdb;pdb.set_trace()
+        command_git = ['ls-tree', version_build, '--name-only']
+        if repo.type == 'main':
+            command_git.append('addons/')
         repo_paths_str = repo.git(['ls-tree', version_build, '--name-only'])
         repo_paths_list = repo_paths_str and repo_paths_str.rstrip().split('\n') or []
         paths = []
@@ -158,7 +157,8 @@ class RunbotBuild(osv.osv):
                 if build.repo_id.check_pylint:
                     repo_paths = self.get_repo_build_paths(cr, uid, build.id, \
                         build.repo_id.id, filter=['.py'])
-                    print repo_paths
+                    print repo_paths, 'EEEEEEEEEEEEEEEEEEEEEEEEEEEe'
+                
                 for module in build.modules.split(','):
                     print self.get_module_depends(cr, uid, build.id, module), 'TTTTTTTTTTTTTTT'
                 if os.path.isfile(path_pylint_conf):
