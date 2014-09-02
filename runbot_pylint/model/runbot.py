@@ -105,13 +105,12 @@ class RunbotBuild(osv.osv):
         command_git = ['ls-tree', version_build, '--name-only']
         if repo.type == 'main':
             command_git.append('addons/')
-        repo_paths_str = repo.git(['ls-tree', version_build, '--name-only'])
-        repo_paths_list = repo_paths_str and repo_paths_str.rstrip().split('\n') or []
+        repo_paths_str = repo.git(command_git)
+        repo_paths_list = repo_paths_str and repo_paths_str.rstrip().replace('addons/', '').split('\n') or []
         paths = []
         if repo_paths_list:
             #if repo.type == 'main':
-            base_path = repo.type == 'module' and build.server('addons') or \
-                repo.type == 'main' and build.path() or False
+            base_path = build.server('addons')
             if base_path:
                 for repo_path in repo_paths_list:
                     repo_full_path = os.path.join(base_path, repo_path)
@@ -145,9 +144,12 @@ class RunbotBuild(osv.osv):
         build._log('pylint_script', 'Start pylint script')
         params_extra = []
         errors = []
-        paths_to_test = []
+        #~ paths_to_test = []
         ignore = []
         result = False
+        dep = []
+        repo_paths = []
+        repo_depen = []
         if build.pylint_config:
             if build.pylint_config.conf_file:
                 path_pylint_conf = os.path\
@@ -160,7 +162,12 @@ class RunbotBuild(osv.osv):
                     print repo_paths, 'EEEEEEEEEEEEEEEEEEEEEEEEEEEe'
                 
                 for module in build.modules.split(','):
-                    print self.get_module_depends(cr, uid, build.id, module), 'TTTTTTTTTTTTTTT'
+                    dep = self.get_module_depends(cr, uid, build.id, module)
+                if repo_paths and dep:
+                    repo_paths = set(repo_paths)
+                    dep = set(dep)
+                    repo_depen = list(repo_paths&dep)
+                    print repo_depen, 'TTTTTTTTTTTTTTTTTTTTTTT'
                 if os.path.isfile(path_pylint_conf):
                     params_extra.append("--rcfile=" + path_pylint_conf)
                 else:
@@ -172,28 +179,32 @@ class RunbotBuild(osv.osv):
                     errors.append("-e")
                     errors.append(err.code)
             _logger.info("running pylint tests...")
-            if build.pylint_config.path_to_test:
-                for path_str in build.pylint_config.\
-                path_to_test.strip(' ').split(","):
-                    if os.path.exists(os.path.join(build.server(), path_str)):
-                        paths_to_test.append(
-                            os.path.join(build.server(), path_str))
-                    else:
-                        _logger.info("not exists path [%s]" % (
-                            os.path.join(build.server(), path_str), ))
-            else:
+            if not repo_depen:
                 if os.path.exists(build.server()):
                     paths_to_test.append(build.server())
                 else:
                     _logger.info("not exists path [%s]" % (build.server()))
+                #~ for path_str in build.pylint_config.\
+                #~ path_to_test.strip(' ').split(","):
+                    #~ if os.path.exists(os.path.join(build.server(), path_str)):
+                        #~ paths_to_test.append(
+                            #~ os.path.join(build.server(), path_str))
+                    #~ else:
+                        #~ _logger.info("not exists path [%s]" % (
+                            #~ os.path.join(build.server(), path_str), ))
+            #~ else:
+                #~ if os.path.exists(build.server()):
+                    #~ paths_to_test.append(build.server())
+                #~ else:
+                    #~ _logger.info("not exists path [%s]" % (build.server()))
             if build.pylint_config.ignore:
                 ignore.append("--ignore=" + build.pylint_config.ignore)
 
             result = self.pool.get("pylint.conf")._run_test_pylint(
-                cr, uid, errors, paths_to_test, build.server(), ignore,
+                cr, uid, errors, repo_depen, build.server(), ignore,
                 log_path, lock_path, params_extra)
             if build.pylint_config and build.pylint_config.check_print or \
                  build.pylint_config and build.pylint_config.check_pdb:
                 self.pool.get("pylint.conf")._search_print_pdb(cr,
-                                                     uid, build, paths_to_test)
+                                                     uid, build, repo_depen)
         return result
