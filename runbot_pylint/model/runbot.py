@@ -193,16 +193,17 @@ class RunbotBuild(osv.osv):
                         #~ _logger.info("not exists path [%s]" % (
                             #~ os.path.join(build.server(), path_str), ))
             #~ else:
-                #~ if os.path.exists(build.server()):
-                    #~ paths_to_test.append(build.server())
-                #~ else:
-                    #~ _logger.info("not exists path [%s]" % (build.server()))
+            if os.path.exists(build.server()):
+                paths_to_test.append(build.server())
+            else:
+                _logger.info("not exists path [%s]" % (build.server()))
             if build.pylint_config.ignore:
-                ignore.append("--ignore=" + build.pylint_config.ignore)
-
-            result = self.pool.get("pylint.conf")._run_test_pylint(
-                cr, uid, errors, repo_depen, build.server(), ignore,
-                log_path, lock_path, params_extra)
+                ignore.append("--ignore=" + build.pylint_config.ignore+","+",".join(diff))
+            # TODO: will use spawn to test paths of repo_depen
+            for test in repo_depen:
+                result = self.pool.get("pylint.conf")._run_test_pylint(
+                    cr, uid, errors, [], build.server(), ignore,
+                    log_path, lock_path, params_extra)
             if build.pylint_config and build.pylint_config.check_print or \
                  build.pylint_config and build.pylint_config.check_pdb:
                 self.pool.get("pylint.conf")._search_print_pdb(cr,
