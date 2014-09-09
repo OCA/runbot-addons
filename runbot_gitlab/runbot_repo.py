@@ -116,25 +116,19 @@ class runbot_repo(models.Model):
             self.id,
         )
 
-
     @api.one
     @gitlab_api
     def github(self, url, payload=None, delete=False):
-        project = get_gitlab_project(self.base, self.token)
         if payload:
-            logger.exception(
+            logger.info(
                 "Wanted to post payload %s at %s" % (url, payload)
             )
-            # r = gl._post(url, data=simplejson.dumps(payload))
             r = {}
         elif delete:
-            logger.exception("Wanted to delete %s" % url)
-            # r = gl._delete(url)
+            logger.info("Wanted to delete %s" % url)
             r = {}
         else:
-            logger.exception("Wanted to get %s" % url)
-            # r = gl.find_project(path_with_namespace="%s/%s" % (owner, name))
-            # r = gl._get(url)
+            logger.info("Wanted to get %s" % url)
             r = {}
         return r
 
