@@ -104,6 +104,7 @@ class PylintConf(osv.osv):
                '--msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] ' +
                '{msg}"', "-r", "n"] + errors + paths_to_test + \
                ignore + params_extra
+        print "***"*10,' '.join( cmd )
         return build_pool.spawn(cmd, lock_path, log_path, cpu_limit=2100,
                                 env=env)
 
