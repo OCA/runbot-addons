@@ -9,10 +9,15 @@
                 <form version="7.0">
                     <sheet>
                         <group>
+<!--
                             <field name="name"/>
                             <field name="error_ids"/>
                             <field name="ignore"/>
                             <field name="path_to_test"/>
+                            <field name="check_print"/>
+                            <field name="check_pdb"/>
+-->
+                            <field name="conf_file"/>
                         </group>
                     </sheet>
                 </form>
