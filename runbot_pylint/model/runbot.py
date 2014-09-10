@@ -166,13 +166,13 @@ class RunbotBuild(osv.osv):
                            (os.path.splitext(repo_full_path)[1] in filter_files or not filter_files):
                         paths.append( repo_full_path )
         return paths
-
+    """
     def job_01_pylint(self, cr, uid, build, lock_path, log_path, args=None):
         #TODO: Comment this function. Uncomment only to test pylint script fast.
         build._log('pylint_script', 'Start pylint script before all test')
         build.checkout()
         return self.job_15_pylint(cr, uid, build, lock_path, log_path, args=args)
-
+    """
     def job_15_pylint(self, cr, uid, build, lock_path, log_path, args=None):
         """
         This method is used to run pylint test, getting parameters of the
