@@ -202,7 +202,8 @@ class RunbotBuild(osv.osv):
                     .join(os.path.split(build.server())[0], \
                     build.pylint_config.conf_file)
                 
-                dep = get_depends(build.modules, build.server('addons'))
+                _, modules = build.cmd()
+                dep = get_depends(modules, build.server('addons'))
                 
                 repo_module_to_check_pylint = []
                 for build_line in build.line_ids:
