@@ -220,7 +220,7 @@ class RunbotBuild(osv.osv):
                 st = os.stat(fname_pylint_run_sh)
                 os.chmod(fname_pylint_run_sh, st.st_mode | stat.S_IEXEC)
                 
-                os.environ['PYTHONPATH'] += ":" + build.server()
+                os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + ":" + build.server()
                 spawn_return = build.spawn([fname_pylint_run_sh], lock_path, log_path, cpu_limit=2100,
                                         env=os.environ)
                 return spawn_return
