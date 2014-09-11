@@ -36,10 +36,10 @@ _logger = logging.getLogger(__name__)
 def get_depends(modules, addons_paths, depends=None):
     if depends is None:
         depends = []
-    for module in modules.split(','):
+    for module in (modules or '').split(','):
         if not module in depends:
             depends.append( module )
-            for addons_path in addons_paths.split(','):
+            for addons_path in (addons_paths or '').split(','):
                 addons_path = addons_path.strip()
                 fname_openerp = os.path.join( addons_path, module, '__openerp__.py' )
                 if os.path.isfile( fname_openerp ):
@@ -210,7 +210,7 @@ class RunbotBuild(osv.osv):
                         branch_ls = build_line.branch_id.get_module_list( build_line.sha )
                         repo_module_to_check_pylint.extend( branch_ls )
                 modules_to_check_pylint = list( set(dep) & set(repo_module_to_check_pylint) )
-                fname_pylint_run_sh = os.path.join( build.server(), 'pylint_run.sh')
+                fname_pylint_run_sh = os.path.join( build.path(), 'pylint_run.sh')
                 with open( fname_pylint_run_sh, "w" ) as f_pylint_run_sh:
                     f_pylint_run_sh.write("#!/bin/bash\n")
                     for module_to_check_pylint in modules_to_check_pylint:
@@ -232,3 +232,24 @@ class RunbotBuild(osv.osv):
                                                      uid, build, repo_depen)
             """
         return result
+
+    def job_16_pylint_read_log(self, cr, uid, build, lock_path, log_path, args=None):
+        pylint_log = build.path('logs', 'job_15_pylint.txt')
+        if os.path.isfile(pylint_log):
+            with open(pylint_log, "r") as fpylint_log:
+                build._log('pylint_log', fpylint_log.read())
+        return True
+
+    def job_30_run(self, cr, uid, build, lock_path, log_path):
+        res = super(RunbotBuild, self).job_30_run(cr, uid, build, lock_path, log_path)
+        pylint_log = build.path('logs', 'job_15_pylint.txt')
+        pylint_error = False
+        if os.path.isfile(pylint_log):
+            with open(pylint_log, "r") as fpylint_log:
+                for line in fpylint_log.xreadlines():
+                    if '****' in line:
+                        pylint_error = True
+                        break
+        if pylint_error and build.result == "ok":
+            build.write({'result': 'warn'})
+        return res
