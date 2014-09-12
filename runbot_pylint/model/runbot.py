@@ -79,8 +79,10 @@ class RunbotBranch(osv.osv):
             command_git = ['ls-tree', sha or branch.branch_name, '--name-only']
             if branch.repo_id.type == 'main':
                 command_git.append('addons/')
+                command_git.append('openerp/addons/')
             repo_paths_str = branch.repo_id.git(command_git)
-            repo_paths_list = repo_paths_str and repo_paths_str.rstrip().replace('addons/', '').split('\n') or []
+            repo_paths_list = repo_paths_str and repo_paths_str.rstrip().split('\n') or []
+            repo_paths_list = [os.path.basename(module) for module in repo_paths_list]
         return repo_paths_list
 
 
