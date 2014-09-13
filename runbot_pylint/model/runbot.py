@@ -213,20 +213,20 @@ class RunbotBuild(osv.osv):
                         branch_ls = build_line.branch_id.get_module_list( build_line.sha )
                         repo_module_to_check_pylint.extend( branch_ls )
                 modules_to_check_pylint = list( set(dep) & set(repo_module_to_check_pylint) )
-                fname_pylint_run_sh = os.path.join( build.path(), 'pylint_run.sh')
-                with open( fname_pylint_run_sh, "w" ) as f_pylint_run_sh:
-                    f_pylint_run_sh.write("#!/bin/bash\n")
-                    for module_to_check_pylint in modules_to_check_pylint:
-                        cmd = "pylint --rcfile=%s %s"%( path_pylint_conf, \
-                            os.path.join(build.server('addons'), module_to_check_pylint ))
-                        f_pylint_run_sh.write( cmd + '\n' )
-                st = os.stat(fname_pylint_run_sh)
-                os.chmod(fname_pylint_run_sh, st.st_mode | stat.S_IEXEC)
-                
-                os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + ":" + build.server()
-                spawn_return = build.spawn([fname_pylint_run_sh], lock_path, log_path, cpu_limit=2100,
-                                        env=os.environ)
-                return spawn_return
+                if modules_to_check_pylint:
+                    fname_pylint_run_sh = os.path.join( build.path(), 'pylint_run.sh')
+                    with open( fname_pylint_run_sh, "w" ) as f_pylint_run_sh:
+                        f_pylint_run_sh.write("#!/bin/bash\n")
+                        for module_to_check_pylint in modules_to_check_pylint:
+                            cmd = "pylint --rcfile=%s %s"%( path_pylint_conf, \
+                                os.path.join(build.server('addons'), module_to_check_pylint ))
+                            #os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + ":" + build.server()
+                            f_pylint_run_sh.write("export PYTHONPATH=$PYTHONPATH:%s\n"%(build.server()))
+                            f_pylint_run_sh.write( cmd + '\n' )
+                    st = os.stat(fname_pylint_run_sh)
+                    os.chmod(fname_pylint_run_sh, st.st_mode | stat.S_IEXEC)
+
+                    return build.spawn([fname_pylint_run_sh], lock_path, log_path, cpu_limit=2100)
             """
             #TODO: check print and pdb sentence
             if build.pylint_config and build.pylint_config.check_print or \
