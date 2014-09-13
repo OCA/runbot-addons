@@ -225,7 +225,6 @@ class RunbotBuild(osv.osv):
                             f_pylint_run_sh.write( cmd + '\n' )
                     st = os.stat(fname_pylint_run_sh)
                     os.chmod(fname_pylint_run_sh, st.st_mode | stat.S_IEXEC)
-
                     return build.spawn([fname_pylint_run_sh], lock_path, log_path, cpu_limit=2100)
             """
             #TODO: check print and pdb sentence
@@ -245,8 +244,17 @@ class RunbotBuild(osv.osv):
                 for line in fpylint_log.xreadlines():
                     if '****' in line:
                         pylint_error = True
-                        build._log('pylint_log', 'pylint has error. Please '\
-                            'check pylint log file...')
+                        self.pool['ir.logging'].create(cr, uid, {
+                            'build_id': build.id,
+                            'level': 'WARNING',
+                            'type': 'runbot',
+                            'name': 'odoo.runbot',
+                            'message': 'pylint has error. Please '\
+                                                'check pylint log file...',
+                            'path': 'runbot',
+                            'func': 'pylint result',
+                            'line': '0',
+                        })
                         break
         if pylint_error and build.result == "ok":
             build.write({'result': 'warn'})
