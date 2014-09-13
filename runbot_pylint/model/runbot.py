@@ -236,13 +236,6 @@ class RunbotBuild(osv.osv):
             """
         return result
 
-    def job_16_pylint_read_log(self, cr, uid, build, lock_path, log_path, args=None):
-        pylint_log = build.path('logs', 'job_15_pylint.txt')
-        if os.path.isfile(pylint_log):
-            with open(pylint_log, "r") as fpylint_log:
-                build._log('pylint_log', fpylint_log.read())
-        return True
-
     def job_30_run(self, cr, uid, build, lock_path, log_path):
         res = super(RunbotBuild, self).job_30_run(cr, uid, build, lock_path, log_path)
         pylint_log = build.path('logs', 'job_15_pylint.txt')
@@ -252,6 +245,8 @@ class RunbotBuild(osv.osv):
                 for line in fpylint_log.xreadlines():
                     if '****' in line:
                         pylint_error = True
+                        build._log('pylint_log', 'pylint has error. Please '\
+                            'check pylint log file...')
                         break
         if pylint_error and build.result == "ok":
             build.write({'result': 'warn'})
