@@ -59,13 +59,41 @@ class runbot_build(osv.osv):
         'lang': fields.selection(tools.scan_languages(), 'Language', help='Language to change '
                                  'instance after of run test.', copy=True),
     }
+
+    #job_10_test_base = lambda self, cr, uid, build, lock_path, \
+    #    log_path, args=None: build.checkout()#comment this line. only to test faster.
+
     def cmd(self, cr, uid, ids, context=None):
         """Return a list describing the command to start the build"""
         cmd, modules = super(runbot_build, self).cmd(cr, uid, ids, context=context)
         for build in self.browse(cr, uid, ids, context=context):
             if build.lang and build.job == 'job_30_run':
-                cmd.append("--load-language=es_VE")
+                cmd.append("--load-language=%s"%(build.lang))
         return cmd, modules
+
+    def update_lang(self, cr, uid, build, context=None):
+        #TODO: read version of odoo
+        if build.lang:
+            db = "%s-all" % build.dest
+            try:
+                #update odoo version >=7.0
+                run(['psql', db, '-c', "UPDATE res_partner SET lang='%s' "\
+                    "WHERE id IN (SELECT partner_id FROM res_users);"%(build.lang)])
+            except:
+                pass
+            try:
+                #update odoo version <7.0
+                run(['psql', db, '-c', "UPDATE res_users SET lang='%s';"%(build.lang)])
+            except:
+                pass
+        return True
+
+
+    def job_30_run(self, cr, uid, build, lock_path, log_path):
+        res = super(runbot_build, self).job_30_run(cr, uid, build, 
+                lock_path, log_path)
+        self.update_lang(cr, uid, build)
+        return res
 
     def create(self, cr, uid, values, context=None):
         """
