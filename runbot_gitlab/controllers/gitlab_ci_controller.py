@@ -78,8 +78,8 @@ class GitlabCIController(http.Controller):
         """Call on merge request open/close"""
         res = None
         try:
-            logger.info("build with token %s" % token)
-            logger.info("I want the status of commit %s" % sha)
+            logger.debug("build with token %s" % token)
+            logger.debug("I want the status of commit %s" % sha)
             registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
             build_id = registry['runbot.build'].search(
                 cr, uid, [
@@ -89,7 +89,9 @@ class GitlabCIController(http.Controller):
             build = registry['runbot.build'].browse(cr, uid, build_id)
             result = build.result
             state = build.state
-            if result == 'ko':
+            logger.debug("Build status of commit %s is %s" % (sha, state))
+            logger.debug("Build result of commit %s is %s" % (sha, result))
+            if result in ['ko', 'skipped']:
                 status = 'failed'
             elif state == 'pending':
                 status = 'pending'
