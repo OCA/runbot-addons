@@ -64,7 +64,10 @@ class GitlabCIController(http.Controller):
         try:
             registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
             build_id = registry['runbot.build'].search(
-                cr, uid, [('name', '=', sha), ('result', '!=', 'skipped')],
+                cr, uid, [
+                    ('name', 'like', sha + '%'),
+                    ('result', '!=', 'skipped'),
+                ],
                 limit=1
             )[0]
         except (IndexError, KeyError):
@@ -83,7 +86,7 @@ class GitlabCIController(http.Controller):
             registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
             build_id = registry['runbot.build'].search(
                 cr, uid, [
-                    ('name', '=', sha),
+                    ('name', 'like', sha + '%'),
                 ], limit=1
             )[0]
             build = registry['runbot.build'].browse(cr, uid, build_id)
