@@ -15,6 +15,7 @@ install:
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
   - sudo apt-get install python-matplotlib
+  - sudo pip install gitlab3
   - git clone --depth=1 https://github.com/odoo/odoo-extra ~/odoo-extra
 
 script:
