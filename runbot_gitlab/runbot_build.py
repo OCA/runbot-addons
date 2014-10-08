@@ -33,6 +33,7 @@ class runbot_build(orm.Model):
 
     def _get_dest(self, cr, uid, ids, field_name=None, arg=None, context=None):
         r = {}
+        other_ids = []
         for build in self.browse(cr, uid, ids, context=context):
             if (build.branch_id.merge_request_id
                     or '/' not in build.branch_id.name):
@@ -43,7 +44,9 @@ class runbot_build(orm.Model):
                     build.id, nickname, build.name[:6]
                 )
             else:
-                r.update(super(runbot_build, self)._get_dest(
-                    cr, uid, ids, field_name, arg, context=context
-                ))
+                other_ids.append(build.id)
+        if other_ids:
+            r.update(super(runbot_build, self)._get_dest(
+                cr, uid, other_ids, field_name, arg, context=context
+            ))
         return r
