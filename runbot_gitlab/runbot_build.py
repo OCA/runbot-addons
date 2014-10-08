@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-from openerp.osv import orm, fields
+from openerp.osv import orm
 
 dest_subs = [
     (' ', '-'),
@@ -34,7 +34,8 @@ class runbot_build(orm.Model):
     def _get_dest(self, cr, uid, ids, field_name=None, arg=None, context=None):
         r = {}
         for build in self.browse(cr, uid, ids, context=context):
-            if build.branch_id.merge_request_id:
+            if (build.branch_id.merge_request_id
+                    or '/' not in build.branch_id.name):
                 nickname = build.branch_id.name
                 for subs in dest_subs:
                     nickname = nickname.replace(*subs)
@@ -46,13 +47,3 @@ class runbot_build(orm.Model):
                     cr, uid, ids, field_name, arg, context=context
                 ))
         return r
-
-    _columns = {
-        'dest': fields.function(
-            _get_dest,
-            type='char',
-            string='Dest',
-            readonly=1,
-            store=True,
-        ),
-    }
