@@ -22,6 +22,11 @@
 
 from openerp.osv import orm, fields
 
+dest_subs = [
+    (' ', '-'),
+    ('#', ''),
+]
+
 
 class runbot_build(orm.Model):
     _inherit = "runbot.build"
@@ -30,7 +35,9 @@ class runbot_build(orm.Model):
         r = {}
         for build in self.browse(cr, uid, ids, context=context):
             if build.branch_id.merge_request_id:
-                nickname = build.branch_id.name.replace(' ', '-')
+                nickname = build.branch_id.name
+                for subs in dest_subs:
+                    nickname = nickname.replace(*subs)
                 r[build.id] = "%05d-%s-%s" % (
                     build.id, nickname, build.name[:6]
                 )
