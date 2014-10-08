@@ -44,7 +44,8 @@ class GitlabCIController(http.Controller):
                 cr, uid, [('branch_name', '=', ref)]
             )[0]
             build_id = registry['runbot.build'].search(
-                cr, uid, [('branch_id', '=', branch_id)], limit=1
+                cr, uid, [('branch_id', '=', branch_id)], limit=1,
+                order='job_start desc'
             )[0]
         except IndexError:
             return werkzeug.utils.redirect('/runbot/repo/%s' % repo_id)
@@ -68,7 +69,7 @@ class GitlabCIController(http.Controller):
                     ('name', 'like', sha + '%'),
                     ('result', '!=', 'skipped'),
                 ],
-                limit=1
+                limit=1, order='job_start desc'
             )[0]
         except (IndexError, KeyError):
             return werkzeug.utils.redirect('/runbot/repo/%s' % repo_id)
@@ -84,33 +85,40 @@ class GitlabCIController(http.Controller):
             logger.debug("build with token %s" % token)
             logger.debug("I want the status of commit %s" % sha)
             registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
-            build_id = registry['runbot.build'].search(
-                cr, uid, [
-                    ('name', 'like', sha + '%'),
-                ], limit=1
-            )[0]
-            build = registry['runbot.build'].browse(cr, uid, build_id)
-            result = build.result
-            state = build.state
-            logger.debug("Build status of commit %s is %s" % (sha, state))
-            logger.debug("Build result of commit %s is %s" % (sha, result))
-            if result in ['ko', 'skipped']:
+            status = 'unknown'
+            try:
+                build_id = registry['runbot.build'].search(
+                    cr, uid, [
+                        ('name', 'like', sha + '%'),
+                        ('result', '!=', 'skipped'),
+                    ], limit=1, order='job_start desc'
+                )[0]
+                build = registry['runbot.build'].browse(cr, uid, build_id)
+                result = build.result
+                state = build.state
+                logger.debug("Build status of commit %s is %s" % (sha, state))
+                logger.debug("Build result of commit %s is %s" % (sha, result))
+                if result == 'ko':
+                    status = 'failed'
+                elif state == 'pending':
+                    status = 'pending'
+                elif state == 'testing':
+                    status = 'pending'
+                elif state == 'running':
+                    status = 'running'
+                elif result in ['ok', 'warn']:
+                    status = 'success'
+                else:
+                    status = 'unknown'
+            except IndexError:
+                logger.debug("No good builds found for commit %s" % sha)
                 status = 'failed'
-            elif state == 'pending':
-                status = 'pending'
-            elif state == 'testing':
-                status = 'pending'
-            elif state == 'running':
-                status = 'running'
-            elif result in ['ok', 'warn']:
-                status = 'success'
-            else:
-                status = 'unknown'
-            res = {
-                'id': repo_id,
-                'sha': sha,
-                'status': status,
-            }
+            finally:
+                res = {
+                    'id': repo_id,
+                    'sha': sha,
+                    'status': status,
+                }
         finally:
             res = simplejson.dumps(res)
             return Response(res, mimetype='application/json')
