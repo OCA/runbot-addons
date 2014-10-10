@@ -36,7 +36,7 @@ _logger = logging.getLogger(__name__)
 class runbot_repo(osv.osv):
 
     '''
-    Inherit class runbot_repo to add field to select the language that must be assigned to builds 
+    Inherit class runbot_repo to add field to select the language that must be assigned to builds
     that genere the repo.
     '''
     _inherit = "runbot.repo"
@@ -51,7 +51,7 @@ class runbot_build(osv.osv):
 
     '''
     Inherit class runbot_build to add field to select the language & the function with a job
-    to install and assign the language to users if this is captured too is added with an super the 
+    to install and assign the language to users if this is captured too is added with an super the
     function create to assign the language from repo in the builds.
     '''
     _inherit = "runbot.build"
