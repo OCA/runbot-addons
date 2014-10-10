@@ -115,35 +115,8 @@ class RunbotBuild(osv.osv):
                  branch_id.repo_id.pylint_config.id or False}, context=context)
         return new_id
 
-    """
-    def get_module_depends(self, cr, uid, build_id, modules, context=None):
-        import pdb;pdb.set_trace()
-        dict_tmp = {}
-        list_dependences = []
-        build = self.browse(cr, uid, [build_id], context=context)[0]
-        base_path = build.server('addons')
-
-        for module in modules.split(',')
-            module = module.strip()
-            list_dependences.append( module )
-            
-        mod_openerp = os.path.join(base_path, module, '__openerp__.py')
-        if os.path.isfile(mod_openerp):
-            list_depends = eval( open(mod_openerp, "r").read() ).get('depends', False)
-            for depend in list_depends:
-                if not os.path.join(base_path, depend) in list_dependences:
-                    list_dependences.append(os.path.join(base_path, depend))
-                list_dependences.extend([element for element in self.get_module_depends(cr, uid, build_id, depend) if element not in list_dependences])
-        return list_dependences
-    """
-
-    
-
-
     def get_repo_build_paths(self, cr, uid, build_id, repo_id, filter_files=None, \
             filter_dirs=None, isdir=True, check_module_depends=True, context=None):
-        if filter is None:
-            filter = []
         repo_pool = self.pool['runbot.repo']
         repo = repo_pool.browse(cr, uid, [repo_id], context=context)[0]
         build = self.browse(cr, uid, [build_id], context=context)[0]
@@ -186,14 +159,8 @@ class RunbotBuild(osv.osv):
         if args == None:
             args = {}
         build._log('pylint_script', 'Start pylint script')
-        params_extra = []
-        errors = []
-        paths_to_test = []
-        ignore = []
         result = False
         dep = []
-        repo_paths = []
-        repo_depen = []
         if build.pylint_config:
             if build.pylint_config.conf_file:
                 path_pylint_conf = os.path\
