@@ -21,13 +21,13 @@
 ##############################################################################
 
 {
-    'name': 'Runbot Custom Builder',
+    'name': 'Runbot Custom Build and Run Instructions',
     'category': 'Website',
-    'summary': 'Runbot with custom build instructions',
+    'summary': 'Runbot with custom build and run instructions',
     'version': '1.0',
     'description': """
-Runbot Custom Builder
-=====================
+Runbot Custom Build and Run Instructions
+========================================
 
 Runbot with custom build instructions.
 This is useful for custom installation and deployment scripts such as buildout.
