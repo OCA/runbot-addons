@@ -26,12 +26,9 @@
     that install and assign the language to the users in the instance generated.
 '''
 from openerp.osv import fields, osv
-import oerplib
 from openerp import tools
 import logging
-import traceback
 from openerp.addons.runbot.runbot import run
-import time
 
 _logger = logging.getLogger(__name__)
 
