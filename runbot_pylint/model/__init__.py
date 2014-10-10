@@ -26,6 +26,6 @@
 """
 This file is used to import class of files in model folder
 """
-import runbot
-import runbot_pylint
+from . import runbot
+from . import runbot_pylint
 
