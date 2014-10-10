@@ -33,24 +33,26 @@ import stat
 
 _logger = logging.getLogger(__name__)
 
+
 def get_depends(modules, addons_paths, depends=None):
     if depends is None:
         depends = []
     for module in (modules or '').split(','):
         if not module in depends:
-            depends.append( module )
+            depends.append(module)
             for addons_path in (addons_paths or '').split(','):
                 addons_path = addons_path.strip()
-                fname_openerp = os.path.join( addons_path, module, '__openerp__.py' )
-                if os.path.isfile( fname_openerp ):
-                    module_depends_list = eval( open(fname_openerp, "r").read() ).get('depends', [])
+                fname_openerp = os.path.join(addons_path, module, '__openerp__.py')
+                if os.path.isfile(fname_openerp):
+                    module_depends_list = eval(open(fname_openerp, "r").read()).get('depends', [])
                     if module_depends_list:
-                        module_depends_str = ','.join( module_depends_list )
+                        module_depends_str = ','.join(module_depends_list)
                         get_depends(module_depends_str, addons_paths, depends=depends)
     return depends
 
 
 class RunbotRepo(osv.osv):
+
     """
     Added pylint_config field to use a configuration of pylint by repository,
     to use for each build of repository.
@@ -66,6 +68,7 @@ class RunbotRepo(osv.osv):
 
 
 class RunbotBranch(osv.osv):
+
     """
     Added pylint_config field to use a configuration of pylint by repository,
     to use for each build of repository.
@@ -87,6 +90,7 @@ class RunbotBranch(osv.osv):
 
 
 class RunbotBuild(osv.osv):
+
     """
     Added pylint_config field, used by default the configuration of repository.
     """
@@ -103,24 +107,24 @@ class RunbotBuild(osv.osv):
         This method set configuration of pylint.
         """
         new_id = super(RunbotBuild, self).create(cr, uid, values,
-                                                             context=context)
+                                                 context=context)
         if values.get('branch_id', False) and not values\
-                                                    .has_key('pylint_config'):
+                .has_key('pylint_config'):
             branch_id = self.pool.get('runbot.branch').browse(cr, uid,
                                                          values['branch_id'])
             self.write(
                 cr, uid, [new_id],
-                 {'pylint_config': branch_id.repo_id and \
-                 branch_id.repo_id.pylint_config and \
+                {'pylint_config': branch_id.repo_id and
+                 branch_id.repo_id.pylint_config and
                  branch_id.repo_id.pylint_config.id or False}, context=context)
         return new_id
 
-    def get_repo_build_paths(self, cr, uid, build_id, repo_id, filter_files=None, \
+    def get_repo_build_paths(self, cr, uid, build_id, repo_id, filter_files=None,
             filter_dirs=None, isdir=True, check_module_depends=True, context=None):
         repo_pool = self.pool['runbot.repo']
         repo = repo_pool.browse(cr, uid, [repo_id], context=context)[0]
         build = self.browse(cr, uid, [build_id], context=context)[0]
-        #TODO: Add version or sha and replace by master
+        # TODO: Add version or sha and replace by master
         version_build = build.branch_id and build.branch_id.branch_base_name or build.branch_id.branch_name
         #import pdb;pdb.set_trace()
         command_git = ['ls-tree', version_build, '--name-only']
@@ -130,16 +134,16 @@ class RunbotBuild(osv.osv):
         repo_paths_list = repo_paths_str and repo_paths_str.rstrip().replace('addons/', '').split('\n') or []
         paths = []
         if repo_paths_list:
-            #if repo.type == 'main':
+            # if repo.type == 'main':
             base_path = build.server('addons')
             if base_path:
                 for repo_path in repo_paths_list:
                     repo_full_path = os.path.join(base_path, repo_path)
                     if os.path.isdir(repo_full_path) and isdir:
-                        paths.append( repo_full_path )
+                        paths.append(repo_full_path)
                     elif os.path.isfile(repo_full_path) and \
-                           (os.path.splitext(repo_full_path)[1] in filter_files or not filter_files):
-                        paths.append( repo_full_path )
+                            (os.path.splitext(repo_full_path)[1] in filter_files or not filter_files):
+                        paths.append(repo_full_path)
         return paths
 
     #job_10_test_base = lambda self, cr, uid, build, lock_path, log_path, args=None: build.checkout()
@@ -164,37 +168,37 @@ class RunbotBuild(osv.osv):
         if build.pylint_config:
             if build.pylint_config.conf_file:
                 path_pylint_conf = os.path\
-                    .join(os.path.split(build.server())[0], \
+                    .join(os.path.split(build.server())[0],
                     build.pylint_config.conf_file)
-                
+
                 _, modules = build.cmd()
                 dep = get_depends(modules, build.server('addons'))
-                
+
                 repo_module_to_check_pylint = []
                 for build_line in build.line_ids:
                     if build_line.repo_id.check_pylint:
-                        branch_ls = build_line.branch_id.get_module_list( build_line.sha )
-                        repo_module_to_check_pylint.extend( branch_ls )
-                modules_to_check_pylint = list( set(dep) & set(repo_module_to_check_pylint) )
+                        branch_ls = build_line.branch_id.get_module_list(build_line.sha)
+                        repo_module_to_check_pylint.extend(branch_ls)
+                modules_to_check_pylint = list(set(dep) & set(repo_module_to_check_pylint))
 
                 if modules_to_check_pylint:
-                    fname_pylint_run_sh = os.path.join( build.path(), 'pylint_run.sh')
-                    with open( fname_pylint_run_sh, "w" ) as f_pylint_run_sh:
+                    fname_pylint_run_sh = os.path.join(build.path(), 'pylint_run.sh')
+                    with open(fname_pylint_run_sh, "w") as f_pylint_run_sh:
                         f_pylint_run_sh.write("#!/bin/bash\n")
-                        f_pylint_run_sh.write("export PYTHONPATH=$PYTHONPATH:%s\n"%(build.server()))
+                        f_pylint_run_sh.write("export PYTHONPATH=$PYTHONPATH:%s\n" % (build.server()))
                         for module_to_check_pylint in modules_to_check_pylint:
-                            cmd = "pylint --rcfile=%s %s"%( path_pylint_conf, \
-                                os.path.join(build.server('addons'), module_to_check_pylint ))
+                            cmd = "pylint --rcfile=%s %s" % (path_pylint_conf,
+                                os.path.join(build.server('addons'), module_to_check_pylint))
                             #os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '') + ":" + build.server()
-                            f_pylint_run_sh.write( cmd + '\n' )
+                            f_pylint_run_sh.write(cmd + '\n')
 
                         fname_custom_pylint_run = os.path.join(build.path(), "check_ast/check_print_and_pdb.py")
-                        if os.path.isfile( fname_custom_pylint_run ):
+                        if os.path.isfile(fname_custom_pylint_run):
                             for module_to_check_pylint in modules_to_check_pylint:
-                                cmd = "%s %s"%( fname_custom_pylint_run, \
-                                    os.path.join(build.server('addons'), \
-                                    module_to_check_pylint ))
-                                f_pylint_run_sh.write( cmd + '\n' )
+                                cmd = "%s %s" % (fname_custom_pylint_run,
+                                    os.path.join(build.server('addons'),
+                                    module_to_check_pylint))
+                                f_pylint_run_sh.write(cmd + '\n')
 
                     st = os.stat(fname_pylint_run_sh)
                     os.chmod(fname_pylint_run_sh, st.st_mode | stat.S_IEXEC)
@@ -202,7 +206,7 @@ class RunbotBuild(osv.osv):
         return result
 
     def job_30_run(self, cr, uid, build, lock_path, log_path):
-        res = super(RunbotBuild, self).job_30_run(cr, uid, build, lock_path,\
+        res = super(RunbotBuild, self).job_30_run(cr, uid, build, lock_path,
                      log_path)
         pylint_log = build.path('logs', 'job_15_pylint.txt')
         pylint_error = False
@@ -226,7 +230,7 @@ class RunbotBuild(osv.osv):
                         })
                         count += 1
                         if count >= max_log_lines:
-                            build._log('pylint_script', 'pylint has many '\
+                            build._log('pylint_script', 'pylint has many '
                               'errors. Please check pylint full log file...')
                             break
         if pylint_error and build.result == "ok":
