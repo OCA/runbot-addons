@@ -27,7 +27,7 @@
 This module added new pylint test, this improvement quality of development,
     following standard guidelines of python language.
 """
-
+'''
 from openerp.osv import fields, osv, expression
 import os
 import ast
@@ -55,30 +55,15 @@ def _get_paths_py_to_test(path):
 class PylintConf(osv.osv):
 
     """
-    This new class is used to select errors, path to test, and files to ignore.
+    Class used to select errors config file path, path to test, and files to ignore.
     """
 
     _name = "pylint.conf"
+    _rec_name = "conf_file"
 
     _columns = {
-        'name': fields.char("Name"),
-        'path_to_test': fields.char(string="Path to test"),
-        'ignore': fields.char(string="Ignore files"),
-        'error_ids': fields.many2many(
-            'pylint.error', 'pylint_conf_rel_error', 'conf_id', 'error_id',
-            "Errors"),
-        'check_print': fields.boolean(string='Check Prints',
-             help='Selected, to find prints in all py files in the'
-             + 'specified path.'),
-        'check_pdb': fields.boolean(string='Check Pdb',
-             help='Selected, to find pdb in all py files in the'
-             + 'specified path.'),
-        'conf_file': fields.char(string="File of configuration",
-             help='Indicate the name of the configuration file cfg extension')
-    }
-
-    _defaults = {
-        'ignore': "__openerp__.py"
+        'conf_file': fields.char("File of configuration",
+             help='Indicate the relative path of configuration file cfg')
     }
 
     def _run_test_pylint(self, cr, uid, errors, paths_to_test,
@@ -156,8 +141,8 @@ class PylintConf(osv.osv):
                                     'func': 'Detect pdb',
                                     'line': node.lineno,
                                 }, context=context)
-
-
+'''
+'''
 class PylintError(osv.osv):
 
     """
@@ -224,3 +209,4 @@ class PylintError(osv.osv):
                 name = record['code'] + ' ' + name
             res.append((record['id'], name))
         return res
+'''
