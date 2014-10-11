@@ -98,13 +98,14 @@ class RunbotRepo(osv.osv):
 class RunbotBuild(osv.osv):
 
     """
-    Added pylint_conf_path field, used by default the configuration of repository.
+    Added pylint_conf_path field, 
+    used by default the configuration of repository.
     """
 
     _inherit = "runbot.build"
 
     _columns = {
-        'pylint_conf_path': fields.char('pylint conf path', 
+        'pylint_conf_path': fields.char('pylint conf path',\
                                    help='Relative path to pylint conf file'),
     }
 
@@ -112,51 +113,23 @@ class RunbotBuild(osv.osv):
         """
         This method set configuration of pylint.
         """
-        new_id = super(RunbotBuild, self).create(cr, uid, values,
-                                                 context=context)
         if values.get('branch_id', False) and not values\
                 .has_key('pylint_conf_path'):
-            branch_id = self.pool.get('runbot.branch').browse(cr, uid,
-                                                         values['branch_id'])
-            self.write(
-                cr, uid, [new_id],
-                {'pylint_conf_path': pylint_conf_path
-                }, context=context)
-        return new_id
-
-    def get_repo_build_paths(self, cr, uid, build_id, repo_id, filter_files=None,
-            filter_dirs=None, isdir=True, check_module_depends=True, context=None):
-        repo_pool = self.pool['runbot.repo']
-        repo = repo_pool.browse(cr, uid, [repo_id], context=context)[0]
-        build = self.browse(cr, uid, [build_id], context=context)[0]
-        # TODO: Add version or sha and replace by master
-        version_build = build.branch_id and build.branch_id.branch_base_name or build.branch_id.branch_name
-        #import pdb;pdb.set_trace()
-        command_git = ['ls-tree', version_build, '--name-only']
-        if repo.type == 'main':
-            command_git.append('addons/')
-        repo_paths_str = repo.git(command_git)
-        repo_paths_list = repo_paths_str and repo_paths_str.rstrip().replace('addons/', '').split('\n') or []
-        paths = []
-        if repo_paths_list:
-            # if repo.type == 'main':
-            base_path = build.server('addons')
-            if base_path:
-                for repo_path in repo_paths_list:
-                    repo_full_path = os.path.join(base_path, repo_path)
-                    if os.path.isdir(repo_full_path) and isdir:
-                        paths.append(repo_full_path)
-                    elif os.path.isfile(repo_full_path) and \
-                            (os.path.splitext(repo_full_path)[1] in filter_files or not filter_files):
-                        paths.append(repo_full_path)
-        return paths
+            branch_id = self.pool.get('runbot.branch').\
+                        browse(cr, uid, values['branch_id'])
+            values.update({
+                'pylint_conf_path': branch_id.repo_id and
+                                    branch_id.repo_id.pylint_conf_path
+            })
+        return super(RunbotBuild, self).create(cr, uid, values,
+                                                 context=context)
 
     #job_10_test_base = lambda self, cr, uid, build, lock_path, log_path, args=None: build.checkout()
-    
+
     def get_repo_branch_name(self, cr, uid, ids, context=None):
         """
         This method get all repo id and branch name from a build.
-        Include from dependency repo.
+        Include dependency repo.
         return dict {repo.id = branch_name}
         """
         if not ids:
@@ -257,6 +230,9 @@ class RunbotBuild(osv.osv):
         return result
 
     def job_30_run(self, cr, uid, build, lock_path, log_path):
+        """
+        Inherit method to make logs from pylint errors
+        """
         res = super(RunbotBuild, self).job_30_run(cr, uid, build, lock_path,
                      log_path)
         pylint_log = build.path('logs', 'job_15_pylint.txt')
