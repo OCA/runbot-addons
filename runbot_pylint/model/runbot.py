@@ -31,7 +31,7 @@ from openerp.osv import fields, osv
 import logging
 import os
 import stat
-
+from openerp.tools.safe_eval import safe_eval
 _logger = logging.getLogger(__name__)
 
 
@@ -48,7 +48,7 @@ def get_depends(modules, addons_paths, depends=None):
                 addons_path = addons_path.strip()
                 fname_openerp = os.path.join(addons_path, module, '__openerp__.py')
                 if os.path.isfile(fname_openerp):
-                    module_depends_list = eval(open(fname_openerp, "r").read()).get('depends', [])
+                    module_depends_list = safe_eval(open(fname_openerp, "r").read()).get('depends', [])
                     if module_depends_list:
                         module_depends_str = ','.join(module_depends_list)
                         get_depends(module_depends_str, addons_paths, depends=depends)
