@@ -130,7 +130,7 @@ class RunbotBuild(osv.osv):
                     branch_id.repo_id and branch_id.repo_id.pylint_conf_path
             })
         return super(RunbotBuild, self)._create(cr, user, values,
-                                               context=context)
+                                                context=context)
 
     # job_10_test_base = \
     #    lambda self, cr, uid, build, lock_path, log_path, args=None:\
