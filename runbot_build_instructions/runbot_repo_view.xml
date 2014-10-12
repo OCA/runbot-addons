@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_repo_form" model="ir.ui.view">
+      <field name="model">runbot.repo</field>
+      <field name="inherit_id" ref="runbot.view_repo_form"/>
+      <field name="arch" type="xml">
+        <field name="modules" position="attributes">
+          <attribute name="attrs">{'required': [('is_custom_build', '=', True)]}</attribute>
+        </field>
+        <group string="Params" position="after">
+          <group name="custom">
+            <field name="is_custom_build"/>
+            <field name="custom_build_dir" attrs="{'invisible': [('is_custom_build', '=', False)]}"/>
+            <field name="custom_server_path" attrs="{'invisible': [('is_custom_build', '=', False)], 'required': [('is_custom_build', '=', True)]}"/>
+            <field name="custom_server_params" attrs="{'invisible': [('is_custom_build', '=', False)]}"/>
+            <field name="custom_pre_build_cmd" attrs="{'invisible': [('is_custom_build', '=', False)]}"/>
+          </group>
+        </group>
+      </field>
+    </record>
+
+  </data>
+</openerp>
