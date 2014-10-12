@@ -39,9 +39,6 @@ You can select type of error to test, path to test, ignore files...""",
     },
     'data': [
         "view/runbot_pylint_view.xml",
-        "view/pylint_view.xml",
-        "data/pylint_error_data.xml",
-        "security/ir.model.access.csv"
     ],
     'installable': True,
 }

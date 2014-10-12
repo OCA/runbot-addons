@@ -27,5 +27,3 @@
 This file is used to import class of files in model folder
 """
 from . import runbot
-from . import runbot_pylint
-
