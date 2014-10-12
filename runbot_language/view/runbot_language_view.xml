@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!--inherit runbot.build-->
+        <record id="view_build_form_inh_lang_01" model="ir.ui.view">
+            <field name="model">runbot.build</field>
+            <field name="inherit_id" ref="runbot.view_build_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="lang"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="view_build_tree_inh_lang_01" model="ir.ui.view">
+            <field name="model">runbot.build</field>
+            <field name="inherit_id" ref="runbot.view_build_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='port']" position="after">
+                    <field name="lang"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="view_build_search_inh_lang_01" model="ir.ui.view">
+            <field name="model">runbot.build</field>
+            <field name="inherit_id" ref="runbot.view_build_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='dest']" position="after">
+                    <field name="lang"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <!--inherit runbot.repo-->
+        <record id="view_repo_form_inh_lang_01" model="ir.ui.view">
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='auto']" position="after">
+                    <field name="lang"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="view_repo_tree_inh_lang_01" model="ir.ui.view">
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='auto']" position="after">
+                    <field name="lang"/>
+                </xpath>
+            </field>
+        </record>
+        
+
+        <!--Inherit runbot qweb view-->
+        <template id="build_button_language" inherit_id="runbot.build_button">
+            <xpath expr="//li[7]" position="after">
+                <li><a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_30_run.txt">Run instance logs<i class="fa fa-file-text-o"/></a></li>
+            </xpath>
+        </template>
+
+    </data>
+</openerp>
