@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <template id="build_button_https" inherit_id="runbot.build_button">
+      <xpath expr="//a[@class='btn btn-primary']" position="attributes">
+        <attribute name="t-attf-href">https://{{bu['domain']}}/?db={{bu['dest']}}-all</attribute>
+      </xpath>
+    </template>
+
+  </data>
+</openerp>
