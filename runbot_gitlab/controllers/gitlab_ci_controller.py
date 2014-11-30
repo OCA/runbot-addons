@@ -44,8 +44,10 @@ class GitlabCIController(http.Controller):
                 cr, uid, [('branch_name', '=', ref)]
             )[0]
             build_id = registry['runbot.build'].search(
-                cr, uid, [('branch_id', '=', branch_id)], limit=1,
-                order='job_start desc'
+                cr, uid, [
+                    ('branch_id', '=', branch_id),
+                    ('result', '!=', 'skipped'),
+                ], limit=1, order='job_start desc',
             )[0]
         except IndexError:
             return werkzeug.utils.redirect('/runbot/repo/%s' % repo_id)
