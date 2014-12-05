@@ -135,7 +135,7 @@ class runbot_build(orm.Model):
         """
         build = self.browse(cr, uid, ids[0], context=context)
         server_path = build.path(build.repo_id.custom_server_path)
-        mods = build.repo_id.modules
+        mods = build.repo_id.modules or "base"
         params = self.sub_cmd(build, build.repo_id.custom_server_params)
         # commandline
         cmd = [
