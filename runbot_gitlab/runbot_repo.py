@@ -48,7 +48,7 @@ def gitlab_api(func):
 
 
 def get_gitlab_params(base):
-    mo = re.search('([^/]+)(/(\d+))?/([^/]+)/([^/.]+)(\.git)?', base)
+    mo = re.search(r'([^/]+)(/(\d+))?/([^/]+)/([^/.]+)(\.git)?', base)
     if not mo:
         return
     domain = mo.group(1)
