@@ -20,15 +20,24 @@
 #
 ##############################################################################
 
+import os
+
 import logging
 _logger = logging.getLogger(__name__)
 
-from openerp import models, api
+from openerp import models, api, SUPERUSER_ID
 
 
 class RunbotRepo(models.Model):
     """Aggressively clean filesystem databases and processes."""
     _inherit = "runbot.repo"
+
+    def __init__(self, pool, cr):
+        """On reinitialisation of db, mark all builds as done"""
+        super(RunbotRepo, self).__init__(pool, cr)
+        runbot_build = pool['runbot.build']
+        ids = pool['runbot.build'].search(cr, SUPERUSER_ID, [])
+        runbot_build.write(cr, SUPERUSER_ID, ids, {'state': 'done'})
 
     @api.model
     def cron(self):
@@ -39,11 +48,20 @@ class RunbotRepo(models.Model):
     def clean_up(self):
         """Examines the build directory, identify leftover builds then
         call the cleans: filesystem, database, process
+
+        Leftover builds will have state done
         """
-        pattern = ""
-        self.clean_up_database(pattern)
-        self.clean_up_process(pattern)
-        self.clean_up_filesystem(pattern)
+        build_root = os.path.join(self.root(), 'build')
+        build_dirs = set(os.listdir(build_root))
+        valid_builds = [b.dest for b in self.env['runbot.build'].search([
+            ('dest', 'in', list(build_dirs)),
+            ('state', '!=', 'done')
+        ])]
+        for pattern in build_dirs.difference(valid_builds):
+            _logger.info("Runbot Janitor Cleaning up Residue: %s" % pattern)
+            self.clean_up_database(pattern)
+            self.clean_up_process(pattern)
+            self.clean_up_filesystem(pattern)
 
     def clean_up_database(self, pattern):
         """Drop all databases whose names match the directory names matching
