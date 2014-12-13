@@ -24,6 +24,8 @@ import shutil
 import tempfile
 import subprocess
 import sys
+import psutil
+import signal
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -63,12 +65,14 @@ class TestRunbotRepo(TransactionCase):
         self.build_filename = self.build_file_handle[1]
         with open(self.build_filename, 'w') as f:
             f.write("from time import sleep; sleep(60)")
-        os.chmod(self.build_filename, 0o111)
-        self.process = subprocess.Popen([sys.executable, self.build_filename])
+        self.process = subprocess.Popen(
+            [sys.executable, self.build_filename, '-d', self.all_database],
+        )
 
     def tearDown(self):
         """Delete temp build dir, kill process and drop database"""
-        self.process.kill()
+        if self.process.returncode is None:
+            self.process.kill()
         if os.path.isdir(self.build_dir):
             shutil.rmtree(self.build_dir)
         # Database
@@ -82,7 +86,11 @@ class TestRunbotRepo(TransactionCase):
 
         :param pattern: string
         """
-        pass
+        self.assertIn(self.process.pid, psutil.pids())
+        self.assertIsNone(self.process.returncode)
+        self.runbot_repo.clean_up_process(self.build_basename)
+        self.process.wait()
+        self.assertEqual(self.process.returncode, -signal.SIGKILL)
 
     def test_clean_up_database(self):
         """Drop all databases whose names match the directory names matching

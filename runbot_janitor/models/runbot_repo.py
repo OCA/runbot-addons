@@ -25,6 +25,8 @@ import shutil
 import re
 import pwd
 import time
+import psutil
+import signal
 
 from contextlib import closing
 
@@ -83,6 +85,7 @@ class RunbotRepo(models.Model):
 
         Leftover builds will have state done
         """
+        self.clean_up_pids()
         build_root = os.path.join(self.root(), 'build')
         build_dirs = set(os.listdir(build_root))
         valid_builds = [b.dest for b in self.env['runbot.build'].search([
@@ -94,6 +97,25 @@ class RunbotRepo(models.Model):
             self.clean_up_database(pattern)
             self.clean_up_process(pattern)
             self.clean_up_filesystem(pattern)
+
+    def clean_up_pids(self):
+        """Check if builds have pids registered which are no longer running
+
+        Mark those as done
+        Kill all done pids
+        """
+        # Mark build with non-running pids as done
+        self.env['runbot.build'].search([
+            ('pid', '!=', False),
+            ('pid', 'not in', psutil.pids()),
+            ('state', '!=', 'done')
+        ]).write({'state': 'done'})
+        # Kill still running pids
+        for build in self.env['runbot.build'].search([
+            ('pid', 'in', psutil.pids()),
+            ('state', '=', 'done')
+        ]):
+            os.kill(build.pid, signal.SIGKILL)
 
     def clean_up_database(self, pattern):
         """Drop all databases whose names match the directory names matching
@@ -115,7 +137,10 @@ class RunbotRepo(models.Model):
 
         :param pattern: string
         """
-        pass
+        regex = re.compile(r'.*-d {}.*'.format(pattern))
+        for process in psutil.process_iter():
+            if regex.match(" ".join(process.cmdline())):
+                process.kill()
 
     def clean_up_filesystem(self, pattern):
         """Delete the directory and its contents matching the pattern.
