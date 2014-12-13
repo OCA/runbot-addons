@@ -96,4 +96,6 @@ class TestRunbotRepo(TransactionCase):
 
         :param pattern: string
         """
-        pass
+        self.assertTrue(os.path.isdir(self.build_dir))
+        self.runbot_repo.clean_up_filesystem(self.build_basename)
+        self.assertFalse(os.path.isdir(self.build_dir))

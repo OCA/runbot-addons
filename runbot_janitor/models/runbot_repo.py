@@ -21,6 +21,7 @@
 ##############################################################################
 
 import os
+import shutil
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -85,4 +86,5 @@ class RunbotRepo(models.Model):
 
         :param pattern: string
         """
-        pass
+        pattern_path = os.path.join(self.root(), 'build', pattern)
+        shutil.rmtree(pattern_path)
