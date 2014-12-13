@@ -22,11 +22,42 @@
 
 import os
 import shutil
+import re
+import pwd
+import time
+
+from contextlib import closing
 
 import logging
 _logger = logging.getLogger(__name__)
 
-from openerp import models, api, SUPERUSER_ID
+from openerp import models, api, SUPERUSER_ID, tools, sql_db
+
+
+def exp_list_posix_user():
+    """Rewrite/simplified version of openerp.service.exp_list()
+    Lists all databases owned by the current posix user instead of the db_user
+    from odoo config.
+    The reason for this is because runbot creates databases with the posix
+    user.
+    :returns list of databases owned by the posix user
+    """
+    chosen_template = tools.config['db_template']
+    templates_list = {'template0', 'template1', 'postgres', chosen_template}
+    db = sql_db.db_connect('postgres')
+    with closing(db.cursor()) as cr:
+        db_user = pwd.getpwuid(os.getuid())[0]
+        cr.execute("""
+SELECT datname
+FROM pg_database
+WHERE datdba=(
+    SELECT usesysid
+    FROM pg_user
+    WHERE usename=%s
+) AND datname NOT IN %s order by datname""", (db_user, tuple(templates_list)))
+        res = [tools.ustr(name) for (name,) in cr.fetchall()]
+    res.sort()
+    return res
 
 
 class RunbotRepo(models.Model):
@@ -70,7 +101,12 @@ class RunbotRepo(models.Model):
 
         :param pattern:string
         """
-        pass
+        runbot_build = self.env['runbot.build']
+        regex = re.compile(r'{}.*'.format(pattern))
+        db_list = exp_list_posix_user()
+        time.sleep(1)  # Give time for the cursor to close properly
+        for db_name in filter(regex.match, db_list):
+            runbot_build.pg_dropdb(dbname=db_name)
 
     def clean_up_process(self, pattern):
         """Kill processes which run executables in those directories or are

@@ -29,6 +29,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from openerp.tests import TransactionCase
+from ..models.runbot_repo import exp_list_posix_user
 
 
 class TestRunbotRepo(TransactionCase):
@@ -89,7 +90,17 @@ class TestRunbotRepo(TransactionCase):
 
         :param pattern:string
         """
-        pass
+        db_list = exp_list_posix_user()
+        self.assertIn(self.base_database, db_list)
+        self.assertIn(self.all_database, db_list)
+
+        # cleaning all the test database
+        self.runbot_repo.clean_up_database(self.build_basename)
+
+        # Need to refresh the db list
+        db_list = exp_list_posix_user()
+        self.assertNotIn(self.base_database, db_list)
+        self.assertNotIn(self.all_database, db_list)
 
     def test_clean_up_filesystem(self):
         """Delete the directory and its contents matching the pattern.
