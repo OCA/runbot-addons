@@ -23,12 +23,17 @@
 from openerp import models, fields
 
 
-class runbot_branch(models.Model):
+class RunbotBranch(models.Model):
     _inherit = "runbot.branch"
     project_id = fields.Integer('VCS Project', select=1)
     merge_request_id = fields.Integer('Merge Request', select=1)
 
     def _get_branch_url(self, cr, uid, ids, field_name, arg, context=None):
+        """For gitlab branches get gitlab MR formatted branches
+
+        If not an MR (such as a main branch or github repo) call super
+        function
+        """
         r = {}
         for branch in self.browse(cr, uid, ids, context=context):
             if branch.merge_request_id:
