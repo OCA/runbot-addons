@@ -49,6 +49,8 @@ class TestRunbotRepo(TransactionCase):
 
         # Filesystem
         self.root = os.path.join(self.runbot_repo.root(), 'build')
+        if not os.path.exists(self.root):
+            os.mkdir(self.root)
         self.build_dir = tempfile.mkdtemp(dir=self.root)
         self.build_basename = os.path.basename(self.build_dir)
         self.build_file_handle = tempfile.mkstemp(
