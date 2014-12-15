@@ -164,7 +164,7 @@ class RunbotRepo(models.Model):
             branch_ids = self.env['runbot.branch'].search([
                 ('repo_id', '=', self.id),
                 ('project_id', '=', project.id),
-                ('merge_request_id', '=', mr.id),
+                ('merge_request_id', '=', mr.iid),
             ])
             if branch_ids:
                 branch_id = branch_ids[0]
@@ -175,7 +175,7 @@ class RunbotRepo(models.Model):
                     'repo_id': self.id,
                     'name': title,
                     'project_id': project.id,
-                    'merge_request_id': mr.id,
+                    'merge_request_id': mr.iid,
                 })
             # Create build (and mark previous builds as skipped) if not found
             build_ids = self.env['runbot.build'].search([

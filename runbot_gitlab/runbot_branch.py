@@ -35,6 +35,7 @@ class RunbotBranch(models.Model):
         function
         """
         r = {}
+        other_branch_ids = []
         for branch in self.browse(cr, uid, ids, context=context):
             if branch.merge_request_id:
                 r[branch.id] = "https://%s/merge_requests/%s" % (
@@ -42,7 +43,10 @@ class RunbotBranch(models.Model):
                     branch.merge_request_id,
                 )
             else:
-                r[branch.id] = super(runbot_branch, self)._get_branch_url(
-                    cr, uid, ids, field_name, arg, context=context
-                )
+                other_branch_ids.append(branch.id)
+        r.update(
+            super(RunbotBranch, self)._get_branch_url(
+                cr, uid, other_branch_ids, field_name, arg, context=context
+            )
+        )
         return r
