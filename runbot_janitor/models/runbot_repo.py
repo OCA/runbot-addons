@@ -84,9 +84,12 @@ class RunbotRepo(models.Model):
         call the cleans: filesystem, database, process
 
         Leftover builds will have state done
+        Skip if the build directory hasn't been created yet
         """
         self.clean_up_pids()
         build_root = os.path.join(self.root(), 'build')
+        if not os.path.exists(build_root):
+            return
         build_dirs = set(os.listdir(build_root))
         valid_builds = [b.dest for b in self.env['runbot.build'].search([
             ('dest', 'in', list(build_dirs)),
