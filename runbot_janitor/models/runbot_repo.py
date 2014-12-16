@@ -99,9 +99,18 @@ class RunbotRepo(models.Model):
         _logger.debug("valid_builds = %s" % valid_builds)
         for pattern in build_dirs.difference(valid_builds):
             _logger.info("Runbot Janitor Cleaning up Residue: %s" % pattern)
-            self.clean_up_database(pattern)
-            self.clean_up_process(pattern)
-            self.clean_up_filesystem(pattern)
+            try:
+                self.clean_up_database(pattern)
+            except OSError as e:
+                _logger.error(e)
+            try:
+                self.clean_up_process(pattern)
+            except OSError as e:
+                _logger.error(e)
+            try:
+                self.clean_up_filesystem(pattern)
+            except OSError as e:
+                _logger.error(e)
 
     def clean_up_pids(self):
         """Check if builds have pids registered which are no longer running
