@@ -113,18 +113,8 @@ class RunbotRepo(models.Model):
                 _logger.error(e)
 
     def clean_up_pids(self):
-        """Check if builds have pids registered which are no longer running
-
-        Mark those as done
-        Kill all done pids
+        """Kill all done pids which are still running
         """
-        # Mark build with non-running pids as done
-        self.env['runbot.build'].search([
-            ('pid', '!=', False),
-            ('pid', 'not in', psutil.pids()),
-            ('state', '!=', 'done')
-        ]).write({'state': 'done'})
-        # Kill still running pids
         for build in self.env['runbot.build'].search([
             ('pid', 'in', psutil.pids()),
             ('state', '=', 'done')
