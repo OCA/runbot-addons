@@ -42,7 +42,7 @@ def gitlab_api(func):
         if self.uses_gitlab:
             return func(self, *args, **kwargs)
         else:
-            regular_func = getattr(super(runbot_repo, self), func.func_name)
+            regular_func = getattr(super(RunbotRepo, self), func.func_name)
             return regular_func(*args, **kwargs)
     return gitlab_func
 
@@ -91,13 +91,13 @@ def set_gitlab_ci_conf(token, gitlab_url, runbot_domain, repo_id):
     requests.put(url, data=data, headers=headers)
 
 
-class runbot_repo(models.Model):
+class RunbotRepo(models.Model):
     _inherit = "runbot.repo"
     uses_gitlab = fields.Boolean('Use Gitlab')
 
     @api.model
     def create(self, vals):
-        repo_id = super(runbot_repo, self).create(vals)
+        repo_id = super(RunbotRepo, self).create(vals)
         set_gitlab_ci_conf(
             vals.get('token'),
             vals.get('name'),
@@ -108,7 +108,7 @@ class runbot_repo(models.Model):
 
     @api.multi
     def write(self, vals):
-        super(runbot_repo, self).write(vals)
+        super(RunbotRepo, self).write(vals)
         set_gitlab_ci_conf(
             vals.get('token', self.token),
             vals.get('name', self.name),
@@ -164,7 +164,7 @@ class runbot_repo(models.Model):
             branch_ids = self.env['runbot.branch'].search([
                 ('repo_id', '=', self.id),
                 ('project_id', '=', project.id),
-                ('merge_request_id', '=', mr.id),
+                ('merge_request_id', '=', mr.iid),
             ])
             if branch_ids:
                 branch_id = branch_ids[0]
@@ -175,7 +175,7 @@ class runbot_repo(models.Model):
                     'repo_id': self.id,
                     'name': title,
                     'project_id': project.id,
-                    'merge_request_id': mr.id,
+                    'merge_request_id': mr.iid,
                 })
             # Create build (and mark previous builds as skipped) if not found
             build_ids = self.env['runbot.build'].search([
@@ -213,7 +213,7 @@ class runbot_repo(models.Model):
         for mr in closed_mrs:
             mr.unlink()
 
-        super(runbot_repo, self).update()
+        super(RunbotRepo, self).update()
 
         # Put all protected branches as sticky
         protected_branches = set(
