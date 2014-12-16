@@ -32,6 +32,7 @@ from contextlib import closing
 
 import logging
 _logger = logging.getLogger(__name__)
+_logger.setLevel(logging.DEBUG)
 
 from openerp import models, api, SUPERUSER_ID, tools, sql_db
 
@@ -155,7 +156,16 @@ class RunbotRepo(models.Model):
     def clean_up_filesystem(self, pattern):
         """Delete the directory and its contents matching the pattern.
 
+        If there are logs, delete everything except those
+
         :param pattern: string
         """
         pattern_path = os.path.join(self.root(), 'build', pattern)
-        shutil.rmtree(pattern_path)
+        log_dir = os.path.join(pattern_path, 'logs')
+        if os.path.isdir(log_dir) and os.listdir(log_dir):
+            for directory in os.listdir(pattern_path):
+                if directory == 'logs':
+                    continue
+                shutil.rmtree(directory)
+        else:
+            shutil.rmtree(pattern_path)
