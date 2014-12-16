@@ -27,7 +27,7 @@ import shutil
 import subprocess
 
 import openerp
-from openerp.osv import orm
+from openerp.osv import orm, fields
 from openerp.addons.runbot.runbot import mkdirs
 
 _logger = logging.getLogger(__name__)
@@ -57,6 +57,17 @@ def custom_build(func):
 
 class runbot_build(orm.Model):
     _inherit = "runbot.build"
+    _columns = {
+        'prebuilt': fields.boolean("Prebuilt"),
+    }
+
+    def job_00_prebuild(self, cr, uid, build, lock_path, log_path):
+        build._log('test_base', 'Start pre-build commands')
+        # checkout source
+        build.checkout()
+        if build.branch_id.repo_id.is_custom_build:
+            build.pre_build()
+        build.prebuilt = True
 
     def sub_cmd(self, build, cmd):
         if not cmd:
@@ -78,6 +89,8 @@ class runbot_build(orm.Model):
         pushd = os.getcwd()
         try:
             for build in self.browse(cr, uid, ids, context=context):
+                if build.prebuilt:
+                    continue
                 cmd = self.sub_cmd(build, build.repo_id.custom_pre_build_cmd)
                 if not cmd:
                     continue
@@ -95,6 +108,8 @@ class runbot_build(orm.Model):
         Do same as superclass except for git_export path.
         """
         for build in self.browse(cr, uid, ids, context=context):
+            if build.prebuilt:
+                continue
             # starts from scratch
             if os.path.isdir(build.path()):
                 shutil.rmtree(build.path())
@@ -109,7 +124,6 @@ class runbot_build(orm.Model):
                 mkdirs([build.path(custom_build_dir)])
                 build_path = os.path.join(build_path, custom_build_dir)
             build.repo_id.git_export(build.name, build_path)
-        self.pre_build(cr, uid, ids, context=context)
 
     @custom_build
     def cmd(self, cr, uid, ids, context=None):
@@ -121,7 +135,7 @@ class runbot_build(orm.Model):
         """
         build = self.browse(cr, uid, ids[0], context=context)
         server_path = build.path(build.repo_id.custom_server_path)
-        mods = build.repo_id.modules
+        mods = build.repo_id.modules or "base"
         params = self.sub_cmd(build, build.repo_id.custom_server_params)
         # commandline
         cmd = [

@@ -21,5 +21,11 @@
       </field>
     </record>
 
+    <template id="build_button" inherit_id="runbot.build_button">
+      <xpath expr="//ul[@class='dropdown-menu']/li[5]" position="before">
+        <li><a t-attf-href="http://{{bu['host']}}/runbot/static/build/#{bu['real_dest']}/logs/job_00_prebuild.txt">Full build logs <i class="fa fa-file-text-o"/></a></li>
+      </xpath>
+    </template>
+
   </data>
 </openerp>
