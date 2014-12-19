@@ -177,7 +177,7 @@ class RunbotRepo(models.Model):
                 path = os.path.join(pattern_path, name)
                 if name == 'logs':
                     continue
-                if os.path.isdir(path)
+                if os.path.isdir(path):
                         shutil.rmtree(path)
                 else:
                     os.unlink(path)
