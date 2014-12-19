@@ -71,7 +71,7 @@ class RunbotRepo(models.Model):
         """On reinitialisation of db, mark all builds as done"""
         super(RunbotRepo, self).__init__(pool, cr)
         runbot_build = pool['runbot.build']
-        ids = pool['runbot.build'].search(cr, SUPERUSER_ID, [])
+        ids = pool['runbot.build'].search(cr, SUPERUSER_ID, [('state', '!=', 'done')])
         _logger.info('marking %d builds as done', len(ids))
         runbot_build.write(cr, SUPERUSER_ID, ids, {'state': 'done'})
 
