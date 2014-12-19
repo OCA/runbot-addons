@@ -103,15 +103,15 @@ class RunbotRepo(models.Model):
             try:
                 self.clean_up_database(pattern)
             except OSError as e:
-                _logger.error(e)
+                _logger.error('Error in database cleanup: %s', e)
             try:
                 self.clean_up_process(pattern)
             except OSError as e:
-                _logger.error(e)
+                _logger.error('Error in process cleanup: %s', e)
             try:
                 self.clean_up_filesystem(pattern)
             except OSError as e:
-                _logger.error(e)
+                _logger.error('Error in file system cleanup: %s', e)
 
     def clean_up_pids(self):
         """Kill all done pids which are still running
