@@ -72,6 +72,7 @@ class RunbotRepo(models.Model):
         super(RunbotRepo, self).__init__(pool, cr)
         runbot_build = pool['runbot.build']
         ids = pool['runbot.build'].search(cr, SUPERUSER_ID, [])
+        _logger.info('marking %d builds as done', len(ids))
         runbot_build.write(cr, SUPERUSER_ID, ids, {'state': 'done'})
 
     @api.model
