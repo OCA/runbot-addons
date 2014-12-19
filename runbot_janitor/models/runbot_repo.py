@@ -96,10 +96,10 @@ class RunbotRepo(models.Model):
             ('dest', 'in', list(build_dirs)),
             ('state', '!=', 'done')
         ])]
-        _logger.debug("build_dirs = %s" % build_dirs)
-        _logger.debug("valid_builds = %s" % valid_builds)
+        _logger.debug("build_dirs = %s", build_dirs)
+        _logger.debug("valid_builds = %s", valid_builds)
         for pattern in build_dirs.difference(valid_builds):
-            _logger.info("Runbot Janitor Cleaning up Residue: %s" % pattern)
+            _logger.info("Runbot Janitor Cleaning up Residue: %s", pattern)
             try:
                 self.clean_up_database(pattern)
             except OSError as e:
@@ -120,7 +120,7 @@ class RunbotRepo(models.Model):
             ('pid', 'in', psutil.pids()),
             ('state', '=', 'done')
         ]):
-            _logger.debug("Killing pid %s" % build.pid)
+            _logger.debug("Killing pid %s", build.pid)
             try:
                 os.kill(build.pid, signal.SIGKILL)
             except OSError, exc:
@@ -138,7 +138,7 @@ class RunbotRepo(models.Model):
         db_list = exp_list_posix_user()
         time.sleep(1)  # Give time for the cursor to close properly
         for db_name in filter(regex.match, db_list):
-            _logger.debug("Dropping %s" % db_name)
+            _logger.debug("Dropping %s", db_name)
             runbot_build.pg_dropdb(dbname=db_name)
 
     def clean_up_process(self, pattern):
@@ -151,7 +151,7 @@ class RunbotRepo(models.Model):
         regex = re.compile(r'.*-d {}.*'.format(pattern))
         for process in psutil.process_iter():
             if regex.match(" ".join(process.cmdline())):
-                _logger.debug("Killing pid %s" % process.pid)
+                _logger.debug("Killing pid %s", process.pid)
                 process.kill()
 
     def clean_up_filesystem(self, pattern):
