@@ -123,7 +123,8 @@ class RunbotRepo(models.Model):
             _logger.debug("Killing pid %s" % build.pid)
             try:
                 os.kill(build.pid, signal.SIGKILL)
-            finally:
+            except OSError, exc:
+                _logger.warning('Could not kill pid %d: %s', build.pid, exc)
                 build.pid = False
 
     def clean_up_database(self, pattern):
