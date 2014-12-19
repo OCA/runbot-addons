@@ -27,6 +27,7 @@ import pwd
 import time
 import psutil
 import signal
+from datetime import datetime, timedelta
 
 from contextlib import closing
 
@@ -35,6 +36,7 @@ _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.DEBUG)
 
 from openerp import models, api, SUPERUSER_ID, tools, sql_db
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FMT
 
 
 def exp_list_posix_user():
@@ -68,11 +70,17 @@ class RunbotRepo(models.Model):
     _inherit = "runbot.repo"
 
     def __init__(self, pool, cr):
-        """On reinitialisation of db, mark all builds as done"""
+        """On reinitialisation of db, mark all builds untouched since more than 1 day
+        as done"""
         super(RunbotRepo, self).__init__(pool, cr)
         runbot_build = pool['runbot.build']
-        ids = pool['runbot.build'].search(cr, SUPERUSER_ID, [('state', '!=', 'done')])
-        _logger.info('marking %d builds as done', len(ids))
+        yesterday = (datetime.now() - timedelta(1)).strftime(DATETIME_FMT)
+        domain = [('state', '!=', 'done'),
+                  ('write_date', '<', yesterday),
+                  ]
+        ids = pool['runbot.build'].search(cr, SUPERUSER_ID, domain)
+        if ids:
+            _logger.info('marking %d builds as done', len(ids))
         runbot_build.write(cr, SUPERUSER_ID, ids, {'state': 'done'})
 
     @api.model
