@@ -23,8 +23,14 @@
 import re
 import logging
 from urllib import quote_plus
+
 import requests
-from gitlab3 import GitLab
+try:
+    from gitlab3 import GitLab
+except ImportError as exc:
+    # don't fail at load if gitlab module is not available
+    pass
+
 from openerp import models, fields, api
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.tools.translate import _
