@@ -24,7 +24,6 @@ import logging
 import os
 import sys
 import shutil
-import subprocess
 
 import openerp
 from openerp.osv import orm, fields
@@ -66,7 +65,7 @@ class runbot_build(orm.Model):
         # checkout source
         build.checkout()
         if build.branch_id.repo_id.is_custom_build:
-            build.pre_build()
+            build.pre_build(lock_path, log_path)
         build.prebuilt = True
 
     def sub_cmd(self, build, cmd):
@@ -80,7 +79,7 @@ class runbot_build(orm.Model):
         }
         return [i % internal_vals for i in cmd]
 
-    def pre_build(self, cr, uid, ids, context=None):
+    def pre_build(self, cr, uid, ids, lock_path, log_path, context=None):
         """Run pre-build command if there is one
         Substitute path variables after splitting command to avoid problems
         with spaces in internal variables.
@@ -94,11 +93,9 @@ class runbot_build(orm.Model):
                 cmd = self.sub_cmd(build, build.repo_id.custom_pre_build_cmd)
                 if not cmd:
                     continue
-                log_path = build.path("logs", "job_00_prebuild.txt")
                 os.chdir(build.path())
-                with open(log_path, "w") as out:
-                    p = subprocess.Popen(cmd, stdout=out, stderr=out)
-                    p.communicate()
+                self.spawn(cmd, lock_path, log_path)
+
         finally:
             os.chdir(pushd)
 
