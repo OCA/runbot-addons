@@ -64,6 +64,8 @@ WHERE datdba=(
     res.sort()
     return res
 
+initialized = False
+
 
 class RunbotRepo(models.Model):
     """Aggressively clean filesystem databases and processes."""
@@ -73,6 +75,10 @@ class RunbotRepo(models.Model):
         """On reinitialisation of db, mark all builds untouched since more than 1 day
         as done"""
         super(RunbotRepo, self).__init__(pool, cr)
+        global initialized
+        if initialized:
+            return
+        initialized = True
         runbot_build = pool['runbot.build']
         yesterday = (datetime.now() - timedelta(1)).strftime(DATETIME_FMT)
         domain = [('state', '!=', 'done'),
