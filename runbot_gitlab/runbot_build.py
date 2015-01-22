@@ -22,10 +22,7 @@
 
 from openerp.osv import orm
 
-dest_subs = [
-    (' ', '-'),
-    ('#', ''),
-]
+from .runbot_repo import escape_branch_name
 
 
 class runbot_build(orm.Model):
@@ -37,9 +34,7 @@ class runbot_build(orm.Model):
         for build in self.browse(cr, uid, ids, context=context):
             if (build.branch_id.merge_request_id
                     or '/' not in build.branch_id.name):
-                nickname = build.branch_id.name
-                for subs in dest_subs:
-                    nickname = nickname.replace(*subs)
+                nickname = escape_branch_name(build.branch_id.name)
                 r[build.id] = "%05d-%s-%s" % (
                     build.id, nickname, build.name[:6]
                 )
