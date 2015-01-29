@@ -23,6 +23,7 @@
 import re
 import logging
 from urllib import quote_plus
+import urllib
 
 import requests
 try:
@@ -38,6 +39,17 @@ from openerp.tools.translate import _
 logger = logging.getLogger(__name__)
 
 GITLAB_CI_SETTINGS_URL = '%s/api/v3/projects/%s/services/gitlab-ci'
+
+
+branch_name_subs = [
+    (' ', '-'),
+]
+
+
+def escape_branch_name(branch_name):
+    for subs in branch_name_subs:
+        branch_name = branch_name.replace(*subs)
+    return urllib.quote_plus(branch_name)
 
 
 def gitlab_api(func):
@@ -154,7 +166,7 @@ class RunbotRepo(models.Model):
             source_project = get_gitlab_project(
                 self.base, self.token, mr.source_project_id
             )
-            name = mr.source_branch
+            name = escape_branch_name(mr.source_branch)
             source_branch = source_project.branch(name)
             commit = source_branch.commit
             sha = commit['id']
