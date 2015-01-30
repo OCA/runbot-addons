@@ -29,8 +29,7 @@ _logger = logging.getLogger(__name__)
 class runbot_build(orm.Model):
     _inherit = "runbot.build"
 
-    def spawn(self, cmd, lock_path, log_path, cpu_limit=None, shell=False,
-              showstderr=False):
+    def spawn(self, cmd, lock_path, log_path, cpu_limit=None, shell=False):
         """Remove "--test-enable" from cmd line"""
         cmd = [c for c in cmd if c != '--test-enable']
         return super(runbot_build, self).spawn(
@@ -39,5 +38,4 @@ class runbot_build(orm.Model):
             log_path,
             cpu_limit=cpu_limit,
             shell=shell,
-            showstderr=showstderr,
         )
