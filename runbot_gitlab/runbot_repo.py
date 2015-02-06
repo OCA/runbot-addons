@@ -233,6 +233,9 @@ class RunbotRepo(models.Model):
 
         super(RunbotRepo, self).update()
 
+        # Avoid TransactionRollbackError due to serialization issues
+        self._cr.autocommit(True)
+
         # Put all protected branches as sticky
         protected_branches = set(
             b.name for b in project.find_branch(find_all=True, protected=True)
