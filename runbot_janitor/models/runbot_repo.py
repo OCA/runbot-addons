@@ -32,11 +32,12 @@ from datetime import datetime, timedelta
 from contextlib import closing
 
 import logging
-_logger = logging.getLogger(__name__)
-_logger.setLevel(logging.DEBUG)
 
 from openerp import models, api, SUPERUSER_ID, tools, sql_db
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FMT
+
+_logger = logging.getLogger(__name__)
+_logger.setLevel(logging.DEBUG)
 
 
 def exp_list_posix_user():
