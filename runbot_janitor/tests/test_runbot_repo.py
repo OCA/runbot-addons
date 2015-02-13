@@ -28,10 +28,11 @@ import psutil
 import signal
 
 import logging
-_logger = logging.getLogger(__name__)
 
 from openerp.tests import TransactionCase
 from ..models.runbot_repo import exp_list_posix_user
+
+_logger = logging.getLogger(__name__)
 
 
 class TestRunbotRepo(TransactionCase):
