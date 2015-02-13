@@ -107,7 +107,14 @@ class RunbotRepo(models.Model):
         build_root = os.path.join(self.root(), 'build')
         if not os.path.exists(build_root):
             return
-        build_dirs = set(os.listdir(build_root))
+        build_dirs = set(
+            filter(
+                # Don't consider old build which have been cleaned except
+                # and have only logs left
+                lambda d: os.listdir(os.path.join(build_root, d)) != ['logs'],
+                os.listdir(build_root)
+            )
+        )
         valid_builds = [b.dest for b in self.env['runbot.build'].search([
             ('dest', 'in', list(build_dirs)),
             ('state', '!=', 'done')
