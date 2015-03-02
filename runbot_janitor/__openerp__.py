@@ -45,7 +45,7 @@ Contributors
 * Sandy Carter (sandy.carter@savoirfairelinux.com)
 * Jordi Riera (jordi.riera@savoirfairelinux.com)
 """,
-    'author': 'Savoir-faire Linux',
+    'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
     'depends': ['runbot'],
     'data': [
     ],

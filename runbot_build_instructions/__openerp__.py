@@ -46,7 +46,7 @@ Contributors
 ------------
 * Sandy Carter (sandy.carter@savoirfairelinux.com)
 """,
-    'author': 'Savoir-faire Linux',
+    'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
     'depends': ['runbot'],
     'data': [
         'runbot_repo_view.xml',
