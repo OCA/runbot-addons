@@ -189,8 +189,16 @@ class RunbotRepo(models.Model):
             # TODO: TMP workaround for tzinfo bug
             # https://github.com/alexvh/python-gitlab3/issues/15
             date.tzinfo.dst = lambda _: None
-            author = commit['author']['name']
-            committer = commit['committer']['name']
+            # In earlier versions of gitlab3, author and committer were a keys
+            # newer versions have author_name and committer_name
+            try:
+                author = commit['author']['name']
+            except KeyError:
+                author = commit['author_name']
+            try:
+                committer = commit['committer']['name']
+            except KeyError:
+                committer = commit['committer_name']
             subject = commit['message']
             title = mr.title
             # Create or get branch
