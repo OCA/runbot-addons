@@ -32,7 +32,7 @@ except ImportError as exc:
     # don't fail at load if gitlab module is not available
     pass
 
-from openerp import models, fields, api
+from openerp import models, fields, api, exceptions
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.tools.translate import _
 
@@ -81,12 +81,27 @@ def get_gitlab_params(base):
     return domain, name
 
 
-def get_gitlab_project(base, token, id=None):
+def get_gitlab_project(base, token, project_id=None):
+    """Retrieve gitlab project using either id or name
+
+    :param str base: url base of project containing domain and project name
+    :param str token: gitlab user's token
+    :param int or None project_id: optional id of project to get
+    :returns gitlab3.Project: Gitlab Project
+    :raises exceptions.ValidationError: Repo couldn't be found by name or id
+    """
     domain, name = get_gitlab_params(base)
     gl = GitLab(domain, token)
-    if id:
-        return gl.project(id)
-    return gl.find_project(path_with_namespace=name)
+    if project_id:
+        res = gl.project(project_id)
+    else:
+        res = gl.find_project(path_with_namespace=name)
+    if not res:
+        raise exceptions.ValidationError(
+            _('Could not find repo with ') +
+            (_("id=%d") % project_id if project_id else _("name=%s") % name)
+        )
+    return res
 
 
 def set_gitlab_ci_conf(token, gitlab_url, runbot_domain, repo_id):
