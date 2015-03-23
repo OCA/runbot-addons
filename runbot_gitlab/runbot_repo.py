@@ -151,7 +151,7 @@ class RunbotRepo(models.Model):
 
     @api.one
     @gitlab_api
-    def github(self, url, payload=None, delete=False):
+    def github(self, url, payload=None, ignore_errors=False, delete=False):
         if payload:
             logger.info(
                 "Wanted to post payload %s at %s" % (url, payload)
