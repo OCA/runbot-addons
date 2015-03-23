@@ -60,10 +60,22 @@ class GitlabCIController(http.Controller):
         logger.info("build with token %s" % token)
         return {}
 
+    @http.route(CONTROLLER_PREFIX + "/commits/<sha>",
+                type="http", auth="public")
+    def commit_view(self, repo_id, sha):
+        """Link to build page by sha (newer versions of gitlab)
+
+        GET /gitlab-ci/1/commits/SHA
+        """
+        return self.build_view(repo_id, sha)
+
     @http.route(CONTROLLER_PREFIX + "/builds/<sha>",
                 type="http", auth="public")
     def build_view(self, repo_id, sha):
-        """Call on merge request open/close"""
+        """Link to build page by sha (older versions of gitlab)
+
+        GET /gitlab-ci/1/builds/SHA
+        """
         try:
             registry, cr, uid = request.registry, request.cr, SUPERUSER_ID
             build_id = registry['runbot.build'].search(
@@ -78,10 +90,30 @@ class GitlabCIController(http.Controller):
         else:
             return werkzeug.utils.redirect('/runbot/build/%d' % build_id)
 
+    @http.route(CONTROLLER_PREFIX + "/commits/<sha>/status.json",
+                type="http", auth="public")
+    def commits(self, repo_id, sha, token=None):
+        """Call on merge request open/close (newer versions of gitlab)
+
+        Get testing status of specific sha
+
+        Gitlab get:
+        GET http://GITLAB_URL/PROJECT_WITH_USER/merge_requests/MR_ID/ci_status
+
+        Runbot get:
+        GET /gitlab/REPO_ID/commits/GIT_SHA1/status.json
+        """
+        return self.builds(repo_id, sha, token=token)
+
     @http.route(CONTROLLER_PREFIX + "/builds/<sha>/status.json",
                 type="http", auth="public")
     def builds(self, repo_id, sha, token=None):
-        """Call on merge request open/close"""
+        """Call on merge request open/close (older versions of gitlab)
+
+        Get testing status of specific sha
+
+        GET /gitlab/REPO_ID/builds/GIT_SHA1/status.json
+        """
         res = None
         try:
             logger.debug("build with token %s" % token)
@@ -127,6 +159,10 @@ class GitlabCIController(http.Controller):
 
     @http.route(CONTROLLER_PREFIX + "/status.png", type="http", auth="public")
     def status_badge(self, repo_id, ref):
+        """Redirect gitlab's request for a png to runbot's svg
+
+        GET /gitlab/REPO_ID/status.png?ref=BRANCH_NAME
+        """
         logger.info("I want the status badge for branch %s" % ref)
         return werkzeug.utils.redirect(
             '/runbot/badge/%s/%s.svg' % (repo_id, ref)
