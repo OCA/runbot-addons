@@ -21,33 +21,34 @@
 ##############################################################################
 
 import logging
-from openerp.osv import fields, orm
+from openerp import fields, models
 
 _logger = logging.getLogger(__name__)
 
 
-class runbot_repo(orm.Model):
+class RunbotRepo(models.Model):
     _inherit = "runbot.repo"
-    _columns = {
-        'is_custom_build': fields.boolean('Custom Build'),
-        'custom_build_dir': fields.char(
-            'Custom Build Directory',
-            help="Relative directory where repo will be checked out"
-        ),
-        'custom_server_path': fields.char(
-            'Custom Server Path',
-            help="Relative path of starter script",
-        ),
-        'custom_server_params': fields.char(
-            'Custom Server Flags', help="""\
-Arguments to add to the openerp script
+    is_custom_build = fields.Boolean('Custom Build')
+    custom_build_dir = fields.Char(
+        'Custom Build Directory',
+        help="Relative directory where repo will be checked out"
+    )
+    custom_server_path = fields.Char(
+        'Custom Server Path',
+        help="Relative path of starter script",
+    )
+    custom_server_params = fields.Char(
+        'Custom Server Flags',
+        help="""\
+Arguments to add to the Odoo script
 - Use %(custom_build_dir)s for relative custom build directory.
 - Use %(custom_server_path)s for relative custom server path.
 """,
-        ),
-        'custom_pre_build_cmd': fields.char(
-            'Custom Pre-build Command', help="""\
+    )
+    custom_pre_build_cmd = fields.Char(
+        'Custom Pre-build Command',
+        help="""\
 - Use %(custom_build_dir)s for relative custom build directory.
 - Use %(custom_server_path)s for relative custom server path.
-"""),
-    }
+""",
+    )
