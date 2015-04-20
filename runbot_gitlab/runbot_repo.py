@@ -44,6 +44,8 @@ GITLAB_CI_SETTINGS_URL = '%s/api/v3/projects/%s/services/gitlab-ci'
 
 branch_name_subs = [
     (' ', '-'),
+    ('[', ''),
+    (']', ''),
 ]
 
 
