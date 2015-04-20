@@ -51,7 +51,6 @@ branch_name_subs = [
     ('#', ''),
 ]
 
-
 def strip_accents(unicode_string):
     """Remove accents and greek letters from string
 
