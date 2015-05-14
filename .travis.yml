@@ -1,8 +1,4 @@
-addons:
-  apt:
-    packages:
-      - expect-dev  # provides unbuffer utility
-      - python-lxml # because pip installation is slow
+sudo: required
 
 language: python
 
@@ -20,9 +16,9 @@ virtualenv:
 install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-  - travis_install_nightly
-  - sudo apt-get install python-matplotlib
+  - sudo apt-get install python-matplotlib python-lxml expect-dev
   - sudo pip install gitlab3
+  - travis_install_nightly
   - git clone --depth=1 https://github.com/odoo/odoo-extra ~/odoo-extra
 
 script:
