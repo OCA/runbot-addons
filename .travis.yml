@@ -1,14 +1,21 @@
-sudo: required
-
 language: python
 
 python:
   - "2.7"
 
+addons:
+  apt:
+    packages:
+      - expect-dev  # provides unbuffer utility
+      - python-lxml  # because pip installation is slow
+
 env:
-  - VERSION="8.0" ODOO_REPO="odoo/odoo"
-  - VERSION="8.0" ODOO_REPO="OCA/OCB"
-  - VERSION="8.0" UNIT_TEST="1"
+  global:
+  - VERSION="8.0" TESTS="0" LINT_CHECK="0"
+  matrix:
+  - LINT_CHECK="1"
+  - TESTS="1" ODOO_REPO="odoo/odoo"
+  - TESTS="1" ODOO_REPO="OCA/OCB"
 
 virtualenv:
   system_site_packages: true
@@ -16,8 +23,8 @@ virtualenv:
 install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-  - sudo apt-get install python-matplotlib python-lxml expect-dev
-  - sudo pip install gitlab3
+  - sudo apt-get install python-matplotlib python-lxml expect-dev  # TO REMOVE ONCE MATPLOTLIB IS WHITELISTED https://github.com/travis-ci/travis-ci/issues/3901
+  - pip install gitlab3
   - travis_install_nightly
   - git clone --depth=1 https://github.com/odoo/odoo-extra ~/odoo-extra
 
@@ -25,4 +32,4 @@ script:
   - travis_run_tests
 
 after_success:
-  coveralls
+  - travis_after_tests_success
