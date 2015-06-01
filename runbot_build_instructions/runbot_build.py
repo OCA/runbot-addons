@@ -60,13 +60,14 @@ class runbot_build(orm.Model):
         'prebuilt': fields.boolean("Prebuilt"),
     }
 
-    def job_00_prebuild(self, cr, uid, build, lock_path, log_path):
-        build._log('test_base', 'Start pre-build commands')
-        # checkout source
-        build.checkout()
+    def job_00_init(self, cr, uid, build, lock_path, log_path):
+        res = super(runbot_build, self).job_00_init(
+            cr, uid, build, lock_path, log_path
+        )
         if build.branch_id.repo_id.is_custom_build:
             build.pre_build(lock_path, log_path)
         build.prebuilt = True
+        return res
 
     def sub_cmd(self, build, cmd):
         if not cmd:
