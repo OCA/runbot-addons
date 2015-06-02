@@ -24,6 +24,7 @@ import re
 import logging
 from urllib import quote_plus
 import urllib
+import unicodedata
 
 import requests
 try:
@@ -43,13 +44,32 @@ GITLAB_CI_SETTINGS_URL = '%s/api/v3/projects/%s/services/gitlab-ci'
 
 branch_name_subs = [
     (' ', '-'),
+    (',', '-'),
+    ('.', '-'),
+    ('[', ''),
+    (']', ''),
+    ('#', ''),
 ]
+
+
+def strip_accents(unicode_string):
+    """Remove accents and greek letters from string
+
+    :param unicode_string: String with possible accents
+    :type unicode_string: unicode
+    :return: String of unicode_string without accents
+    :rtype: unicode
+    """
+    return ''.join(
+        char for char in unicodedata.normalize('NFD', unicode_string)
+        if not unicodedata.combining(char)
+    )
 
 
 def escape_branch_name(branch_name):
     for subs in branch_name_subs:
         branch_name = branch_name.replace(*subs)
-    return urllib.quote_plus(branch_name)
+    return urllib.quote_plus(strip_accents(branch_name))
 
 
 def gitlab_api(func):
