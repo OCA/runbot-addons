@@ -21,8 +21,6 @@
 ##############################################################################
 
 from . import (
-    runbot_repo,
-    runbot_branch,
-    runbot_build,
+    models,
     controllers,
 )
