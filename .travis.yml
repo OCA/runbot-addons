@@ -8,6 +8,9 @@ addons:
     packages:
       - expect-dev  # provides unbuffer utility
       - python-lxml  # because pip installation is slow
+      - python-simplejson
+      - python-serial
+      - python-matplotlib  # For runbot badges
 
 env:
   global:
@@ -23,10 +26,11 @@ virtualenv:
 install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-  - sudo apt-get install python-matplotlib python-lxml expect-dev  # TO REMOVE ONCE MATPLOTLIB IS WHITELISTED https://github.com/travis-ci/travis-ci/issues/3901
   - pip install gitlab3
   - travis_install_nightly
   - git clone --depth=1 https://github.com/odoo/odoo-extra ~/odoo-extra
+  # odoo-extra has a bunch of v9 modules which aren't compatible, remove them
+  - rm -rf $(ls | grep -v runbot$)
 
 script:
   - travis_run_tests
