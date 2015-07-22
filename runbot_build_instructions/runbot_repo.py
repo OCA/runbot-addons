@@ -43,6 +43,7 @@ class RunbotRepo(models.Model):
 Arguments to add to the Odoo script
 - Use %(custom_build_dir)s for relative custom build directory.
 - Use %(custom_server_path)s for relative custom server path.
+- Use %(other_repo_path)s for the path of the other repo.
 """,
     )
     custom_pre_build_cmd = fields.Char(
@@ -50,5 +51,12 @@ Arguments to add to the Odoo script
         help="""\
 - Use %(custom_build_dir)s for relative custom build directory.
 - Use %(custom_server_path)s for relative custom server path.
+- Use %(other_repo_path)s for the path of the other repo.
 """,
+    )
+    other_repo_id = fields.Many2one(
+        'runbot.repo',
+        'Other repository',
+        help='Specify a secondary repository whose path can be passed to the '
+        'build commands.',
     )
