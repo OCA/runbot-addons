@@ -51,13 +51,6 @@ def get_depends(modules, addons_paths):
             continue
         manifest = safe_eval(open(manifest_filename).read())
         modules.update(manifest.get('depends', []))
-        # To make into a generator
-        # yield module
-
-    # To make into a function that returns a sorted list
-    # return sorted(modules)
-
-    # To return a set
     return modules
 
 
@@ -235,7 +228,8 @@ class RunbotBuild(models.Model):
                 count += 1
                 if count >= MAX_LOG_LINES:
                     build._log(
-                        'pylint_script', 'pylint has many'' errors.'
+                        'pylint_script', 'pylint have more than'
+                        ' ' + MAX_LOG_LINES + ' errors.'
                         ' Please check pylint full log file...')
                     break
             if build.result == "ok":
