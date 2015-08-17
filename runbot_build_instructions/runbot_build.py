@@ -78,6 +78,7 @@ class runbot_build(orm.Model):
             'custom_build_dir': build.repo_id.custom_build_dir or '',
             'custom_server_path': build.repo_id.custom_server_path,
             'other_repo_path': build.repo_id.other_repo_id.path or '',
+            'build_dest': build.dest,
         }
         return [i % internal_vals for i in cmd]
 

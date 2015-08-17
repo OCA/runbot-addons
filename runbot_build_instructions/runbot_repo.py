@@ -44,6 +44,8 @@ Arguments to add to the Odoo script
 - Use %(custom_build_dir)s for relative custom build directory.
 - Use %(custom_server_path)s for relative custom server path.
 - Use %(other_repo_path)s for the path of the other repo.
+- Use %(build_dest)s for the build_dest code, used for example to build the \
+database name.
 """,
     )
     custom_pre_build_cmd = fields.Char(
@@ -52,6 +54,8 @@ Arguments to add to the Odoo script
 - Use %(custom_build_dir)s for relative custom build directory.
 - Use %(custom_server_path)s for relative custom server path.
 - Use %(other_repo_path)s for the path of the other repo.
+- Use %(build_dest)s for the build_dest code, used for example to build the \
+database name.
 """,
     )
     other_repo_id = fields.Many2one(
