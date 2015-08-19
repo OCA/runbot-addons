@@ -24,7 +24,7 @@
     'name': 'Runbot Custom Build and Run Instructions',
     'category': 'Website',
     'summary': 'Runbot with custom build and run instructions',
-    'version': '1.2',
+    'version': '1.3',
     'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
     'depends': ['runbot'],
     'data': [

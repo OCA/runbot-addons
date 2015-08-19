@@ -24,6 +24,8 @@ checked:
   build commands. A practical example of that is passing on a repository
   containing a clone of odoo to the custom build script. That script can for
   example make a local clone of odoo, saving both time and disk space.
+* An option allows to skip the standard test jobs. This is useful if the whole
+  build phase is done in a custom script in the prebuild step.
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
