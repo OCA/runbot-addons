@@ -163,23 +163,25 @@ class RunbotRepo(models.Model):
     @api.model
     def create(self, vals):
         repo_id = super(RunbotRepo, self).create(vals)
-        set_gitlab_ci_conf(
-            vals.get('token'),
-            vals.get('name'),
-            self.domain(),
-            repo_id.id,
-        )
+        if self.uses_gitlab:
+            set_gitlab_ci_conf(
+                vals.get('token'),
+                vals.get('name'),
+                self.domain(),
+                repo_id.id,
+            )
         return repo_id
 
     @api.multi
     def write(self, vals):
         super(RunbotRepo, self).write(vals)
-        set_gitlab_ci_conf(
-            vals.get('token', self.token),
-            vals.get('name', self.name),
-            self.domain(),
-            self.id,
-        )
+        if self.uses_gitlab:
+            set_gitlab_ci_conf(
+                vals.get('token', self.token),
+                vals.get('name', self.name),
+                self.domain(),
+                self.id,
+            )
 
     @api.one
     @gitlab_api
