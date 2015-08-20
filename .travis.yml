@@ -33,7 +33,7 @@ install:
   - travis_install_nightly
   - git clone --depth=1 https://github.com/odoo/odoo-extra ~/odoo-extra
   # odoo-extra has a bunch of v9 modules which aren't compatible, remove them
-  - rm -rf $(ls | grep -v runbot$)
+  - (cd ~/odoo-extra; rm -rf $(ls | grep -v runbot$))
 
 script:
   - travis_run_tests
