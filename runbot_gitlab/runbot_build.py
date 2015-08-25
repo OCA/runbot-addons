@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-from openerp.osv import orm
+from openerp.osv import orm, fields
 
 from .runbot_repo import escape_branch_name
 
@@ -45,3 +45,8 @@ class runbot_build(orm.Model):
                 cr, uid, other_ids, field_name, arg, context=context
             ))
         return r
+
+    _columns = {
+        'dest': fields.function(
+            _get_dest, type='char', string='Dest', readonly=1, store=True)
+    }
