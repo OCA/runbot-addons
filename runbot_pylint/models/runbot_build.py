@@ -91,8 +91,7 @@ class RunbotBuild(models.Model):
         for build in self:
             hint_branches = set()
             for extra_repo in build.repo_id.dependency_ids:
-                closest_name = build.get_closest_branch_name(
-                    extra_repo.id, hint_branches)
+                closest_name = build._get_closest_branch_name(extra_repo.id)[1]
                 hint_branches.add(closest_name)
                 repo_branch_data[extra_repo.id] = closest_name
             repo_branch_data[build.repo_id.id] = build.name
