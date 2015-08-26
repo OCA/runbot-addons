@@ -53,19 +53,23 @@ class RunbotBuild(models.Model):
         """Set lang to all users into '-all' database"""
         if self.lang:
             db_name = "%s-all" % self.dest
+            # All odoo versions has openerp/release.py file
+            sys.path.insert(0, build.server("openerp"))
             try:
-                # update odoo version >=7.0
+                release =  __import__("release")
+            finally:
+                sys.path.pop(0)
+            version = float("{main_version}.{secondary_version}".format(
+                main_version=release.version_info[0],
+                secondary_version=release.version_info[1]))
+
+            if version < 7:
+                run(['psql', db_name, '-c', "UPDATE res_users SET lang='%s';" %
+                     (self.lang)])
+            else:
                 run(['psql', db_name, '-c', "UPDATE res_partner SET lang='%s' "
                      "WHERE id IN (SELECT partner_id FROM res_users);" %
                      (self.lang)])
-            except BaseException:
-                pass
-            try:
-                # update odoo version <7.0
-                run(['psql', db_name, '-c', "UPDATE res_users SET lang='%s';" %
-                     (self.lang)])
-            except BaseException:
-                pass
         return True
 
     def job_30_run(self, cr, uid, build, lock_path, log_path):
