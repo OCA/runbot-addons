@@ -30,6 +30,7 @@ from openerp.osv import orm, fields
 from openerp.addons.runbot.runbot import mkdirs
 
 _logger = logging.getLogger(__name__)
+MAGIC_PID_RUN_NEXT_JOB = -2
 
 
 def custom_build(func):
@@ -72,7 +73,7 @@ class runbot_build(orm.Model):
     def job_10_test_base(self, cr, uid, build, lock_path, log_path):
         if build.branch_id.repo_id.skip_test_jobs:
             _logger.info('skipping job_10_test_base')
-            return -2
+            return MAGIC_PID_RUN_NEXT_JOB
         else:
             return super(runbot_build, self).job_10_test_base(
                 cr, uid, build, lock_path, log_path
@@ -84,7 +85,7 @@ class runbot_build(orm.Model):
             with open(log_path, 'w') as f:
                 f.write('consider tests as passed: '
                         '.modules.loading: Modules loaded.')
-            return -2
+            return MAGIC_PID_RUN_NEXT_JOB
         else:
             return super(runbot_build, self).job_20_test_all(
                 cr, uid, build, lock_path, log_path
