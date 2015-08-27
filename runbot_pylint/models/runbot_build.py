@@ -156,6 +156,10 @@ class RunbotBuild(models.Model):
         if not modules_to_check_pylint:
             build._log('pylint_script', 'No modules to check pylint found')
             return None
+
+        build._log('pylint_script', "Modules set for pylint check: %s" %
+                   ', '.join(modules_to_check_pylint))
+
         fname_pylint_run_sh = os.path.join(build.path(),
                                            'pylint_run.sh')
         with open(fname_pylint_run_sh, "w") as f_pylint_run_sh:
