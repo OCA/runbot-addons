@@ -36,6 +36,7 @@ database name."""
 class RunbotRepo(models.Model):
     _inherit = "runbot.repo"
     is_custom_build = fields.Boolean('Custom Build')
+    skip_test_jobs = fields.Boolean('Skip standard test jobs')
     custom_build_dir = fields.Char(
         'Custom Build Directory',
         help="Relative directory where repo will be checked out"
