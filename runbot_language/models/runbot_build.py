@@ -15,6 +15,7 @@
 '''
 
 import logging
+import sys
 
 from openerp import api, fields, models, tools
 from openerp.addons.runbot.runbot import run
@@ -54,22 +55,23 @@ class RunbotBuild(models.Model):
         if self.lang:
             db_name = "%s-all" % self.dest
             # All odoo versions has openerp/release.py file
-            sys.path.insert(0, build.server("openerp"))
+            sys.path.insert(0, self.server("openerp"))
             try:
-                release =  __import__("release")
+                release = __import__("release")
             finally:
                 sys.path.pop(0)
-            version = float("{main_version}.{secondary_version}".format(
-                main_version=release.version_info[0],
-                secondary_version=release.version_info[1]))
 
-            if version < 7:
-                run(['psql', db_name, '-c', "UPDATE res_users SET lang='%s';" %
-                     (self.lang)])
+            if release.version_info < (7, 0):
+                # Old version used `res_users` table to set `lang`
+                run(['psql', db_name, '-c',
+                     "UPDATE res_users SET lang='{lang}';".format(
+                         lang=self.lang)])
             else:
-                run(['psql', db_name, '-c', "UPDATE res_partner SET lang='%s' "
-                     "WHERE id IN (SELECT partner_id FROM res_users);" %
-                     (self.lang)])
+                # New version use `res_partner` table to set `lang`
+                run(['psql', db_name, '-c',
+                     "UPDATE res_partner SET lang='{lang}' ".format(
+                         lang=self.lang) +
+                     "WHERE id IN (SELECT partner_id FROM res_users);"])
         return True
 
     def job_30_run(self, cr, uid, build, lock_path, log_path):
