@@ -201,7 +201,7 @@ class RunbotRepo(models.Model):
             source_project = get_gitlab_project(
                 self.base, self.token, mr.source_project_id
             )
-            source_branch = source_project.branch(name=mr.source_branch)
+            source_branch = source_project.branch(mr.source_branch)
             commit = source_branch.commit
             sha = commit['id']
             date = commit['committed_date']
