@@ -231,9 +231,9 @@ class RunbotBuild(models.Model):
                 count += 1
                 if count >= MAX_LOG_LINES:
                     build._log(
-                        'pylint_script', 'pylint have more than'
-                        ' ' + MAX_LOG_LINES + ' errors.'
-                        ' Please check pylint full log file...')
+                        'pylint_script', 'pylint have more than %d '
+                        'errors. '
+                        'Please check pylint full log file...' % MAX_LOG_LINES)
                     break
             if build.result == "ok":
                 build.write({'result': 'warn'})
