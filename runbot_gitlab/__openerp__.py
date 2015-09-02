@@ -36,6 +36,7 @@ Add option in repo form view for gitlab repos builds. When checked:
 Contributors
 ------------
 * Sandy Carter (sandy.carter@savoirfairelinux.com)
+* Paul Catinean (paulcatinean@gmail.com)
 """,
     'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
     'depends': ['runbot'],

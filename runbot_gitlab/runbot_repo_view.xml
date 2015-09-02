@@ -7,9 +7,13 @@
       <field name="inherit_id" ref="runbot.view_repo_form"/>
       <field name="arch" type="xml">
 
-        <field name="token" position="before">
-          <field name="uses_gitlab"/>
-        </field>
+        <xpath expr="//group[@string='Params']" position="after">
+          <group string="Gitlab">
+            <field name="uses_gitlab"/>
+            <field attrs="{'invisible': [('uses_gitlab','=',False)]}" name="mr_only"/>
+            <field attrs="{'invisible': [('uses_gitlab','=',False)]}" name="sticky_protected"/>
+          </group>
+        </xpath>
 
         <field name="token" position="attributes">
           <attribute name="string">API Token</attribute>
