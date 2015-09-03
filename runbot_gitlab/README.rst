@@ -40,6 +40,7 @@ Contributors
 ------------
 
 * Sandy Carter (sandy.carter@savoirfairelinux.com)
+* Paul Catinean (paulcatinean@gmail.com)
 * Angel Moya - Domatix <angel.moya@domatix.com>
 
 Maintainer
