@@ -43,12 +43,17 @@ class RunbotBuild(models.Model):
 
     dockerfile_path = fields.Char()
     docker_image = fields.Char()
+    docker_container = field.Char()
 
     def get_docker_image(self, cr, uid, build, context=None):
         git_obj = GitRun(build.repo_id.name, '')
         image_name = git_obj.owner + '-' + git_obj.repo + ':' + \
             build.name[:7] + '_' + os.path.basename(build.dockerfile_path)
         return image_name.lower()
+
+    def get_docker_container(self, cr, uid, build, context=None):
+        return str(build.sequence)
+
 
     def job_10_test_base(self, cr, uid, build, lock_path, log_path):
         'Build docker image'
@@ -75,10 +80,10 @@ class RunbotBuild(models.Model):
         run(['docker', 'rm', '-f', '%d' % build.id])
         cmd = [
             'docker', 'run', '-e', 'INSTANCE_ALIVE=1',
+            '-e', 'RUNBOT=1',
             '-p', '%d:%d' % (build.port, 8069),
-            '--name=%d' % (build.id), '-it', build.docker_image,
+            '--name=%s' % (build.docker_container), '-it', build.docker_image,
         ]
-        # Todo: Add log path volume
         return self.spawn(cmd, lock_path, log_path)
 
     def job_30_run(self, cr, uid, build, lock_path, log_path):
@@ -86,7 +91,7 @@ class RunbotBuild(models.Model):
         if not build.branch_id.repo_id.is_travis2docker_build:
             return super(RunbotBuild, self).job_30_run(
                 cr, uid, build, lock_path, log_path)
-        cmd = ['docker', 'start', '-i', '%d' % build.id]
+        cmd = ['docker', 'start', '-i', build.docker_container]
         return self.spawn(cmd, lock_path, log_path)
 
     @custom_build
@@ -106,5 +111,12 @@ class RunbotBuild(models.Model):
                 if 'ENV TESTS=1' in df_content:
                     build.dockerfile_path = path_script
                     build.docker_image = self.get_docker_image(cr, uid, build)
+                    build.docker_container = self.get_docker_container(cr, uid, build)
 
-    # TODO: Add custom_build to drop and kill
+    @custom_build
+    def cleanup(self, cr, uid, ids, context=None):
+        for build in self.browse(cr, uid, ids, context=context):
+            if build.docker_container:
+                run(['docker', 'rm', '-f', build.docker_container])
+                run(['docker', 'rmi', '-f', build.docker_image])
+
