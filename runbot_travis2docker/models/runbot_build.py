@@ -43,7 +43,7 @@ class RunbotBuild(models.Model):
 
     dockerfile_path = fields.Char()
     docker_image = fields.Char()
-    docker_container = field.Char()
+    docker_container = fields.Char()
 
     def get_docker_image(self, cr, uid, build, context=None):
         git_obj = GitRun(build.repo_id.name, '')
