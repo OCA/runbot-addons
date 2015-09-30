@@ -111,7 +111,10 @@ class RunbotBuild(models.Model):
             sys.argv = [
                 'travisfile2dockerfile', build.repo_id.name,
                 branch_short_name, '--root-path=' + t2d_path]
-            path_scripts = t2d()
+            try:
+                path_scripts = t2d()
+            except BaseException:  # TODO: Add custom exception to t2d
+                path_scripts = []
             for path_script in path_scripts:
                 df_content = open(os.path.join(
                     path_script, 'Dockerfile')).read()
