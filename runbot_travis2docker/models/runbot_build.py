@@ -2,12 +2,15 @@
 
 import logging
 import os
+import time
 import sys
 
+import openerp
 from openerp import fields, models
 from openerp.addons.runbot_build_instructions.runbot_build \
     import MAGIC_PID_RUN_NEXT_JOB
-from openerp.addons.runbot.runbot import run
+from openerp.addons.runbot.runbot import (
+    grep, rfind, run, _re_error, _re_warning)
 
 from travis2docker.git_run import GitRun
 from travis2docker.travis2docker import main as t2d
@@ -64,7 +67,8 @@ class RunbotBuild(models.Model):
             _logger.info('docker build skipping job_10_test_base')
             return MAGIC_PID_RUN_NEXT_JOB
         cmd = [
-            'docker', 'build', "--no-cache",
+            'docker', 'build',
+            "--no-cache",
             "-t", build.docker_image,
             build.dockerfile_path,
         ]
@@ -98,6 +102,29 @@ class RunbotBuild(models.Model):
                 or build.result == 'skipped':
             _logger.info('docker build skipping job_30_run')
             return MAGIC_PID_RUN_NEXT_JOB
+
+        # Start copy and paste from original method (fix flake8)
+        log_all = build.path('logs', 'job_20_test_all.txt')
+        log_time = time.localtime(os.path.getmtime(log_all))
+        v = {
+            'job_end': time.strftime(
+                openerp.tools.DEFAULT_SERVER_DATETIME_FORMAT, log_time),
+        }
+        if grep(log_all, ".modules.loading: Modules loaded."):
+            if rfind(log_all, _re_error):
+                v['result'] = "ko"
+            elif rfind(log_all, _re_warning):
+                v['result'] = "warn"
+            elif not grep(
+                build.server("test/common.py"), "post_install") or grep(
+                    log_all, "Initiating shutdown."):
+                v['result'] = "ok"
+        else:
+            v['result'] = "ko"
+        build.write(v)
+        build.github_status()
+        # end copy and paste from original method
+
         cmd = ['docker', 'start', '-i', build.docker_container]
         return self.spawn(cmd, lock_path, log_path)
 
