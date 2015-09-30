@@ -52,7 +52,7 @@ class RunbotBuild(models.Model):
         return image_name.lower()
 
     def get_docker_container(self, cr, uid, build, context=None):
-        return str(build.sequence)
+        return "build_%d" % (build.sequence)
 
     def job_10_test_base(self, cr, uid, build, lock_path, log_path):
         'Build docker image'
@@ -66,7 +66,7 @@ class RunbotBuild(models.Model):
         cmd = [
             'docker', 'build', "--no-cache",
             "-t", build.docker_image,
-            build.dockerfile_path
+            build.dockerfile_path,
         ]
         return self.spawn(cmd, lock_path, log_path)
 
@@ -84,7 +84,8 @@ class RunbotBuild(models.Model):
             'docker', 'run', '-e', 'INSTANCE_ALIVE=1',
             '-e', 'RUNBOT=1',
             '-p', '%d:%d' % (build.port, 8069),
-            '--name=%s' % (build.docker_container), '-it', build.docker_image,
+            '--name=' + build.docker_container, '-it',
+            build.docker_image,
         ]
         return self.spawn(cmd, lock_path, log_path)
 
