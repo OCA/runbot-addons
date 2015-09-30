@@ -54,12 +54,15 @@ class RunbotBuild(models.Model):
     def get_docker_container(self, cr, uid, build, context=None):
         return str(build.sequence)
 
-
     def job_10_test_base(self, cr, uid, build, lock_path, log_path):
         'Build docker image'
         if not build.branch_id.repo_id.is_travis2docker_build:
             return super(RunbotBuild, self).job_10_test_base(
                 cr, uid, build, lock_path, log_path)
+        if not build.docker_image or not build.dockerfile_path \
+                or build.result == 'skipped':
+            _logger.info('docker build skipping job_10_test_base')
+            return MAGIC_PID_RUN_NEXT_JOB
         cmd = [
             'docker', 'build', "--no-cache",
             "-t", build.docker_image,
@@ -72,10 +75,9 @@ class RunbotBuild(models.Model):
         if not build.branch_id.repo_id.is_travis2docker_build:
             return super(RunbotBuild, self).job_20_test_all(
                 cr, uid, build, lock_path, log_path)
-        if not build.dockerfile_path:
-            _logger.info(
-                'skipping job_20_test_all: '
-                'Dockerfile without TESTS=1 env')
+        if not build.docker_image or not build.dockerfile_path \
+                or build.result == 'skipped':
+            _logger.info('docker build skipping job_20_test_all')
             return MAGIC_PID_RUN_NEXT_JOB
         run(['docker', 'rm', '-f', '%d' % build.id])
         cmd = [
@@ -91,12 +93,17 @@ class RunbotBuild(models.Model):
         if not build.branch_id.repo_id.is_travis2docker_build:
             return super(RunbotBuild, self).job_30_run(
                 cr, uid, build, lock_path, log_path)
+        if not build.docker_image or not build.dockerfile_path \
+                or build.result == 'skipped':
+            _logger.info('docker build skipping job_30_run')
+            return MAGIC_PID_RUN_NEXT_JOB
         cmd = ['docker', 'start', '-i', build.docker_container]
         return self.spawn(cmd, lock_path, log_path)
 
     @custom_build
     def checkout(self, cr, uid, ids, context=None):
         """Save travis2docker output"""
+        to_be_skipped_ids = ids
         for build in self.browse(cr, uid, ids, context=context):
             branch_short_name = build.branch_id.name.replace(
                 'refs/heads/', '', 1).replace('refs/pull/', 'pull/', 1)
@@ -111,7 +118,13 @@ class RunbotBuild(models.Model):
                 if 'ENV TESTS=1' in df_content:
                     build.dockerfile_path = path_script
                     build.docker_image = self.get_docker_image(cr, uid, build)
-                    build.docker_container = self.get_docker_container(cr, uid, build)
+                    build.docker_container = self.get_docker_container(
+                        cr, uid, build)
+                    to_be_skipped_ids.remove(build.id)
+        if to_be_skipped_ids:
+            _logger.info('Dockerfile without TESTS=1 env. '
+                         'Skipping builds %d' % to_be_skipped_ids)
+            self.skip(cr, uid, to_be_skipped_ids, context=context)
 
     @custom_build
     def cleanup(self, cr, uid, ids, context=None):
@@ -119,4 +132,3 @@ class RunbotBuild(models.Model):
             if build.docker_container:
                 run(['docker', 'rm', '-f', build.docker_container])
                 run(['docker', 'rmi', '-f', build.docker_image])
-
