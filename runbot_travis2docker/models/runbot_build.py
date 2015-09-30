@@ -83,7 +83,7 @@ class RunbotBuild(models.Model):
                 or build.result == 'skipped':
             _logger.info('docker build skipping job_20_test_all')
             return MAGIC_PID_RUN_NEXT_JOB
-        run(['docker', 'rm', '-f', '%d' % build.id])
+        run(['docker', 'rm', '-f', build.docker_container])
         cmd = [
             'docker', 'run', '-e', 'INSTANCE_ALIVE=1',
             '-e', 'RUNBOT=1',
