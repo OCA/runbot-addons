@@ -123,7 +123,7 @@ class RunbotBuild(models.Model):
                     to_be_skipped_ids.remove(build.id)
         if to_be_skipped_ids:
             _logger.info('Dockerfile without TESTS=1 env. '
-                         'Skipping builds %d' % to_be_skipped_ids)
+                         'Skipping builds %s' % to_be_skipped_ids)
             self.skip(cr, uid, to_be_skipped_ids, context=context)
 
     @custom_build
