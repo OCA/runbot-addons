@@ -14,8 +14,8 @@
         "runbot",
     ],
     "external_dependencies": {
-        "python": [],
-        "bin": ['travisfile2dockerfile'],
+        "python": ['travis2docker'],
+        "bin": ['docker'],
     },
     "data": [
         "views/runbot_repo_view.xml",
