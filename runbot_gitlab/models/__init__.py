@@ -20,18 +20,8 @@
 #
 ##############################################################################
 
-{
-    'name': 'Runbot Gitlab Integration',
-    'category': 'Website',
-    'summary': 'Runbot with Gitlab integration',
-    'version': '1.1',
-    'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
-    'depends': ['runbot'],
-    'external_dependencies': {
-        'python': ['gitlab3', ]
-    },
-    'data': [
-        'views/runbot_repo_view.xml',
-    ],
-    'installable': True,
-}
+from . import (
+    runbot_repo,
+    runbot_branch,
+    runbot_build
+)
