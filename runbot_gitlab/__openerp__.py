@@ -24,7 +24,7 @@
     'name': 'Runbot Gitlab Integration',
     'category': 'Website',
     'summary': 'Runbot with Gitlab integration',
-    'version': '1.1',
+    'version': '8.0.1.1.0',
     'description': """
 Runbot Gitlab Integration
 =========================
