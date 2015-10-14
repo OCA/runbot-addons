@@ -46,5 +46,5 @@ Contributors
     'data': [
         'runbot_repo_view.xml',
     ],
-    'installable': True,
+    'installable': False,
 }

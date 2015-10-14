@@ -42,5 +42,5 @@ Contributors
     'depends': ['runbot'],
     'data': [
     ],
-    'installable': True,
+    'installable': False,
 }
