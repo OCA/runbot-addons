@@ -24,7 +24,7 @@
     'name': 'Runbot Secure Links',
     'category': 'Website',
     'summary': 'Provide https links',
-    'version': '1.0',
+    'version': '8.0.1.0.0',
     'description': """
 Runbot Secure Links
 ===================
