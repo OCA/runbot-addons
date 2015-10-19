@@ -11,6 +11,7 @@
     "author": "Vauxoo, Odoo Community Association (OCA)",
     "license": "AGPL-3",
     "application": False,
+    "auto_install": False,
     "installable": True,
     "depends": [
         "runbot",
