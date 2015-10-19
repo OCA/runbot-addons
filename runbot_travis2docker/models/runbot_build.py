@@ -199,4 +199,5 @@ class RunbotBuild(models.Model):
                         force=True)
                 except docker.errors.APIError as error:
                     if "no such id" in error.explanation:
-                        _logger.info('Container [%s] not found', build.docker_container)
+                        _logger.info(
+                            'Container [%s] not found', build.docker_container)
