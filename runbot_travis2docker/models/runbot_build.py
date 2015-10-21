@@ -88,7 +88,7 @@ class RunbotBuild(models.Model):
             'docker', 'run', '-e', 'INSTANCE_ALIVE=1',
             '-e', 'RUNBOT=1',
             '-p', '%d:%d' % (build.port, 8069),
-            '--name=' + build.docker_container, '-it',
+            '--name=' + build.docker_container, '-t',
             build.docker_image,
         ]
         return self.spawn(cmd, lock_path, log_path)
