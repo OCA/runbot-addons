@@ -23,6 +23,7 @@
         "views/runbot_repo_view.xml",
     ],
     "demo": [
+        "demo/runbot_repo_demo.xml",
     ],
     "application": False,
     "installable": True,
