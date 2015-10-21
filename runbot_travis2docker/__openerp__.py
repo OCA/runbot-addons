@@ -8,7 +8,7 @@
     "version": "8.0.1.0.0",
     "category": "runbot",
     "website": "https://www.vauxoo.com",
-    "author": "Vauxoo",
+    "author": "Vauxoo,Odoo Community Association (OCA)",
     "license": "AGPL-3",
     "depends": [
         "runbot",
