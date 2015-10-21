@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/OCA/runbot-addons.svg?branch=8.0)](https://travis-ci.org/OCA/runbot-addons)
-[![Coverage Status](https://coveralls.io/repos/OCA/runbot-addons/badge.svg?branch=8.0&service=github)](https://coveralls.io/github/OCA/runbot-addons?branch=8.0)
+[![Build Status](https://travis-ci.org/Vauxoo/runbot-addons.svg?branch=9.0)](https://travis-ci.org/Vauxoo/runbot-addons)
+[![Coverage Status](https://coveralls.io/repos/Vauxoo/runbot-addons/badge.svg?branch=9.0&service=github)](https://coveralls.io/github/Vauxoo/runbot-addons?branch=9.0)
 
 Odoo modules for runbot
 ========================
