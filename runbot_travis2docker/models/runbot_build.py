@@ -154,7 +154,9 @@ class RunbotBuild(models.Model):
                     build.docker_image = self.get_docker_image(cr, uid, build)
                     build.docker_container = self.get_docker_container(
                         cr, uid, build)
-                    to_be_skipped_ids.remove(build.id)
+                    if build.id in to_be_skipped_ids:
+                        to_be_skipped_ids.remove(build.id)
+                    break
         if to_be_skipped_ids:
             _logger.info('Dockerfile without TESTS=1 env. '
                          'Skipping builds %s', to_be_skipped_ids)
