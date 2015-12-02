@@ -298,12 +298,13 @@ class RunbotRepo(models.Model):
 
         if self.active_branches:
             # Clean old branches
-	    remote_branches = set(b.name for b in project.find_branch(
+            remote_branches = set(b.name for b in project.find_branch(
                 find_all=True))
 
             old_branches = branch_obj.search([
                 ('repo_id', '=', self.id),
-                ('branch_name', 'not in', list(remote_branches))
+                ('merge_request_id', '=', False),
+                ('branch_name', 'not in', list(remote_branches)),
             ])
             old_branches.unlink()
 
