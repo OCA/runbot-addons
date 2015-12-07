@@ -160,26 +160,35 @@ class RunbotRepo(models.Model):
         default=True,
         help="Set all protected branches on the repository as sticky")
 
+    active_branches = fields.Boolean(
+        string="Active Branches Only",
+        default=False,
+        help="Remove branches that are no longer present "
+               "on the remote repository",
+    )
+
     @api.model
     def create(self, vals):
         repo_id = super(RunbotRepo, self).create(vals)
-        set_gitlab_ci_conf(
-            vals.get('token'),
-            vals.get('name'),
-            self.domain(),
-            repo_id.id,
-        )
+        if self.uses_gitlab:
+            set_gitlab_ci_conf(
+                vals.get('token'),
+                vals.get('name'),
+                self.domain(),
+                repo_id.id,
+            )
         return repo_id
 
     @api.multi
     def write(self, vals):
         super(RunbotRepo, self).write(vals)
-        set_gitlab_ci_conf(
-            vals.get('token', self.token),
-            vals.get('name', self.name),
-            self.domain(),
-            self.id,
-        )
+        if self.uses_gitlab:
+            set_gitlab_ci_conf(
+                vals.get('token', self.token),
+                vals.get('name', self.name),
+                self.domain(),
+                self.id,
+            )
 
     @api.one
     @gitlab_api
@@ -280,13 +289,24 @@ class RunbotRepo(models.Model):
             cached=merge_requests,
             state='closed'
         ))
-
         closed_mrs = branch_obj.search([
             ('merge_request_id', 'in', closed_mrs),
         ])
 
         for mr in closed_mrs:
             mr.unlink()
+
+        if self.active_branches:
+            # Clean old branches
+            remote_branches = set(b.name for b in project.find_branch(
+                find_all=True))
+
+            old_branches = branch_obj.search([
+                ('repo_id', '=', self.id),
+                ('merge_request_id', '=', False),
+                ('branch_name', 'not in', list(remote_branches)),
+            ])
+            old_branches.unlink()
 
         super(RunbotRepo, self).update()
 
