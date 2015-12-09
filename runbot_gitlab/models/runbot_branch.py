@@ -28,6 +28,7 @@ class RunbotBranch(models.Model):
     merge_request_id = fields.Integer('Merge Request', select=1)
     branch_url = fields.Char(compute='_compute_branch_url')
 
+    @api.multi
     def _compute_branch_url(self):
         """For gitlab branches get gitlab MR formatted branches
 

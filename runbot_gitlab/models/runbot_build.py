@@ -21,7 +21,7 @@
 ##############################################################################
 from openerp import api, models, fields
 
-from .runbot_repo import escape_branch_name, gitlab_api
+from .runbot_repo import escape_branch_name
 
 
 class runbot_build(models.Model):

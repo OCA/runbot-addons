@@ -24,7 +24,6 @@ import json
 import logging
 import requests
 import itertools
-from urllib import quote_plus
 import urllib
 import unicodedata
 import dateutil
@@ -180,7 +179,7 @@ class RunbotRepo(models.Model):
                 break
         if not project:
             raise exceptions.UserError(
-                'Project %s not found' % self.gitlab_name)
+                _('Project %s not found') % self.gitlab_name)
 
         # register a runner and see if this gets us builds to work on
         runner = self._query_gitlab_ci(
