@@ -14,6 +14,7 @@ addons:
       - python-simplejson
       - python-serial
       - python-matplotlib  # For runbot badges
+      - pylint
 
 env:
   global:
