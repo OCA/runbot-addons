@@ -23,7 +23,7 @@ To use this module, you need to activate `Builds` in the gitlab project's settin
 suffices, where job1 is how the build is called internally in gitlab. Change this to whatever you see fit.
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
-:alt: Try me on Runbotrunbo
+    :alt: Try me on Runbotrunbot
     :target: https://runbot.odoo-community.org/runbot/146/8.0
 
 For further information, please visit:
