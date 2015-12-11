@@ -11,9 +11,9 @@ start to build a image, run a container to test and re-run the same container wi
 Requirements:
 -------------
 
-- Install docker https://docs.docker.com/installationn
-- Install travis2docker
-- .travis.yml in all your repositories with maintainer-quality-tools with support for runbot.
+- Install `docker <http://www.docker.com>`_ (Version >= 1.8)
+- Install `travis2docker <https://github.com/vauxoo/travis2docker>`_
+- Use .travis.yml in all your repositories with maintainer-quality-tools with support for runbot.
 
 Contributors
 ------------
