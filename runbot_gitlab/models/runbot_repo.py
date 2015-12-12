@@ -239,8 +239,8 @@ class RunbotRepo(models.Model):
                 title = merge_request['title']
                 # branch names need to be versioned
                 version_length = len(release.major_version)
-                if title[:version_length] !=\
-                        merge_request['target_branch'][:version_length]:
+                if title[:version_length + 1] !=\
+                        merge_request['target_branch'][:version_length] + '-':
                     title = '%s-%s' % (
                         merge_request['target_branch'][:version_length],
                         title)
