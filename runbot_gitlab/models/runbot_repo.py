@@ -233,23 +233,14 @@ class RunbotRepo(models.Model):
             except KeyError:
                 committer = commit.get('committer_name')
             subject = commit['message']
-            title = build_or_branch['name']
+            title = build_or_branch.get(
+                'ref', build_or_branch.get('name', sha))
 
-            if 'merge_request' in build_or_branch:
-                merge_request = build_or_branch['merge_request']
-                title = merge_request['title']
-                # branch names need to be versioned
-                version_length = len(release.major_version)
-                if title[:version_length + 1] !=\
-                        merge_request['target_branch'][:version_length] + '-':
-                    title = '%s-%s' % (
-                        merge_request['target_branch'][:version_length],
-                        title)
             # Create or get branch
             branch_ids = self.env['runbot.branch'].search([
                 ('repo_id', '=', self.id),
                 ('project_id', '=', project['gitlab_id']),
-                ('name', 'in', [build_or_branch['name'], title]),
+                ('name', '=', title),
             ])
             if not branch_ids:
                 logger.debug('repo %s found new merge request or build %s',
