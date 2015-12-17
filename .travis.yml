@@ -23,7 +23,7 @@ services:
 
 env:
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0"
+  - VERSION="9.0" TESTS="0" LINT_CHECK="0"
   matrix:
   - LINT_CHECK="1"
   - TESTS="1" ODOO_REPO="odoo/odoo" INCLUDE=runbot_selftest,runbot_travis2docker
@@ -44,7 +44,10 @@ install:
   - find ${HOME} -name runbot.py -exec sed -i  '/from matplotlib.textpath import TextToPath/d' {} \;
   - find ${HOME} -name __openerp__.py -exec sed -i  '/'matplotlib'/d' {} \;
   - find ${HOME} -name __init__.py -exec sed -i  "/import test_crawl/d" {} \;  # Disabling test_crawl test
-  
+  - find ${HOME} -name res_config_view.xml -exec sed -i 's/base.menu_config/base.menu_administration/g' {} \;
+  # Change cron interval to avoid interference with tests
+  - find ${HOME} -name runbot.xml -exec sed -i "s/'interval_number'>1</'interval_number'>60</g" {} \;
+
   # odoo-extra has a bunch of v9 modules which aren't compatible, remove them
   - (cd ~/odoo-extra; rm -rf $(ls | grep -v runbot$))
   - if [ "${TESTS}" == "1"  ]; then docker pull vauxoo/odoo-80-image-shippable-auto; fi
