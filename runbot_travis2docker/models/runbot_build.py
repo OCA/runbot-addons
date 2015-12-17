@@ -89,7 +89,7 @@ class RunbotBuild(models.Model):
         run(['docker', 'rm', '-f', build.docker_container])
         cmd = [
             'docker', 'run', '-e', 'INSTANCE_ALIVE=1',
-            '-e', 'RUNBOT=1',
+            '-e', 'RUNBOT=1', '-e', 'UNBUFFER=1',
             '-p', '%d:%d' % (build.port, 8069),
             '--name=' + build.docker_container, '-t',
             build.docker_image,
