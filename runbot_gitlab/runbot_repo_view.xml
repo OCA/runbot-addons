@@ -10,6 +10,7 @@
         <xpath expr="//group[@string='Params']" position="after">
           <group string="Gitlab">
             <field name="uses_gitlab"/>
+            <field attrs="{'invisible': [('uses_gitlab','=',False)]}" name="active_branches"/>
             <field attrs="{'invisible': [('uses_gitlab','=',False)]}" name="mr_only"/>
             <field attrs="{'invisible': [('uses_gitlab','=',False)]}" name="sticky_protected"/>
           </group>

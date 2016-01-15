@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_repo_tree" model="ir.ui.view">
+      <field name="model">runbot.repo</field>
+      <field name="inherit_id" ref="runbot.view_repo_tree"/>
+      <field name="arch" type="xml">
+        <field name="name" position="before">
+          <field name="sequence" widget="handle"/>
+        </field>
+        <tree>
+          <field name="visible_on_website"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="view_repo_form" model="ir.ui.view">
+      <field name="model">runbot.repo</field>
+      <field name="inherit_id" ref="runbot.view_repo_form"/>
+      <field name="arch" type="xml">
+        <field name="nginx" position="before">
+          <field name="visible_on_website"/>
+        </field>
+      </field>
+    </record>
+
+    <!-- Show only visible repos on menu -->
+    <template id="inherits_branch_in_menu" inherit_id="runbot.inherits_branch_in_menu" name="Inherits Show top 5 visible branches in menu">
+        <xpath expr="//t[@t-foreach='repos[:5]']" position="attributes">
+          <attribute name="t-foreach">repos[:5].filtered('visible_on_website')</attribute>
+        </xpath>
+    </template>
+
+    <!-- Show only visible repos on repositories list -->
+    <template id="repo_filtered_list" inherit_id="runbot.repo" name="Inherits Show top 5 visible branches in menu">
+        <xpath expr="//t[@t-foreach='repos']" position="attributes">
+          <attribute name="t-foreach">repos.filtered('visible_on_website')</attribute>
+        </xpath>
+    </template>
+
+  </data>
+</openerp>
