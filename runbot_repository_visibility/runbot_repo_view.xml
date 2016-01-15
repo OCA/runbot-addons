@@ -28,7 +28,7 @@
     <!-- Show only visible repos on menu -->
     <template id="inherits_branch_in_menu" inherit_id="runbot.inherits_branch_in_menu" name="Inherits Show top 5 visible branches in menu">
         <xpath expr="//t[@t-foreach='repos[:5]']" position="attributes">
-          <attribute name="t-foreach">repos[:5].filtered('visible_on_website')</attribute>
+          <attribute name="t-foreach">repos.filtered('visible_on_website')[:5]</attribute>
         </xpath>
     </template>
 
