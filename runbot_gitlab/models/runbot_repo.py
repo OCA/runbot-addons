@@ -252,7 +252,7 @@ class RunbotRepo(models.Model):
                         None, branch_ids.mapped('repo_id.modules'))),
                 })
 
-        self._update_gitlab_before_super(project)
+        self._update_gitlab_before_super(project, builds_created)
 
         super(RunbotRepo, self).update()
 
@@ -293,7 +293,7 @@ class RunbotRepo(models.Model):
                 ('branch_id', 'in', branches.ids)]).skip()
 
     @api.multi
-    def _update_gitlab_before_super(self, project):
+    def _update_gitlab_before_super(self, project, builds_created):
         self.ensure_one()
         # Clean-up old MRs
         merge_requests = self._query_gitlab_api(
@@ -301,7 +301,7 @@ class RunbotRepo(models.Model):
             get_data={'state': 'closed'})
         self.env['runbot.branch'].search([
             ('merge_request_id', 'in', map(
-                operator.itemgetter('id'), merge_requests)),
+                operator.itemgetter('iid'), merge_requests)),
         ]).unlink()
 
         if self.active_branches:
