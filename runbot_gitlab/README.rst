@@ -5,7 +5,7 @@
 Runbot Gitlab Integration
 =========================
 
-This addon supports gitlab's CI API available in versions >= 8.1.
+This addon supports gitlab's API in versions >= 8.1.
 
 Configuration
 =============
@@ -15,7 +15,9 @@ On your repository, check the box `Use gitlab` and fill in your gitlab user's AP
 Usage
 =====
 
-To use this module, you need to activate `Builds` in the gitlab project's settings. You'll also need to add a file called `.gitlab-ci.yml` to your repository's root. It's contents don't matter, this is only needed by gitlab to activate the CI logic. It has to be valid YAML though::
+This module supports both plain MRs and builds. The only difference is that builds can also transmit runbot's output to gitlab. At the moment, the API for this is a bit in flux currently, so YMMV.
+
+To use builds anyways, you need to activate `Builds` in the gitlab project's settings. You'll also need to add a file called `.gitlab-ci.yml` to your repository's root. It's contents don't matter, this is only needed by gitlab to activate the CI logic. It has to be valid YAML though::
 
     job1:
         script: "noop"
@@ -61,4 +63,4 @@ OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
 
-To contribute to this module, please visit http://odoo-community.org.
+To contribute to this module, please visit https://odoo-community.org.

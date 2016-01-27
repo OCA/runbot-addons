@@ -128,14 +128,6 @@ class RunbotRepo(models.Model):
         self.gitlab_base_url = domain
         self.gitlab_name = name
 
-    @api.multi
-    def _query_gitlab_ci(self, path, get_data=None, post_data=None,
-                         delete_data=None, put_data=None, ignore_errors=None):
-        return self._query_gitlab(
-            GITLAB_CI_API_URL, path, get_data=get_data, post_data=post_data,
-            delete_data=delete_data, put_data=put_data,
-            ignore_errors=ignore_errors)
-
     def _query_gitlab_api(self, path, get_data=None, post_data=None,
                           delete_data=None, put_data=None, ignore_errors=None):
         return self._query_gitlab(
@@ -172,47 +164,34 @@ class RunbotRepo(models.Model):
     @api.one
     @gitlab_api
     def update(self):
-        projects = self._query_gitlab_ci('projects')
+        projects = self._query_gitlab_api('projects', get_data={
+            'search': self.gitlab_name.split('/')[-1],
+        })
         project = None
         for p in projects:
-            if p['path'] == self.gitlab_name:
+            if p['path_with_namespace'] == self.gitlab_name:
                 project = p
                 break
         if not project:
-            raise exceptions.UserError(
+            raise exceptions.ValidationError(
                 _('Project %s not found') % self.gitlab_name)
 
-        # register a runner and see if this gets us builds to work on
-        runner = self._query_gitlab_ci(
-            'runners/register', post_data={'token': project['token']})
-
-        builds = {}
-        while True:
-            build = self._query_gitlab_ci(
-                'builds/register', post_data=runner, ignore_errors=[404])
-            if not build:
-                break
-            build['commit'] = self._query_gitlab_api(
-                'projects/%s/repository/commits/%s' % (
-                    project['gitlab_id'], build['sha']))
-            builds[build['sha']] = build
-
-        # in case we didn't get builds, query merge requests
-        merge_requests = self._query_gitlab_api(
-            'projects/%s/merge_requests' % project['gitlab_id'],
-            get_data={'state': 'opened'})
         branches = {}
-        for merge_request in merge_requests:
+        if not self.mr_only:
+            for branch in self._query_gitlab_api(
+                    'projects/%s/repository/branches' % project['id']):
+                branches[branch['commit']['id']] = branch
+        for merge_request in self._query_gitlab_api(
+                'projects/%s/merge_requests' % project['id'],
+                get_data={'state': 'opened'}):
             # strangely enough, we can't query the commits with
             # projects/%s/merge_request/%s/commits, so we fetch the
             # source branch and get its last commit
             branch = self._query_gitlab_api(
                 'projects/%s/repository/branches/%s' % (
-                    project['gitlab_id'], merge_request['source_branch']))
+                    merge_request['source_project_id'],
+                    merge_request['source_branch']))
             if not branch:
-                continue
-            if branch['commit']['id'] in builds:
-                builds[branch['commit']['id']]['merge_request'] = merge_request
                 continue
             branch['merge_request'] = merge_request
             branches[branch['commit']['id']] = branch
@@ -220,9 +199,8 @@ class RunbotRepo(models.Model):
         builds_created = self.env['runbot.build'].browse([])
 
         # create or adapt builds
-        for sha, build_or_branch in itertools.chain(
-                builds.iteritems(), branches.iteritems()):
-            commit = build_or_branch['commit']
+        for sha, branch in branches.iteritems():
+            commit = branch['commit']
             date = dateutil.parser.parse(commit['committed_date'])
             try:
                 author = commit['author']['name']
@@ -232,27 +210,26 @@ class RunbotRepo(models.Model):
                 committer = commit['committer']['name']
             except KeyError:
                 committer = commit.get('committer_name')
-            subject = commit['message']
-            title = build_or_branch.get(
-                'ref', build_or_branch.get('name', sha))
+
+            branch_name = 'refs/heads/%s' % branch['name']
 
             # Create or get branch
             branch_ids = self.env['runbot.branch'].search([
                 ('repo_id', '=', self.id),
-                ('project_id', '=', project['gitlab_id']),
-                ('name', '=', title),
+                ('project_id', '=', project['id']),
+                ('name', '=', branch_name),
             ])
             if not branch_ids:
                 logger.debug('repo %s found new merge request or build %s',
-                             self.name, title)
+                             self.name, sha)
                 branch_ids = self.env['runbot.branch'].create({
                     'repo_id': self.id,
-                    'name': title,
-                    'project_id': project['gitlab_id'],
+                    'name': branch_name,
+                    'project_id': project['id'],
                     'merge_request_id':
-                    build_or_branch.get('merge_request', {}).get('iid'),
+                    branch.get('merge_request', {}).get('iid'),
                 })
-            # Create build (and mark previous builds as skipped) if not found
+            # Create build if not found
             build_ids = self.env['runbot.build'].search([
                 ('branch_id', 'in', branch_ids.ids),
                 ('name', '=', sha),
@@ -269,12 +246,10 @@ class RunbotRepo(models.Model):
                     'name': sha,
                     'author': author,
                     'committer': committer,
-                    'subject': subject,
+                    'subject': commit['message'],
                     'date': fields.Date.to_string(date),
                     'modules': ', '.join(filter(
                         None, branch_ids.mapped('repo_id.modules'))),
-                    'gitlab_build_id': build_or_branch.get('id'),
-                    'gitlab_runner_token': runner['token'],
                 })
 
         self._update_gitlab_before_super(project)
@@ -286,24 +261,24 @@ class RunbotRepo(models.Model):
     @api.multi
     def _update_gitlab_after_super(self, project, builds_created):
         self.ensure_one()
-        # super adds all branches, and given we change branch names for MRs,
-        # we'll have duplicate branches. Delete those
+        # skip builds if we created a new one
         self.env['runbot.build'].search([
-            ('branch_id.repo_id', 'in', self.ids),
-            ('branch_id.project_id', '=', False),
-            ('name', 'in', builds_created.mapped('name')),
-        ]).mapped('branch_id').unlink()
+            ('id', 'not in', builds_created.ids),
+            ('branch_id', 'in', builds_created.mapped('branch_id').ids),
+            ('state', 'not in', ('done', 'duplicate')),
+        ]).skip()
 
         if self.sticky_protected:
             # Put all protected branches as sticky
             all_branches = self._query_gitlab_api(
-                'projects/%s/repository/branches' % project['gitlab_id'])
+                'projects/%s/repository/branches' % project['id'])
             protected_branches = map(
-                operator.itemgetter('name'),
+                lambda x: 'refs/heads/%s' % x['name'],
                 filter(operator.itemgetter('protected'), all_branches))
 
             self.env['runbot.branch'].search([
-                ('branch_name', 'in', protected_branches),
+                ('repo_id', 'in', self.ids),
+                ('name', 'in', protected_branches),
                 ('sticky', '=', False),
             ]).write({'sticky': True})
 
@@ -312,45 +287,31 @@ class RunbotRepo(models.Model):
             branches = self.env['runbot.branch'].search([
                 ('sticky', '=', False),
                 ('repo_id', 'in', self.ids),
-                ('project_id', '=', False),
                 ('merge_request_id', '=', False),
             ])
             self.env['runbot.build'].search([
                 ('branch_id', 'in', branches.ids)]).skip()
-
-        # clean up gitlab runners
-        runners = self._query_gitlab_ci('/runners')
-        builds_with_runners = self.env['runbot.build'].search([
-            ('gitlab_runner_token', '!=', False),
-            ('repo_id', '=', self.id),
-        ])
-        runners_to_delete = filter(
-            lambda x: not builds_with_runners.filtered(
-                lambda rec: rec.gitlab_runner_token == x['token']),
-            runners)
-        for runner in runners_to_delete:
-            self._query_gitlab_ci('/runners/delete', delete_data=runner)
 
     @api.multi
     def _update_gitlab_before_super(self, project):
         self.ensure_one()
         # Clean-up old MRs
         merge_requests = self._query_gitlab_api(
-            'projects/%s/merge_requests' % project['gitlab_id'],
+            'projects/%s/merge_requests' % project['id'],
             get_data={'state': 'closed'})
         self.env['runbot.branch'].search([
             ('merge_request_id', 'in', map(
-                operator.itemgetter('iid'), merge_requests)),
+                operator.itemgetter('id'), merge_requests)),
         ]).unlink()
 
         if self.active_branches:
             # Clean old branches
             all_branches = self._query_gitlab_api(
-                'projects/%s/repository/branches' % project['gitlab_id'])
-            remote_branches = map(operator.itemgetter('name'), all_branches)
+                'projects/%s/repository/branches' % project['id'])
+            remote_branches = map(
+                lambda x: 'refs/heads/%s' % x['name'], all_branches)
 
             self.env['runbot.branch'].search([
                 ('repo_id', '=', self.id),
-                ('merge_request_id', '=', False),
-                ('branch_name', 'not in', remote_branches),
+                ('name', 'not in', remote_branches),
             ]).unlink()

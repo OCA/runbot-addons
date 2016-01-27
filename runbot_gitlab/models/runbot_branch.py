@@ -24,8 +24,8 @@ from openerp import api, models, fields
 
 class RunbotBranch(models.Model):
     _inherit = "runbot.branch"
-    project_id = fields.Integer('VCS Project', select=1)
-    merge_request_id = fields.Integer('Merge Request', select=1)
+    project_id = fields.Char('VCS Project')
+    merge_request_id = fields.Char('Merge Request')
     branch_url = fields.Char(compute='_compute_branch_url')
 
     @api.multi
@@ -35,14 +35,22 @@ class RunbotBranch(models.Model):
         If not an MR (such as a main branch or github repo) call super
         function
         """
-        for branch in self.filtered('merge_request_id'):
+        gitlab_branches = self.filtered('repo_id.uses_gitlab')
+        for branch in gitlab_branches:
             if branch.merge_request_id:
                 branch.branch_url = "%s/%s/merge_requests/%s" % (
                     branch.repo_id.gitlab_base_url,
                     branch.repo_id.gitlab_name,
                     branch.merge_request_id,
                 )
-        others = self - self.filtered('merge_request_id')
+            else:
+                branch.branch_url = "%s/%s/tree/%s" % (
+                    branch.repo_id.gitlab_base_url,
+                    branch.repo_id.gitlab_name,
+                    branch.branch_name,
+                )
+
+        others = self - gitlab_branches
         others_by_id = {o.id: o for o in others}
         for rec_id, branch_url in others._get_branch_url('branch_url', None)\
                 .iteritems():

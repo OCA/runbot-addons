@@ -45,26 +45,33 @@ class runbot_build(models.Model):
 
     @api.multi
     def github_status(self):
-        for this in self.filtered('gitlab_build_id'):
+        gitlab_builds = self.filtered('repo_id.uses_gitlab')
+        for this in gitlab_builds:
             state = 'pending'
+            if this.state in ['testing']:
+                state = 'running'
             if this.result in ['ok', 'warn']:
                 state = 'success'
             if this.result in ['ko']:
                 state = 'failed'
             if this.result in ['skipped', 'killed']:
                 state = 'canceled'
-            this.repo_id._query_gitlab_ci(
-                'builds/%s' % this.gitlab_build_id,
-                put_data={
+            this.repo_id._query_gitlab_api(
+                'projects/%s/statuses/%s' % (
+                    this.branch_id.project_id,
+                    this.name,
+                ),
+                post_data={
                     'state': state,
-                    'token': this.gitlab_runner_token,
+                    'ref': this.branch_id.name,
+                    'name': 'runbot',
+                    'target_url': '//%s/runbot/build/%s' % (
+                        this.repo_id.domain(),
+                        this.id,
+                    ),
                 })
         return super(
-            # it's intentional that we do different filtering here than above
-            # there can be gitlab build without a build_if, for them, there's
-            # nothing to do
-            runbot_build, self - self.filtered('repo_id.uses_gitlab'))\
-            .github_status()
+            runbot_build, self - gitlab_builds).github_status()
 
     @api.multi
     def _log(self, func, message):

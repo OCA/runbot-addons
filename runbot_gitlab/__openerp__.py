@@ -28,6 +28,7 @@
     'author': "Savoir-faire Linux,Therp BV,Odoo Community Association (OCA)",
     'depends': ['runbot'],
     'data': [
+        "views/runbot_branch.xml",
         "views/runbot_build.xml",
         'views/runbot_repo.xml',
     ],
