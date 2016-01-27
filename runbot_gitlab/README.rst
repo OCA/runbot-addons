@@ -15,14 +15,7 @@ On your repository, check the box `Use gitlab` and fill in your gitlab user's AP
 Usage
 =====
 
-This module supports both plain MRs and builds. The only difference is that builds can also transmit runbot's output to gitlab. At the moment, the API for this is a bit in flux currently, so YMMV.
-
-To use builds anyways, you need to activate `Builds` in the gitlab project's settings. You'll also need to add a file called `.gitlab-ci.yml` to your repository's root. It's contents don't matter, this is only needed by gitlab to activate the CI logic. It has to be valid YAML though::
-
-    job1:
-        script: "noop"
-
-suffices, where job1 is how the build is called internally in gitlab. Change this to whatever you see fit.
+This module supports both plain branches and MRs, where you have more features if you use merge requests.
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
     :alt: Try me on Runbotrunbot
@@ -31,6 +24,13 @@ suffices, where job1 is how the build is called internally in gitlab. Change thi
 For further information, please visit:
 
 * https://www.odoo.com/forum/help-1
+
+Known issues / Roadmap
+======================
+
+* there was some effort to support the ci build API, but given this API changed
+  quite often during development, those efforts were suspended until the API
+  stabilizes
 
 Bug Tracker
 ===========
