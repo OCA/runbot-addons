@@ -216,7 +216,6 @@ class RunbotRepo(models.Model):
             # Create or get branch
             branch_ids = self.env['runbot.branch'].search([
                 ('repo_id', '=', self.id),
-                ('project_id', '=', project['id']),
                 ('name', '=', branch_name),
             ])
             if not branch_ids:
@@ -229,6 +228,20 @@ class RunbotRepo(models.Model):
                     'merge_request_id':
                     branch.get('merge_request', {}).get('iid'),
                 })
+            else:
+                # there's a chance this was a non-mr-branch before
+                branch_ids.filtered(lambda x: not x.merge_request_id)\
+                    .write({
+                        'merge_request_id':
+                        branch.get('merge_request', {}).get('iid'),
+                    })
+                # in this case, this branch's builds were skipped, undo that
+                if self.mr_only:
+                    self.env['runbot.build'].search([
+                        ('branch_id', 'in', branch_ids.ids),
+                        ('result', '=', 'skipped'),
+                        ('state', '=', 'done'),
+                    ], limit=1).force()
             # Create build if not found
             build_ids = self.env['runbot.build'].search([
                 ('branch_id', 'in', branch_ids.ids),
@@ -267,6 +280,11 @@ class RunbotRepo(models.Model):
             ('branch_id', 'in', builds_created.mapped('branch_id').ids),
             ('state', 'not in', ('done', 'duplicate')),
         ]).skip()
+        # super creates branches without a project_id, fix that
+        self.env['runbot.branch'].search([
+            ('repo_id', 'in', self.ids),
+            ('project_id', '=', False),
+        ]).write({'project_id': project['id']})
 
         if self.sticky_protected:
             # Put all protected branches as sticky
