@@ -87,10 +87,22 @@ class RunbotBuild(models.Model):
             _logger.info('docker build skipping job_20_test_all')
             return MAGIC_PID_RUN_NEXT_JOB
         run(['docker', 'rm', '-f', build.docker_container])
+        pr_cmd_env = [
+            '-e', 'TRAVIS_PULL_REQUEST=true',
+            '-e', 'CI_PULL_REQUEST=' + build.branch_id.branch_name,
+            # coveralls process CI_PULL_REQUEST if CIRCLE is enabled
+            '-e', 'CIRCLECI=1',
+        ] if 'refs/pull/' in build.branch_id.name else [
+            '-e', 'TRAVIS_PULL_REQUEST=false',
+            ]
+        branch_base = build._get_closest_branch_name(build.repo_id.id)
         cmd = [
-            'docker', 'run', '-e', 'INSTANCE_ALIVE=1',
+            'docker', 'run',
+            '-e', 'INSTANCE_ALIVE=1',
+            '-e', 'TRAVIS_BRANCH=' + branch_base,
             '-e', 'RUNBOT=1', '-e', 'UNBUFFER=1',
             '-p', '%d:%d' % (build.port, 8069),
+        ] + pr_cmd_env + [
             '--name=' + build.docker_container, '-t',
             build.docker_image,
         ]
