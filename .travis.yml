@@ -37,7 +37,7 @@ install:
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - pip install gitlab3
   - pip install docker-py
-  - pip install travis2docker
+  - pip install --upgrade --pre travis2docker
   - travis_install_nightly
   - git clone --depth=1 https://github.com/odoo/odoo-extra ~/odoo-extra
   - find ${HOME} -name runbot.py -exec sed -i  '/from matplotlib.font_manager import FontProperties/d' {} \;
@@ -50,7 +50,7 @@ install:
 
   # odoo-extra has a bunch of v9 modules which aren't compatible, remove them
   - (cd ~/odoo-extra; rm -rf $(ls | grep -v runbot$))
-  - if [ "${TESTS}" == "1"  ]; then docker pull vauxoo/odoo-80-image-shippable-auto; fi
+  - if [ "${TESTS}" == "1"  ]; then travis_wait docker pull vauxoo/odoo-80-image-shippable-auto; fi
 
 script:
   - travis_wait travis_run_tests
