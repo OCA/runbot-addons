@@ -96,7 +96,8 @@ class RunbotBuild(models.Model):
         ] if 'refs/pull/' in build.branch_id.name else [
             '-e', 'TRAVIS_PULL_REQUEST=false',
             ]
-        branch_base = build._get_closest_branch_name(build.repo_id.id)[1]
+        branch_base = build._get_closest_branch_name(
+            build.repo_id.id)[1].split('/')[-1]
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
