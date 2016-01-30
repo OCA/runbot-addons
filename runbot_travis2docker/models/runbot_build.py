@@ -100,7 +100,8 @@ class RunbotBuild(models.Model):
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
             '-e', 'TRAVIS_BRANCH=' + branch_base,
-            '-e', 'RUNBOT=1', '-e', 'UNBUFFER=1',
+            '-e', 'RUNBOT=1',
+            '-e', 'UNBUFFER=1',
             '-p', '%d:%d' % (build.port, 8069),
         ] + pr_cmd_env + [
             '--name=' + build.docker_container, '-t',
@@ -153,7 +154,9 @@ class RunbotBuild(models.Model):
             t2d_path = os.path.join(build.repo_id.root(), 'travis2docker')
             sys.argv = [
                 'travisfile2dockerfile', build.repo_id.name,
-                branch_short_name, '--root-path=' + t2d_path]
+                branch_short_name, '--root-path=' + t2d_path,
+                '--include-after-success',
+            ]
             try:
                 path_scripts = t2d()
             except BaseException:  # TODO: Add custom exception to t2d
