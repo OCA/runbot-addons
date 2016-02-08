@@ -169,7 +169,7 @@ class RunbotBuild(models.Model):
             for path_script in path_scripts:
                 df_content = open(os.path.join(
                     path_script, 'Dockerfile')).read()
-                if 'ENV TESTS=1' in df_content:
+                if ' TESTS=1' in df_content:
                     build.dockerfile_path = path_script
                     build.docker_image = self.get_docker_image(cr, uid, build)
                     build.docker_container = self.get_docker_container(
