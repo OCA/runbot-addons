@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!--inherit runbot.repo-->
+        <record id="view_repo_form_inh_lang_01" model="ir.ui.view">
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='auto']" position="after">
+                    <field name="lang"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="view_repo_tree_inh_lang_01" model="ir.ui.view">
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='auto']" position="after">
+                    <field name="lang"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>
