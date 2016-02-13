@@ -141,7 +141,8 @@ class RunbotBuild(models.Model):
             t2d_path = os.path.join(build.repo_id.root(), 'travis2docker')
             sys.argv = [
                 'travisfile2dockerfile', build.repo_id.name,
-                branch_short_name, '--root-path=' + t2d_path]
+                branch_short_name, '--root-path=' + t2d_path,
+            ]
             try:
                 path_scripts = t2d()
             except BaseException:  # TODO: Add custom exception to t2d
@@ -163,7 +164,7 @@ class RunbotBuild(models.Model):
             self.skip(cr, uid, to_be_skipped_ids, context=context)
 
     @custom_build
-    def cleanup(self, cr, uid, ids, context=None):
+    def _local_cleanup(self, cr, uid, ids, context=None):
         for build in self.browse(cr, uid, ids, context=context):
             if build.docker_container:
                 run(['docker', 'rm', '-f', build.docker_container])
