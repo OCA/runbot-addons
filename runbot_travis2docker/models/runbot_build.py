@@ -159,7 +159,6 @@ class RunbotBuild(models.Model):
             sys.argv = [
                 'travisfile2dockerfile', build.repo_id.name,
                 branch_short_name, '--root-path=' + t2d_path,
-                '--include-after-success',
             ]
             try:
                 path_scripts = t2d()
@@ -183,7 +182,7 @@ class RunbotBuild(models.Model):
             self.skip(cr, uid, to_be_skipped_ids, context=context)
 
     @custom_build
-    def cleanup(self, cr, uid, ids, context=None):
+    def _local_cleanup(self, cr, uid, ids, context=None):
         for build in self.browse(cr, uid, ids, context=context):
             if build.docker_container:
                 run(['docker', 'rm', '-f', build.docker_container])
