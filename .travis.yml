@@ -56,9 +56,10 @@ install:
   # odoo-extra has a bunch of v9 modules which aren't compatible, remove them
   - (cd ~/odoo-extra; rm -rf $(ls | grep -v runbot$))
   - if [ "${TESTS}" == "1"  ]; then travis_wait docker pull vauxoo/odoo-80-image-shippable-auto; fi
+  - docker run -d -p 5000:5000 --name registry registry:2
 
 script:
-  - travis_wait travis_run_tests
+  - travis_run_tests
 
 after_success:
   - travis_after_tests_success

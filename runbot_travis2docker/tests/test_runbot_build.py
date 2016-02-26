@@ -5,10 +5,12 @@
 
 import logging
 import os
+import subprocess
 import time
 import xmlrpclib
 
 from openerp.tests.common import TransactionCase
+
 
 _logger = logging.getLogger(__name__)
 
@@ -92,6 +94,24 @@ class TestRunbotJobs(TransactionCase):
 
         self.assertEqual(
             build.result, u'ok', "Job result should be ok")
+
+        self.assertTrue(
+            self.docker_registry_test(build),
+            "Docker image don't found in registry.",
+        )
+
+    def docker_registry_test(self, build):
+        cmd = [
+            "curl", "--silent",
+            "localhost:5000/v2/"
+            "vauxoo-dev-runbot_branch_remote_name_grp_feature2/tags/list",
+        ]
+        tag_list_output = subprocess.check_output(cmd)
+        tag_build = build.docker_image_cache.split(':')[-1]
+        if tag_build in tag_list_output:
+            return True
+        else:
+            return False
 
     def connection_test(self, build):
         username = "admin"
