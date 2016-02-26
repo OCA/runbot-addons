@@ -26,6 +26,7 @@ import sys
 import shutil
 
 import openerp
+from openerp import api
 from openerp.osv import orm, fields
 from openerp.addons.runbot.runbot import mkdirs
 
@@ -169,3 +170,13 @@ class runbot_build(orm.Model):
             "--workers=0",
         ] + params
         return cmd, mods
+
+    @api.cr_uid_ids_context
+    def server(self, cr, uid, ids, *l, **kw):
+        for build in self.browse(cr, uid, ids, context=None):
+            if build.repo_id.is_custom_build:
+                custom_odoo_path = build.repo_id.custom_odoo_path
+                if custom_odoo_path and\
+                        os.path.exists(build.path(custom_odoo_path)):
+                    return build.path(custom_odoo_path, *l)
+        return super(runbot_build, self).server(cr, uid, ids, *l, **kw)
