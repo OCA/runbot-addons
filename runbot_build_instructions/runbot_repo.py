@@ -55,7 +55,10 @@ class RunbotRepo(models.Model):
     )
     custom_odoo_path = fields.Char(
         'Custom Odoo Path',
-        help="Relative path to Odoo",
+        help="Relative path to Odoo. E.g. put in 'my/odoo' if the relative"
+             " path to the 'base' module in the repository is"
+             " my/odoo/openerp/addons/base. If the option is not set, it"
+             " will assume the default 'odoo'.",
     )
     other_repo_id = fields.Many2one(
         'runbot.repo',
