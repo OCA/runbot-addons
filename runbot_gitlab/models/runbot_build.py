@@ -30,7 +30,7 @@ class runbot_build(models.Model):
     @api.depends('repo_id.uses_gitlab', 'branch_id', 'name')
     def _compute_dest(self):
         for build in self.filtered('repo_id.uses_gitlab'):
-            nickname = escape_branch_name(build.branch_id.name)[:32]
+            nickname = escape_branch_name(build.branch_id.name)[:32].lower()
             build.dest = "%05d-%s-%s" % (
                 build.id, nickname, build.name[:6]
             )
