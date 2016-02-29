@@ -63,7 +63,7 @@ class runbot_build(models.Model):
                 ),
                 post_data={
                     'state': state,
-                    'ref': this.branch_id.name,
+                    'ref': this.branch_id.branch_name,
                     'name': 'runbot',
                     'target_url': '//%s/runbot/build/%s' % (
                         this.repo_id.domain(),
