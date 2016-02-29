@@ -25,26 +25,17 @@
     'category': 'Website',
     'summary': 'Runbot with Gitlab integration',
     'version': '8.0.1.1.0',
-    'description': """
-Runbot Gitlab Integration
-=========================
-
-Add option in repo form view for gitlab repos builds. When checked:
-
-* Runbot will pool the gitlab interface
-
-Contributors
-------------
-* Sandy Carter (sandy.carter@savoirfairelinux.com)
-* Paul Catinean (paulcatinean@gmail.com)
-""",
-    'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
+    'author': "Savoir-faire Linux,Therp BV,Odoo Community Association (OCA)",
     'depends': ['runbot'],
-    'external_dependencies': {
-        'python': ['gitlab3', ]
-    },
     'data': [
-        'runbot_repo_view.xml',
+        "views/runbot_branch.xml",
+        "views/runbot_build.xml",
+        'views/runbot_repo.xml',
     ],
+    'external_dependencies': {
+        'python': [
+            'requests',
+        ]
+    },
     'installable': True,
 }

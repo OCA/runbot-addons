@@ -6,7 +6,9 @@
       <field name="model">runbot.repo</field>
       <field name="inherit_id" ref="runbot.view_repo_form"/>
       <field name="arch" type="xml">
-
+        <field name="token" position="attributes">
+            <attribute name="attrs">{'required': [('uses_gitlab', '=', True)]}</attribute>
+        </field>
         <xpath expr="//group[@string='Params']" position="after">
           <group string="Gitlab">
             <field name="uses_gitlab"/>

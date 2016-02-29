@@ -19,34 +19,39 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
-from openerp import models, fields
+from openerp import api, models, fields
 
 
 class RunbotBranch(models.Model):
     _inherit = "runbot.branch"
-    project_id = fields.Integer('VCS Project', select=1)
-    merge_request_id = fields.Integer('Merge Request', select=1)
+    project_id = fields.Char('VCS Project')
+    merge_request_id = fields.Char('Merge Request')
+    branch_url = fields.Char(compute='_compute_branch_url')
 
-    def _get_branch_url(self, cr, uid, ids, field_name, arg, context=None):
+    @api.multi
+    def _compute_branch_url(self):
         """For gitlab branches get gitlab MR formatted branches
 
         If not an MR (such as a main branch or github repo) call super
         function
         """
-        r = {}
-        other_branch_ids = []
-        for branch in self.browse(cr, uid, ids, context=context):
+        gitlab_branches = self.filtered('repo_id.uses_gitlab')
+        for branch in gitlab_branches:
             if branch.merge_request_id:
-                r[branch.id] = "https://%s/merge_requests/%s" % (
-                    branch.repo_id.base,
+                branch.branch_url = "%s/%s/merge_requests/%s" % (
+                    branch.repo_id.gitlab_base_url,
+                    branch.repo_id.gitlab_name,
                     branch.merge_request_id,
                 )
             else:
-                other_branch_ids.append(branch.id)
-        r.update(
-            super(RunbotBranch, self)._get_branch_url(
-                cr, uid, other_branch_ids, field_name, arg, context=context
-            )
-        )
-        return r
+                branch.branch_url = "%s/%s/tree/%s" % (
+                    branch.repo_id.gitlab_base_url,
+                    branch.repo_id.gitlab_name,
+                    branch.branch_name,
+                )
+
+        others = self - gitlab_branches
+        others_by_id = {o.id: o for o in others}
+        for rec_id, branch_url in others._get_branch_url('branch_url', None)\
+                .iteritems():
+            others_by_id[rec_id].branch_url = branch_url

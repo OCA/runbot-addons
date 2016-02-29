@@ -19,10 +19,5 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
-from . import (
-    runbot_repo,
-    runbot_branch,
-    runbot_build,
-    controllers,
-)
+from . import controllers
+from . import models

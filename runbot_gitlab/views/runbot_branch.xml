@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="view_branch_form" model="ir.ui.view">
+            <field name="model">runbot.branch</field>
+            <field name="inherit_id" ref="runbot.view_branch_form" />
+            <field name="arch" type="xml">
+                <field name="branch_url" position="after">
+                    <field name="project_id" attrs="{'invisible': [('project_id', '=', False)]}" />
+                    <field name="merge_request_id" attrs="{'invisible': [('merge_request_id', '=', False)]}" />
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
