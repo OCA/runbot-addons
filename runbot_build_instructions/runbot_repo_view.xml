@@ -15,6 +15,7 @@
             <field name="skip_test_jobs"/>
             <field name="custom_build_dir" attrs="{'invisible': [('is_custom_build', '=', False)]}"/>
             <field name="custom_server_path" attrs="{'invisible': [('is_custom_build', '=', False)], 'required': [('is_custom_build', '=', True)]}"/>
+            <field name="custom_odoo_path" attrs="{'invisible': [('is_custom_build', '=', False)]}" placeholder="odoo"/>
             <field name="custom_server_params" attrs="{'invisible': [('is_custom_build', '=', False)]}"/>
             <field name="custom_pre_build_cmd" attrs="{'invisible': [('is_custom_build', '=', False)]}"/>
             <field name="other_repo_id" attrs="{'invisible': [('is_custom_build', '=', False)]}"/>

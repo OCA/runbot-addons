@@ -18,6 +18,8 @@ checked:
   cloned in the build directory.
 * Custom server path is required to be specified. This is tells runbot which
   executable script to run.
+* Custom Odoo path can be specified. This is where the Odoo folder can be
+  found in the repository.
 * Custom server flags can be specified to add to execution. E.g. --workers=0
 * Pre-build commands can be run such as additional fetch scripts or buildout.
 * An alternate repository can be specified, and then passed on to the custom
