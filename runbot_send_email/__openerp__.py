@@ -14,7 +14,7 @@ email.",
     "license": "AGPL-3",
     "depends": [
         "runbot",
-        "crm",
+        "fetchmail",
     ],
     "data": [
         "views/runbot_send_email_view.xml",
