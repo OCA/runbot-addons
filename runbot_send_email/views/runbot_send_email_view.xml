@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <openerp>
+    <data>
+        <!-- Add followers chatter to existing view -->
+        <record model="ir.ui.view" id="runbot_send_form_view">
+            <field name="name">runbot.build.followers.inherit</field>
+            <field name="model">runbot.build</field>
+            <field name="inherit_id" ref="runbot.view_build_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="after">
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread" options='{"thread_level": 1}'/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
