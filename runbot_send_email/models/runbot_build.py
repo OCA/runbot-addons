@@ -36,7 +36,7 @@ class RunbotBuild(models.Model):
     @api.multi
     def _repo_name(self):
         descrip = self.repo_id.name.replace('.git', '').replace(
-                                'https://github.com/', '').replace('/', ' / ')
+            'https://github.com/', '').replace('/', ' / ')
         self.repo_name = descrip
 
     @api.multi
@@ -56,10 +56,8 @@ class RunbotBuild(models.Model):
             if self.result == 'ok':
                 status = 'Fixed'
 
-        self.subject_email = _(u"[runbot] {}: {} - {} - {}").format(status,
-                                                            self.dest,
-                                                            self.branch_name,
-                                                            self.repo_name)
+        self.subject_email = _(u"[runbot] {}: {} - {} - {}")\
+            .format(status, self.dest, self.branch_name, self.repo_name)
 
     @api.multi
     def _webaccess_link(self):
@@ -122,8 +120,8 @@ class RunbotBuild(models.Model):
         except ValueError:
             template_id = False
         try:
-            compose_form_id = ir_model_data.get_object_reference('mail',
-                                    'email_compose_message_wizard_form')[1]
+            compose_form_id = ir_model_data.get_object_reference(
+                'mail', 'email_compose_message_wizard_form')[1]
         except ValueError:
             compose_form_id = False
         ctx = dict()
