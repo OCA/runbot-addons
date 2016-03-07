@@ -8,5 +8,7 @@ from openerp import fields, models
 class Partner(models.Model):
     _name = "res.partner"
     _inherit = 'res.partner'
-
+    # This change is made to the default partner will not receive mail, only
+    # those that are explicitly marked as always, this will be marked through
+    # a server action.
     notify_email = fields.Selection(default='none')
