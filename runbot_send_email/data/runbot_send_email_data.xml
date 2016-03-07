@@ -10,7 +10,7 @@
         <tbody><tr style="padding:0px;border:0px">
             <td style="padding:0px;border:0px;vertical-align:middle">
                 <span style="vertical-align:middle;margin-left:3px">
-                <strong><a href="#" style="text-decoration:underline;color:#606060" target="_blank">${object.repo_name}</a></strong> (<a href="#" style="text-decoration:underline;color:#606060" target="_blank">${object.branch_name}</a>)</span>
+                    <strong><a href="${object.repo_id.name}" style="text-decoration:underline;color:#606060" target="_blank">${object.repo_name}</a></strong> (<a href="${object.repo_id.name.replace('.git', '')}${object.branch_id.name.replace('refs', '')}" style="text-decoration:underline;color:#606060" target="_blank">${object.branch_name}</a>)</span>
             </td>
         </tr>
         </tbody>
@@ -23,7 +23,7 @@
               <tr style="padding:0px;border:0px;font-weight:700;font-size:18px;background-color:#d9edf7;color:#1400FB">
                 <td style="padding:0px;border:0px;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;width:50px;padding:0px;text-align:center;vertical-align:middle;padding-top:5px;border-left:1px solid #606060;border-top-left-radius:5px"><div style="width:25px;min-height:30px;margin-left:15px;margin-top:0px;vertical-align:middle"><img class="CToWUd" src="http://fa2png.io/media/icons/fa-spinner/25/0/2b3cad_none.png" height="25" width="25"></div></td>
                 <td style="padding:0px;border:0px;padding:0px 20px 10px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad">
-<span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="#" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#1400FB" target="_blank">
+                    <span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="${object.log_link}" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#1400FB" target="_blank">
 Build #${object.sequence} is ${object.state}
 </a></span>
 </td>
@@ -35,24 +35,24 @@ Build #${object.sequence} is ${object.state}
               <tr style="padding:0px;border:0px;font-weight:700;font-size:18px;background-color:#baecb7;color:#32a32d">
                   <td style="padding:0px;border:0px;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;width:50px;padding:0px;text-align:center;vertical-align:middle;padding-top:5px;border-left:1px solid #606060;border-top-left-radius:5px"><div style="width:25px;min-height:30px;margin-left:15px;margin-top:0px;vertical-align:middle"><img class="CToWUd" src="http://fa2png.io/media/icons/fa-thumbs-up/25/0/50ad57_none.png" height="25" width="25"></div></td>
                 <td style="padding:0px;border:0px;padding:0px 20px 10px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad">
-<span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="#" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#32a32d" target="_blank">
+                    <span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="${object.log_link}" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#32a32d" target="_blank">
 Build #${object.sequence} is ${object.state}
 </a></span>
 </td>
                 <td style="padding:0px;border:0px;font-weight:normal;font-size:12px;vertical-align:middle;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;border-right:1px solid #606060;border-top-right-radius:5px" align="right">
-<div style="vertical-align:middle;min-height:20px;width:20px;padding:20px;display:inline-block;width:20px;min-height:20px"></div> <span style="vertical-align:middle">${object.job_start}</span>
+                    <div style="vertical-align:middle;min-height:20px;width:20px;padding:20px;display:inline-block;width:20px;min-height:20px"></div> <span style="vertical-align:middle">Age: ${object.job_age}m</span>
 </td>
               </tr>
 % else:
               <tr style="padding:0px;border:0px;font-weight:700;font-size:18px;background-color:#EFBABA;color:#FF0000">
                   <td style="padding:0px;border:0px;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;width:50px;padding:0px;text-align:center;vertical-align:middle;padding-top:5px;border-left:1px solid #606060;border-top-left-radius:5px"><div style="width:25px;min-height:30px;margin-left:15px;margin-top:0px;vertical-align:middle"><img class="CToWUd" src="http://fa2png.io/media/icons/fa-thumbs-down/25/0/ff0000_none.png" height="25" width="25"></div></td>
                 <td style="padding:0px;border:0px;padding:0px 20px 10px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad">
-<span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="#" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#FF0000" target="_blank">
+                    <span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="${object.log_link}" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#FF0000" target="_blank">
 Build #${object.sequence} is ${object.state} but failed
 </a></span>
 </td>
                 <td style="padding:0px;border:0px;font-weight:normal;font-size:12px;vertical-align:middle;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;border-right:1px solid #606060;border-top-right-radius:5px" align="right">
-<div style="vertical-align:middle;min-height:20px;width:20px;padding:20px;display:inline-block;width:20px;min-height:20px"></div> <span style="vertical-align:middle">${object.job_start}</span>
+                    <div style="vertical-align:middle;min-height:20px;width:20px;padding:20px;display:inline-block;width:20px;min-height:20px"></div> <span style="vertical-align:middle">Age: ${object.job_age}m</span>
 </td>
               </tr>
 % endif
@@ -61,7 +61,7 @@ Build #${object.sequence} is ${object.state} but failed
               <tr style="padding:0px;border:0px">
                 <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;padding-top:20px;padding-bottom:5px;text-align:center"></td>
                 <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;padding-top:20px;padding-bottom:5px"><strong>${object.committer}</strong></td>
-                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="#" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="${object.repo_id.name.replace('.git', '')}/commit/${object.name[:8]}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
               </tr>
               <tr style="padding:0px;border:0px">
                 <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;border-bottom-left-radius:5px;border-bottom:1px solid #adadad">&nbsp;</td>
