@@ -115,8 +115,7 @@ class RunbotBuild(models.Model):
         ir_model_data = self.env['ir.model.data']
         try:
             template_id = ir_model_data.get_object_reference(
-                                                        'runbot_send_email',
-                                                        'runbot_send_notif')[1]
+                'runbot_send_email', 'runbot_send_notif')[1]
         except ValueError:
             template_id = False
         try:
@@ -157,8 +156,7 @@ class RunbotBuild(models.Model):
         if email_act and email_act.get('context'):
             email_ctx = email_act['context']
             self.with_context(email_ctx).message_post_with_template(
-                                                    email_ctx.get(
-                                                        'default_template_id'))
+                email_ctx.get('default_template_id'))
             _logger.info('Sent email to: %s, Build: %s', email_to, name_build)
         return True
 
