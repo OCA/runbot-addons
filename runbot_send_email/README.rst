@@ -8,28 +8,28 @@ This module sends the results of the RunBot builds through email, when there is 
 
 * **General Info:** Contains the Status of build, Committer name, SHA Commit, Commit description. In this section runbot will indicate status changes of the build, showing color and icon related with such build status.
 
- .. image:: runbot_send_email/static/img/gi.png
-
+ .. image:: https://raw.githubusercontent.com/Vauxoo/runbot-addons/9.0/runbot_send_email/static/img/gi.png
+ 
 * **System Message:** Contains a description of the status of the build with any suggestions if any issues are found.
 
- .. image:: runbot_send_email/static/img/sm.png
+ .. image:: https://raw.githubusercontent.com/Vauxoo/runbot-addons/9.0/runbot_send_email/static/img/sm.png
 
 * **Debug:** Contains important information if you want to debug, access via ssh or logs.
 
- .. image:: runbot_send_email/static/img/dg.png
+ .. image:: https://raw.githubusercontent.com/Vauxoo/runbot-addons/9.0/runbot_send_email/static/img/dg.png
 
 * **Documentation:** Contains the respective links to access the documentation on the runbot, or other topic associated.
 
- .. image:: runbot_send_email/static/img/dc.png
+ .. image:: https://raw.githubusercontent.com/Vauxoo/runbot-addons/9.0/runbot_send_email/static/img/dc.png
 
 * **Issue:** Contains link to report any issues.
 
- .. image:: runbot_send_email/static/img/is.png
+ .. image:: https://raw.githubusercontent.com/Vauxoo/runbot-addons/9.0/runbot_send_email/static/img/is.png
 
 Requirements:
 -------------
 
-- `runbot_travis2docker` module.
+- `runbot` module.
 
 Contributors
 ------------
