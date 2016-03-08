@@ -24,7 +24,7 @@
                 <td style="padding:0px;border:0px;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;width:50px;padding:0px;text-align:center;vertical-align:middle;padding-top:5px;border-left:1px solid #606060;border-top-left-radius:5px"><div style="width:25px;min-height:30px;margin-left:15px;margin-top:0px;vertical-align:middle"><img class="CToWUd" src="http://fa2png.io/media/icons/fa-spinner/25/0/2b3cad_none.png" height="25" width="25"></div></td>
                 <td style="padding:0px;border:0px;padding:0px 20px 10px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad">
                     <span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="${object.log_link}" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#1400FB" target="_blank">
-Build #${object.sequence} is ${object.state}
+Build #${object.sequence} is being tested
 </a></span>
 </td>
                 <td style="padding:0px;border:0px;font-weight:normal;font-size:12px;vertical-align:middle;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;border-right:1px solid #606060;border-top-right-radius:5px" align="right">
@@ -116,8 +116,8 @@ Build #${object.sequence} is ${object.state} but failed
         <span style="color:#808080">
           <b>System message:</b>
           <p style="margin-top:5px;margin-bottom:0px">
-              Your Build is ${object.state}, You must wait until runbot finish this process. As soon change of status, runbot will send another notice to this effect.
-              <br/>Thank you for your patience.
+              Your Build is being tested, You must wait until runbot status chamges. Runbot will send another notification whenever changes happen.
+              <br/>Thanks for your patient.
           </p>
         </span>
       </div>
@@ -127,7 +127,7 @@ Build #${object.sequence} is ${object.state} but failed
           <b>System message:</b>
           <p style="margin-top:5px;margin-bottom:0px">
               Your Build is ${object.state} and runbot test completed successfully.
-              <br/>Thank you for your patience.
+              <br/>Thanks for your patient.
           </p>
         </span>
       </div>
@@ -137,7 +137,7 @@ Build #${object.sequence} is ${object.state} but failed
           <b>System message:</b>
           <p style="margin-top:5px;margin-bottom:0px">
               Your Build is ${object.state} but runbot test completed unsuccessfully. Please read the runbot logs and fix the issues found.
-              <br/>Thank you for your patience.
+              <br/>Thanks for your patient.
           </p>
         </span>
       </div>
@@ -147,16 +147,20 @@ Build #${object.sequence} is ${object.state} but failed
       <div style="padding-top:10px;width:570px">
         <span>
           <div style="margin-top:20px;border-radius:5px;border:1px solid #adadad;font-size:12px;padding:10px 20px;width:528px">
-            <p style="color:#808080;margin-top:0px;margin-bottom:5px"><strong style="font-size:14px">Do you want to debug this instance throught ssh or functionally?</strong></p>
+              <p style="color:#808080;margin-top:0px;margin-bottom:5px"><strong style="font-size:14px">Wanting functionally or technically debug this instance?</strong></p>
+% if object.state!="testing":
             <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">
-                <strong>Web Access:</strong> You can has access to this build directly throught this <a href="${object.webaccess_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.
+                <strong>Web Access:</strong> You can have access to this build directly throught <a href="${object.webaccess_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.
             </p>
+% endif
             <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">
-                <strong>Log:</strong> You can has access to the logs of this build on plain text <a href="${object.logplainbase_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a> and <a href="${object.logplainall_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a> or to the log of the running instance <a href="${object.log_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.
+                <strong>Log:</strong> You can have access to the logs of this build on plain text <a href="${object.logplainbase_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a> and <a href="${object.logplainall_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a> or to the log of the running instance <a href="${object.log_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.
             </p>
+% if object.state!="testing":
             <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">
-                <strong>SSH:</strong> You can has access to this build with the command <code style="font-family:monospace;background-color: #E0E0E0;">  ${object.ssh_link}  </code>. if it give you an access denied in the connection process you can ask for access to this email (<a href="mailto:moylop260@vauxoo.com" style="text-decoration:underline;color:#606060" target="_blank">moylop260@vauxoo.com</a>) sending your public key as attachment.
+                <strong>SSH:</strong> By using <code style="font-family:monospace;background-color: #E0E0E0;">  ${object.ssh_link}  </code> you can have access, if you got a 'connection refused' message then send an email to (<a href="mailto:moylop260@vauxoo.com" style="text-decoration:underline;color:#606060" target="_blank">moylop260@vauxoo.com</a>) with your public key as attachment.
             </p>
+% endif
           </div>
         </span>
       </div>
