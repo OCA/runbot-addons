@@ -10,7 +10,7 @@
         <tbody><tr style="padding:0px;border:0px">
             <td style="padding:0px;border:0px;vertical-align:middle">
                 <span style="vertical-align:middle;margin-left:3px">
-                    <strong><a href="${object.repo_id.name}" style="text-decoration:underline;color:#606060" target="_blank">${object.repo_name}</a></strong> (<a href="${object.repo_id.name.replace('.git', '')}${object.branch_id.name.replace('refs', '')}" style="text-decoration:underline;color:#606060" target="_blank">${object.branch_name}</a>)</span>
+                    <strong><a href="${object.repo_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.repo_name}</a></strong> (<a href="${object.pr_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.branch_name}</a>)</span>
             </td>
         </tr>
         </tbody>
@@ -36,7 +36,7 @@ Build #${object.sequence} is being tested
               <tr style="padding:0px;border:0px">
                 <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;padding-top:20px;padding-bottom:5px;text-align:center"></td>
                 <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;padding-top:20px;padding-bottom:5px"><strong>${object.committer}</strong></td>
-                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="${object.repo_id.name.replace('.git', '')}/commit/${object.name[:8]}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="${object.commit_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
               </tr>
               <tr style="padding:0px;border:0px">
                 <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;border-bottom-left-radius:5px;border-bottom:1px solid #adadad">&nbsp;</td>
@@ -67,7 +67,7 @@ Build #${object.sequence} is ${object.state}
               <tr style="padding:0px;border:0px">
                 <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;padding-top:20px;padding-bottom:5px;text-align:center"></td>
                 <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;padding-top:20px;padding-bottom:5px"><strong>${object.committer}</strong></td>
-                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="${object.repo_id.name.replace('.git', '')}/commit/${object.name[:8]}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="${object.commit_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
               </tr>
               <tr style="padding:0px;border:0px">
                 <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;border-bottom-left-radius:5px;border-bottom:1px solid #adadad">&nbsp;</td>
@@ -98,7 +98,7 @@ Build #${object.sequence} is ${object.state} but failed
               <tr style="padding:0px;border:0px">
                 <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;padding-top:20px;padding-bottom:5px;text-align:center"></td>
                 <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;padding-top:20px;padding-bottom:5px"><strong>${object.committer}</strong></td>
-                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="${object.repo_id.name.replace('.git', '')}/commit/${object.name[:8]}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="${object.commit_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
               </tr>
               <tr style="padding:0px;border:0px">
                 <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;border-bottom-left-radius:5px;border-bottom:1px solid #adadad">&nbsp;</td>
