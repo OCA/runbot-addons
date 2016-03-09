@@ -278,7 +278,7 @@ class RunbotRepo(models.Model):
         self.env['runbot.build'].search([
             ('id', 'not in', builds_created.ids),
             ('branch_id', 'in', builds_created.mapped('branch_id').ids),
-            ('state', 'not in', ('done', 'duplicate')),
+            ('state', '=', 'pending'),
         ]).skip()
         # super creates branches without a project_id, fix that
         self.env['runbot.branch'].search([
