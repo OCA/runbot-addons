@@ -116,8 +116,8 @@ Build #${object.sequence} is ${object.state} but failed
         <span style="color:#808080">
           <b>System message:</b>
           <p style="margin-top:5px;margin-bottom:0px">
-              Your Build is being tested, You must wait until runbot status chamges. Runbot will send another notification whenever changes happen.
-              <br/>Thanks for your patient.
+              Your Build is being tested, You must wait until runbot status changes. Runbot will send another notification whenever changes happen.
+              <br/>Thanks for your patience.
           </p>
         </span>
       </div>
@@ -127,7 +127,7 @@ Build #${object.sequence} is ${object.state} but failed
           <b>System message:</b>
           <p style="margin-top:5px;margin-bottom:0px">
               Your Build is ${object.state} and runbot test completed successfully.
-              <br/>Thanks for your patient.
+              <br/>Thanks for your patience.
           </p>
         </span>
       </div>
@@ -137,7 +137,7 @@ Build #${object.sequence} is ${object.state} but failed
           <b>System message:</b>
           <p style="margin-top:5px;margin-bottom:0px">
               Your Build is ${object.state} but runbot test completed unsuccessfully. Please read the runbot logs and fix the issues found.
-              <br/>Thanks for your patient.
+              <br/>Thanks for your patience.
           </p>
         </span>
       </div>
@@ -154,7 +154,7 @@ Build #${object.sequence} is ${object.state} but failed
             </p>
 % endif
             <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">
-                <strong>Log:</strong> You can have access to the logs of this build on plain text <a href="${object.logplainbase_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a> and <a href="${object.logplainall_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a> or to the log of the running instance <a href="${object.log_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.
+                <strong>Log:</strong> You can have access to the logs of this build on plain text <a href="${object.logplainbase_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a> and <a href="${object.logplainall_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a> or instance's logs <a href="${object.log_link}" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.
             </p>
 % if object.state!="testing":
             <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">
