@@ -17,6 +17,8 @@
     "external_dependencies": {
         "python": [
             'travis2docker',
+        ],
+        "bin": [
             'docker',
         ],
     },
