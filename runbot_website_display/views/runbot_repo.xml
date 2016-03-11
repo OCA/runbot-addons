@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="view_repo_form" model="ir.ui.view">
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//group/field" position="after">
+                    <field name="website_published" />
+                </xpath>
+            </field>
+        </record>
+        <record id="view_repo_tree" model="ir.ui.view">
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_tree" />
+            <field name="arch" type="xml">
+                <field name="name" position="before">
+                    <field name="sequence" widget="handle" />
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
