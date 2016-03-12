@@ -23,5 +23,6 @@ addon | version | summary
 [runbot_pylint](runbot_pylint/) | 8.0.1.0.0 | Runbot
 [runbot_secure](runbot_secure/) | 8.0.1.0.0 | Provide https links
 [runbot_skip_tests](runbot_skip_tests/) | 8.0.1.0.0 | Skip tests on runbot builds
+[runbot_website_display](runbot_website_display/) | 8.0.1.0.0 | Allows to reorder and hide runbot repositories
 
 [//]: # (end addons)
