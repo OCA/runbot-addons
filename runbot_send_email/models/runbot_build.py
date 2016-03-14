@@ -18,7 +18,10 @@ class RunbotBuild(models.Model):
     repo_link = fields.Char()
     pr_link = fields.Char()
     commit_link = fields.Char()
-    repo_name = fields.Char()
+    repo_host = fields.Char()
+    repo_owner = fields.Char()
+    repo_project = fields.Char()
+    status_build = fields.Char(compute='_status_build')
     host_name = fields.Char(compute='_host_name')
     branch_name = fields.Char(compute='_branch_name')
     subject_email = fields.Char(compute='_subject_email')
@@ -36,20 +39,19 @@ class RunbotBuild(models.Model):
     def get_github_links(self):
         repo_git_regex = r"((git@|https://)([\w\.@]+)(/|:))" + \
             r"([~\w,\-,\_]+)/" + r"([\w,\-,\_]+)(.git){0,1}((/){0,1})"
-        for record in self:
-            host_gh, owner_gh, repo_gh = False, False, False
-            match_object = re.search(repo_git_regex, record.repo_id.name)
+        for rec in self:
+            rec.repo_host, rec.repo_owner, rec.repo_project = '', '', ''
+
+            match_object = re.search(repo_git_regex, rec.repo_id.name)
             if match_object:
-                host_gh = match_object.group(3)
-                owner_gh = match_object.group(5)
-                repo_gh = match_object.group(6)
-            record.repo_name = host_gh + ' / ' + owner_gh + ' / ' + repo_gh
-            record.repo_link = "https://" + host_gh + '/' + owner_gh + '/' \
-                + repo_gh
-            record.pr_link = record.repo_link + record.branch_id.name.replace(
+                rec.repo_host = match_object.group(3)
+                rec.repo_owner = match_object.group(5)
+                rec.repo_project = match_object.group(6)
+            rec.repo_link = "https://" + rec.repo_host + '/' + rec.repo_owner \
+                + '/' + rec.repo_project
+            rec.pr_link = rec.repo_link + rec.branch_id.name.replace(
                 'refs/heads', '/tree').replace('refs', '')
-            record.commit_link = record.repo_link + '/commit/' \
-                + record.name[:8]
+            rec.commit_link = rec.repo_link + '/commit/' + rec.name[:8]
 
     @api.multi
     def _host_name(self):
@@ -67,7 +69,7 @@ class RunbotBuild(models.Model):
             record.branch_name = branch
 
     @api.multi
-    def _subject_email(self):
+    def _status_build(self):
         for record in self:
             status = 'Broken'
             if record.state == 'testing':
@@ -75,10 +77,24 @@ class RunbotBuild(models.Model):
             elif record.state in ('running', 'done'):
                 if record.result == 'ok':
                     status = 'Fixed'
+            record.status_build = status
 
-            record.subject_email = _(u"[runbot] {}: {} - {} - {}")\
-                .format(status, record.dest, record.branch_name,
-                        record.repo_name)
+    @api.multi
+    def _subject_email(self):
+        for record in self:
+            pr_reg = "(\\/pull\\/)"
+            match_pr = re.search(pr_reg, record.branch_id.name)
+
+            if match_pr:
+                subject_temp = _(u"[runbot] {}/{}#{}")\
+                    .format(record.repo_owner, record.repo_project,
+                            record.branch_id.branch_name)
+            else:
+                subject_temp = _(u"[runbot] {}/{}#{} - {}")\
+                    .format(record.repo_owner, record.repo_project,
+                            record.branch_id.branch_name, record.name[:8])
+
+            record.subject_email = subject_temp
 
     @api.multi
     def _webaccess_link(self):

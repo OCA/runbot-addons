@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openerp>
 <data>
+    <record id="mail.mail_template_data_notification_email_runbot_build" model="mail.template">
+        <field name="name">Notification Email</field>
+         <field name="subject">${object.subject}</field>
+        <field name="model_id" ref="mail.model_mail_message"/>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html"><![CDATA[
+            ${object.body | safe}
+]]>
+       </field>
+    </record>
     <record id="runbot_send_notif" model="mail.template">
         <field name="name">Send Email Notification Status</field>
         <field name="model_id" ref="runbot.model_runbot_build"/>
         <field name="subject">${object.subject_email}</field>
         <field name="body_html"><![CDATA[
+    <div style="font-size:2px;color:#FFFFFF">${object.status_build} @ ${object.name[:8]} - build_${object.sequence}</div>
     <table style="padding:0px;border:0px;width:100%;color:#606060;font-size:19px;margin-bottom:15px;margin-top:15px">
         <tbody><tr style="padding:0px;border:0px">
             <td style="padding:0px;border:0px;vertical-align:middle">
                 <span style="vertical-align:middle;margin-left:3px">
-                    <strong><a href="${object.repo_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.repo_name}</a></strong> (<a href="${object.pr_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.branch_name}</a>)</span>
+                    <strong><a href="${object.repo_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.repo_owner}/${object.repo_project}</a></strong> (<a href="${object.pr_link}" style="text-decoration:underline;color:#606060" target="_blank">${object.branch_name}</a>)</span>
             </td>
         </tr>
         </tbody>
