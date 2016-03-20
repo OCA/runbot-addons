@@ -26,7 +26,7 @@ class TestRunbotJobs(TransactionCase):
 
     def wait_change_job(self, current_job, build,
                         loops=36, timeout=10):
-        for loop in range(loops):
+        for _ in range(loops):
             self.repo.cron()
             if build.job != current_job:
                 break

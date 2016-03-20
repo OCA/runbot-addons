@@ -23,5 +23,5 @@
     'data': [
         "views/runbot_pylint_view.xml",
     ],
-    'installable': True,
+    'installable': False,
 }

@@ -40,5 +40,5 @@ Contributors
     'data': [
         'runbot_qweb.xml',
     ],
-    'installable': True,
+    'installable': False,
 }
