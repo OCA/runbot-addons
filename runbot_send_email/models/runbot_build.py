@@ -6,7 +6,7 @@ import logging
 import re
 from urlparse import urlparse
 
-from openerp import api, fields, models, _
+from openerp import _, api, fields, models
 
 _logger = logging.getLogger(__name__)
 
