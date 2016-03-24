@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<openerp>
+    <data>
+        <record id="runbot_send_ir_mail_server_demo" model="ir.mail_server">
+            <field name="name">Runbot Email Server (TEST)</field>
+            <field name="sequence">5</field>
+            <field name="smtp_host">smtp.mailgun.org</field>
+            <field name="smtp_port">25</field>
+            <field name="smtp_encryption">starttls</field>
+        </record>
+    </data>
+</openerp>

@@ -21,6 +21,7 @@ email.",
         "data/runbot_send_email_data.xml",
     ],
     "demo": [
+        "demo/ir_mail_server_demo.xml",
     ],
     "application": False,
     "installable": True,
