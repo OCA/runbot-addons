@@ -61,7 +61,7 @@ class TestRunbotJobs(TransactionCase):
             # If the branch has a commit too old then runbot ignore it
             branch = self.branch_obj.create({
                 'repo_id': self.repo.id,
-                'name': 'refs/heads/4.2',
+                'name': 'refs/heads/fast-travis-oca',
             })
         self.assertEqual(len(branch), 1, "Branch not found")
         self.build_obj.search([('branch_id', '=', branch.id)]).unlink()
@@ -70,12 +70,15 @@ class TestRunbotJobs(TransactionCase):
         self.repo.update()
         self.build = self.build_obj.search([
             ('branch_id', '=', branch.id)], limit=1)
+        if not self.build:
+            self.build = self.build_obj.create({
+                'branch_id': branch.id, 'name': 'HEAD'})
         self.assertEqual(len(self.build) == 0, False, "Build not found")
 
-        if build.state == 'done' and build.result == 'skipped':
+        if self.build.state == 'done' and self.build.result == 'skipped':
             # When the last commit of the repo is too old,
             # runbot will skip this build then we are forcing it
-            build.force()
+            self.build.force()
 
         self.assertEqual(
             self.build.state, u'pending', "State should be pending")
