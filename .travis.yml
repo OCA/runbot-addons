@@ -24,9 +24,11 @@ services:
 env:
   global:
   - VERSION="9.0" TESTS="0" LINT_CHECK="0"
-  - secure: fZ4S2vmcIJyxdMk9nZqFPvbSzWZVQWIoulzqJGGQLYKIERVwpM2RI5u0v0ruLlvqsGWR1IJy+ZkAG/w7FiMbUuatYWOCV6+e13nuAIFlg+d3u9v4jt1mkkDQOJS/zVy7IM/mBf8x+USLJq1vSHlrMlr1kwgUQHlAlCn9f/ToVl4=
-  - secure: KWy09oZAEBjKbr2lUFS6UVxlwvLj/PBB17+rSIiajWwNLm0NbN4VnHjMsCBnOgYlcuKQWJASXEqmhozWCOFjDHvJ8+irEgCsdJ1pfusMbRMk6c9Z2zBdtvKyl84RX5g+I/au1JEVUp1Hs+kBzdgR6wvmLtFyid54jgD0IdN3gUA=
-  - secure: fZPEKMZyeMTusAW79+EWNm01Ynnv0OPM5UHLAEaf7qvh9JWi+XYwIQNDxPZEH5FmDZ/psRpkByag9zkwy9r88UyiA7P7vJP/cnYc04IS31CqABRGhr4ZRX7yyO39LpaZJR1PQP954tGe5BEQoOUM4YXrnnZJ863J1vsqesUFGHA=
+  # The module "runbot_send_email" show the error "Connection timed out" when use real credentials but in local run fine!
+  # TODO: Enable email sending from travis
+  # - secure: fZ4S2vmcIJyxdMk9nZqFPvbSzWZVQWIoulzqJGGQLYKIERVwpM2RI5u0v0ruLlvqsGWR1IJy+ZkAG/w7FiMbUuatYWOCV6+e13nuAIFlg+d3u9v4jt1mkkDQOJS/zVy7IM/mBf8x+USLJq1vSHlrMlr1kwgUQHlAlCn9f/ToVl4=
+  # - secure: KWy09oZAEBjKbr2lUFS6UVxlwvLj/PBB17+rSIiajWwNLm0NbN4VnHjMsCBnOgYlcuKQWJASXEqmhozWCOFjDHvJ8+irEgCsdJ1pfusMbRMk6c9Z2zBdtvKyl84RX5g+I/au1JEVUp1Hs+kBzdgR6wvmLtFyid54jgD0IdN3gUA=
+  # - secure: fZPEKMZyeMTusAW79+EWNm01Ynnv0OPM5UHLAEaf7qvh9JWi+XYwIQNDxPZEH5FmDZ/psRpkByag9zkwy9r88UyiA7P7vJP/cnYc04IS31CqABRGhr4ZRX7yyO39LpaZJR1PQP954tGe5BEQoOUM4YXrnnZJ863J1vsqesUFGHA=
   matrix:
   - LINT_CHECK="1"
   - TESTS="1" ODOO_REPO="odoo/odoo" INCLUDE=runbot_selftest,runbot_travis2docker,runbot_send_email
