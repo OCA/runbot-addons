@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <openerp>
-    <data>
+    <data noupdate="1">
         <record id="runbot_send_ir_mail_server_demo" model="ir.mail_server">
             <field name="name">Runbot Email Server (TEST)</field>
             <field name="sequence">5</field>
