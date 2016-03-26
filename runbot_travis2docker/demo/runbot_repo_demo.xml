@@ -5,6 +5,8 @@
         <record id="runbot_repo_demo1" model="runbot.repo">
             <field name="name">https://github.com/vauxoo-dev/runbot_branch_remote_name_grp_feature2.git</field>
             <field name="is_travis2docker_build" eval="True"/>
+            <field name="use_docker_cache" eval="True"/>
+            <field name="docker_registry_server">localhost:5000</field>
         </record>
 
     </data>

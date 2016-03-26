@@ -9,6 +9,8 @@
         <xpath expr="//group" position="after">
           <group name="travis2docker">
             <field name="is_travis2docker_build"/>
+            <field name="use_docker_cache"/>
+            <field name="docker_registry_server"/>
           </group>
         </xpath>
       </field>
