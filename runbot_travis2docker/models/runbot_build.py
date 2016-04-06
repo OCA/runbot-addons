@@ -81,7 +81,8 @@ class RunbotBuild(models.Model):
 
     def create_image_cache(self):
         for build in self:
-            if not build.is_pull_request and build.result in ['ok', 'warn']:
+            if not build.is_pull_request and build.result in ['ok', 'warn'] \
+                    and build.repo_id.use_docker_cache:
                 image_cached = build.get_docker_image(build.branch_closest)
                 cmd = [
                     'docker', 'commit', '-m', 'runbot_cache',
@@ -135,11 +136,15 @@ class RunbotBuild(models.Model):
             # coveralls process CI_PULL_REQUEST if CIRCLE is enabled
             '-e', 'CIRCLECI=1',
         ] if build.is_pull_request else [
-            '-e', 'TRAVIS_PULL_REQUEST=false', '-e', 'DB_BACKUP=1',
+            '-e', 'TRAVIS_PULL_REQUEST=false',
         ]
         cache_cmd_env = [
             '-e', 'CACHE=1',
         ] if build.docker_cache else []
+        cache_cmd_env += [
+            '-e', 'DB_BACKUP=1',
+        ] if not build.is_pull_request and build.repo_id.use_docker_cache \
+            else []
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
@@ -299,7 +304,7 @@ class RunbotBuild(models.Model):
 
     def docker_rm_container(self):
         for build in self:
-            run(['docker', 'rm', '-f', build.docker_container])
+            run(['docker', 'rm', '-vf', build.docker_container])
 
     def docker_rm_image(self):
         for build in self:
