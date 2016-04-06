@@ -147,6 +147,8 @@ class RunbotBuild(models.Model):
             '-e', 'TRAVIS_COMMIT=' + build.name,
             '-e', 'RUNBOT=1',
             '-e', 'UNBUFFER=1',
+            '-e', 'PG_LOGS_ENABLE=1',
+            '-e', 'PG_NON_DURABILITY=1',
             '-e', 'START_SSH=1',
             '-p', '%d:%d' % (build.port, 8069),
             '-p', '%d:%d' % (build.port + 1, 22),
