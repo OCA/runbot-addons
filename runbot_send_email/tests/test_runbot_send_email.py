@@ -107,6 +107,11 @@ class TestRunbotSendEmail(TransactionCase):
         self.build.write({'result': 'ko'})
         self.build.github_status()
 
+    def test_30_send_email_result_warn(self):
+        self.build = self.build.search(self.domain)
+        self.build.write({'result': 'warn', 'state': 'done'})
+        self.build.github_status()
+
     def test_40_send_email_state_testing(self):
         self.build = self.build.search(self.domain)
         self.build.write({'state': 'testing'})
