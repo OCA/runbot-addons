@@ -77,6 +77,8 @@ class RunbotBuild(models.Model):
             elif record.state in ('running', 'done'):
                 if record.result == 'ok':
                     status = 'Fixed'
+                elif record.result == 'warn':
+                    status = "Warning"
             record.status_build = status
 
     @api.multi
