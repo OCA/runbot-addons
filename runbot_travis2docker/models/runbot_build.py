@@ -5,6 +5,8 @@
 
 import logging
 import os
+import json
+import requests
 import subprocess
 import sys
 import time
@@ -14,7 +16,7 @@ from travis2docker.git_run import GitRun
 from travis2docker.travis2docker import main as t2d
 
 import openerp
-from openerp import fields, models
+from openerp import fields, models, api
 from openerp.addons.runbot.runbot import (_re_error, _re_warning, grep, rfind,
                                           run)
 from openerp.addons.runbot_build_instructions.runbot_build import \
@@ -49,6 +51,17 @@ def custom_build(func):
 class RunbotBuild(models.Model):
     _inherit = 'runbot.build'
 
+    @api.depends('state')
+    def _get_introspection(self):
+        for build in self:
+            try:
+                build.introspection = str(json.dumps({'status': 'fail', 'error': 'Not computed yet'}))
+                if build.dest and build.domain.find('False') < 0:
+                    url = "http://%s?db=%s-all/instance_introspection.json" % (build.domain, build.dest)
+                    build.introspection = str(json.loads(requests.get(url).text))
+            except Exception as e:
+                build.introspection = str(json.dumps({'status': 'fail', 'error': e.message}))
+
     dockerfile_path = fields.Char(
         help='Dockerfile path created by travis2docker')
     docker_image = fields.Char(help='New image name to create')
@@ -60,6 +73,8 @@ class RunbotBuild(models.Model):
     branch_closest = fields.Char(help="Branch closest of branch base.")
     is_pull_request = fields.Boolean(help="True is a pull request.")
     branch_short_name = fields.Char(help='Branch short name e.g. pull/1, 8.0')
+    introspection = fields.Text(help='Introspection', store=True,
+                                 compute='_get_introspection')
 
     def get_docker_image(self, branch_closest=None):
         self.ensure_one()
