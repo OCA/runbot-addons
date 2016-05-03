@@ -5,23 +5,64 @@
     <record id="view_runbot_build_form" model="ir.ui.view">
       <field name="model">runbot.build</field>
       <field name="inherit_id" ref="runbot.view_build_form"/>
+	  <field name="priority">5</field>
       <field name="arch" type="xml">
         <xpath expr="//group" position="inside">
             <field name="introspection"/>
+        </xpath>
+		<xpath expr="//header" position="replace">
+           <header>
+			   <button name="kill_build" type="object" string="Kill This Build"
+					   help="Kill this build, It will work only with dockerized builds."
+					   confirm="This action can not be cancelled, are you sure?"
+					   groups="runbot.group_runbot_admin" />
+			   <button name="rebuild" type="object" string="Force Rebuild"
+					   help="Kill and Start again."
+					   confirm="This action can not be cancelled, are you sure?"
+					   groups="runbot.group_runbot_admin" />
+		   </header>
         </xpath>
       </field>
     </record>
     <record id="view_runbot_repo_form" model="ir.ui.view">
       <field name="model">runbot.repo</field>
       <field name="inherit_id" ref="runbot.view_repo_form"/>
+	  <field name="priority">5</field>
       <field name="arch" type="xml">
-        <xpath expr="//group" position="after">
-          <group name="travis2docker">
-            <field name="is_travis2docker_build"/>
-            <field name="use_docker_cache"/>
-            <field name="docker_registry_server"/>
-          </group>
-        </xpath>
+		<xpath expr="//sheet" position="before">
+			<header>
+				<button name="update" type="object" string="Update"
+					groups="runbot.group_runbot_admin"/>
+				<button name="cron" type="object" string="Cron"
+					groups="runbot.group_runbot_admin"/>
+				<!--
+				<button name="killall" type="object" string="Killall" groups="runbot.group_runbot_admin"/>
+				-->
+			</header>
+		</xpath>
+		<xpath expr="//div[@class='oe_title']" position="replace">
+		</xpath>
+        <xpath expr="//group" position="before">
+			<label for="name" class="oe_edit_only"/>
+			<h1><field name="name"/></h1>
+			<label for="group_ids" class="oe_edit_only"/>
+			<field name="group_ids" widget="many2many_tags"/>
+		</xpath>
+        <xpath expr="//group" position="replace">
+			<group>
+				<group name="parameters" cols="3" string="Paramenters">
+					<field name="mode"/>
+					<field name="nginx"/>
+					<field name="token"/>
+					<field name="hook_time" readonly="1"/>
+				</group>
+				<group name="travis2docker" cols="3" string="Travis2Docker Paramenters">
+					<field name="is_travis2docker_build"/>
+					<field name="use_docker_cache"/>
+					<field name="docker_registry_server"/>
+				</group>
+			</group>
+		</xpath>
       </field>
     </record>
 
