@@ -2,11 +2,11 @@
    :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
    :alt: License: AGPL-3
 
-===================
-Runbot Secure Links
-===================
+==============================
+Runbot Protocol Relative Links
+==============================
 
-Serve links to spawned Odoo instances with an https link instead of http
+Serve protocol relative links to spawned Odoo instances instead of explicit http
 
 
 Usage
@@ -15,6 +15,11 @@ Usage
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
    :target: https://runbot.odoo-community.org/runbot/146/9.0
+
+Known issues / Roadmap
+======================
+
+* Xpaths are repetitive and very much coupled to implementation. Would be nice to somehow use the existing attribute in the format.
 
 
 Bug Tracker
@@ -36,8 +41,8 @@ Images
 Contributors
 ------------
 
-* Sandy Carter <sandy.carter@savoirfairelinux.com>
 * Dave Lasley <dave@laslabs.com>
+* Sandy Carter <sandy.carter@savoirfairelinux.com>
 
 Maintainer
 ----------

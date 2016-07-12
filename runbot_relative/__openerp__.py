@@ -3,11 +3,11 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    'name': 'Runbot Secure Links',
+    'name': 'Runbot Relative Links',
     'category': 'Website',
-    'summary': 'Provide https links in Runbot',
+    'summary': 'Provide protocol relative links in Runbot',
     'version': '9.0.1.0.0',
-    'author': "Savoir-faire Linux, LasLabs, Odoo Community Association (OCA)",
+    'author': "LasLabs, Savoir-faire Linux, Odoo Community Association (OCA)",
     'depends': ['runbot'],
     'data': [
         'views/runbot_template.xml',
