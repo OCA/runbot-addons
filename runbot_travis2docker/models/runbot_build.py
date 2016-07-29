@@ -16,7 +16,7 @@ from openerp.addons.runbot.runbot import (
     grep, rfind, run, _re_error, _re_warning)
 
 from travis2docker.git_run import GitRun
-from travis2docker.travis2docker import main as t2d
+from travis2docker.cli import main as t2d
 
 _logger = logging.getLogger(__name__)
 
