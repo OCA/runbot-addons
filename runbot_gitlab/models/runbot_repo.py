@@ -320,6 +320,7 @@ class RunbotRepo(models.Model):
             'projects/%s/merge_requests' % project['id'],
             get_data={'state': 'closed'})
         self.env['runbot.branch'].search([
+            ('repo_id', 'in', self.ids),
             ('merge_request_id', 'in', map(
                 operator.itemgetter('iid'), merge_requests)),
         ]).unlink()
