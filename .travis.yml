@@ -36,7 +36,7 @@ install:
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
   - pip install -r requirements.txt
-  - if [ "${TESTS}" == "1"  ]; then ${TRAVIS_BUILD_DIR}/.travis_requirements.sh; fi
+  - if [[ "${TESTS}" == "1"  ]]; then ${TRAVIS_BUILD_DIR}/.travis_requirements.sh; fi
 
 script:
   - travis_run_tests

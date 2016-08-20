@@ -20,4 +20,4 @@ find ${HOME}/dependencies/odoo-extra/runbot -name runbot.xml -exec sed -i "s/'in
 find ${HOME} -name __init__.py -exec sed -i  "/import test_crawl/d" {} \;
 
 # Download docker image required
-if [ "${TESTS}" == "1"  ]; then docker pull vauxoo/odoo-80-image-shippable-auto; fi
+if [[ "${TESTS}" == "1"  ]]; then docker pull vauxoo/odoo-80-image-shippable-auto; fi
