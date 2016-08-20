@@ -56,7 +56,7 @@ class TestRunbotJobs(TransactionCase):
         _logger.info("Repo update to get branches")
         self.repo.update()
         branch = self.branch_obj.search(self.repo_domain + [
-            ('name', '=', 'fast-travis-oca')], limit=1)
+            ('branch_name', '=', 'fast-travis-oca')], limit=1)
         if not branch:
             # If the branch has a commit too old then runbot ignore it
             branch = self.branch_obj.create({
