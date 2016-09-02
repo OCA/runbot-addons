@@ -56,7 +56,13 @@ class TestRunbotJobs(TransactionCase):
         _logger.info("Repo update to get branches")
         self.repo.update()
         branch = self.branch_obj.search(self.repo_domain + [
-            ('name', 'like', 'fast-travis-oca')], limit=1)
+            ('branch_name', '=', 'fast-travis-oca')], limit=1)
+        if not branch:
+            # If the branch has a commit too old then runbot ignore it
+            branch = self.branch_obj.create({
+                'repo_id': self.repo.id,
+                'name': 'refs/heads/fast-travis-oca',
+            })
         self.assertEqual(len(branch), 1, "Branch not found")
         self.build_obj.search([('branch_id', '=', branch.id)]).unlink()
 
@@ -64,7 +70,16 @@ class TestRunbotJobs(TransactionCase):
         self.repo.update()
         self.build = self.build_obj.search([
             ('branch_id', '=', branch.id)], limit=1)
+        if not self.build:
+            self.build = self.build_obj.create({
+                'branch_id': branch.id, 'name': 'HEAD'})
         self.assertEqual(len(self.build) == 0, False, "Build not found")
+
+        if self.build.state == 'done' and self.build.result == 'skipped':
+            # When the last commit of the repo is too old,
+            # runbot will skip this build then we are forcing it
+            self.build.force()
+
         self.assertEqual(
             self.build.state, u'pending', "State should be pending")
 
@@ -89,19 +104,10 @@ class TestRunbotJobs(TransactionCase):
             self.build.state, u'running',
             "Job state should be running")
 
-        _logger.info("Wait before of read job_30_run log")
-        time.sleep(360)
-        _logger.info(open(
-            os.path.join(self.build.path(), "logs",
-                         "job_30_run.txt")).read())
-
-        _logger.info("Build running")
+        user_ids = self.connection_test(self.build, 36, 10)
         self.assertEqual(
             self.build.state, u'running',
             "Job state should be running still")
-
-        _logger.info("Testing connection")
-        user_ids = self.connection_test(self.build)
         self.assertEqual(
             len(user_ids) >= 1, True, "Failed connection test")
 
@@ -112,19 +118,28 @@ class TestRunbotJobs(TransactionCase):
         self.assertEqual(
             self.build.result, u'ok', "Job result should be ok")
 
-    def connection_test(self, build):
+    def connection_test(self, build, attempts=1, delay=0):
         username = "admin"
         password = "admin"
         database_name = "openerp_test"
         port = build.port
         host = '127.0.0.1'
-        sock_common = xmlrpclib.ServerProxy(
-            "http://%s:%d/xmlrpc/common" % (host, port))
-        uid = sock_common.login(
-            database_name, username, password)
-        sock = xmlrpclib.ServerProxy(
-            "http://%s:%d/xmlrpc/object" % (host, port))
-        user_ids = sock.execute(
-            database_name, uid, password, 'res.users',
-            'search', [('login', '=', 'admin')])
+        user_ids = []
+        for _ in range(attempts):
+            try:
+                sock_common = xmlrpclib.ServerProxy(
+                    "http://%s:%d/xmlrpc/common" % (host, port))
+                uid = sock_common.login(
+                    database_name, username, password)
+                sock = xmlrpclib.ServerProxy(
+                    "http://%s:%d/xmlrpc/object" % (host, port))
+                user_ids = sock.execute(
+                    database_name, uid, password, 'res.users',
+                    'search', [('login', '=', 'admin')])
+                _logger.info("Trying connect... connected.")
+                return user_ids
+            except BaseException:
+                _logger.info("Trying connect to build %s %s:%s... failed.",
+                             build.sequence, host, port)
+            time.sleep(delay)
         return user_ids
