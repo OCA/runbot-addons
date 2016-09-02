@@ -16,7 +16,7 @@ from openerp.addons.runbot.runbot import (
     grep, rfind, run, _re_error, _re_warning)
 
 from travis2docker.git_run import GitRun
-from travis2docker.travis2docker import main as t2d
+from travis2docker.cli import main as t2d
 
 _logger = logging.getLogger(__name__)
 
@@ -141,7 +141,8 @@ class RunbotBuild(models.Model):
             t2d_path = os.path.join(build.repo_id.root(), 'travis2docker')
             sys.argv = [
                 'travisfile2dockerfile', build.repo_id.name,
-                branch_short_name, '--root-path=' + t2d_path]
+                branch_short_name, '--root-path=' + t2d_path,
+            ]
             try:
                 path_scripts = t2d()
             except BaseException:  # TODO: Add custom exception to t2d
@@ -149,7 +150,8 @@ class RunbotBuild(models.Model):
             for path_script in path_scripts:
                 df_content = open(os.path.join(
                     path_script, 'Dockerfile')).read()
-                if 'ENV TESTS=1' in df_content:
+                if ' TESTS=1' in df_content or ' TESTS="1"' in df_content or \
+                        " TESTS='1'" in df_content:
                     build.dockerfile_path = path_script
                     build.docker_image = self.get_docker_image(cr, uid, build)
                     build.docker_container = self.get_docker_container(
@@ -163,7 +165,7 @@ class RunbotBuild(models.Model):
             self.skip(cr, uid, to_be_skipped_ids, context=context)
 
     @custom_build
-    def cleanup(self, cr, uid, ids, context=None):
+    def _local_cleanup(self, cr, uid, ids, context=None):
         for build in self.browse(cr, uid, ids, context=context):
             if build.docker_container:
                 run(['docker', 'rm', '-f', build.docker_container])
