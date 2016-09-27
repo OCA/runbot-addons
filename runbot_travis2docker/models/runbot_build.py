@@ -86,14 +86,28 @@ class RunbotBuild(models.Model):
                 or build.result == 'skipped':
             _logger.info('docker build skipping job_20_test_all')
             return MAGIC_PID_RUN_NEXT_JOB
-        run(['docker', 'rm', '-f', build.docker_container])
-        cmd = [
-            'docker', 'run', '-e', 'INSTANCE_ALIVE=1',
-            '-e', 'RUNBOT=1', '-e', 'UNBUFFER=1',
-            '-p', '%d:%d' % (build.port, 8069),
-            '--name=' + build.docker_container, '-t',
-            build.docker_image,
+        run(['docker', 'rm', '-vf', build.docker_container])
+        pr_cmd_env = [
+            '-e', 'TRAVIS_PULL_REQUEST=' +
+            build.branch_id.branch_name,
+            '-e', 'CI_PULL_REQUEST=' + build.branch_id.branch_name,
+        ] if 'refs/pull/' in build.branch_id.name else [
+            '-e', 'TRAVIS_PULL_REQUEST=false',
         ]
+        cmd = [
+            'docker', 'run',
+            '-e', 'INSTANCE_ALIVE=1',
+            '-e', 'TRAVIS_BRANCH=' + build._get_closest_branch_name(
+                build.repo_id.id)[1].split('/')[-1],
+            '-e', 'TRAVIS_COMMIT=' + build.name,
+            '-e', 'RUNBOT=1',
+            '-e', 'UNBUFFER=0',
+            '-e', 'START_SSH=1',
+            '-p', '%d:%d' % (build.port, 8069),
+            '-p', '%d:%d' % (build.port + 1, 22),
+            '--name=' + build.docker_container,
+            '-t', build.docker_image,
+        ] + pr_cmd_env
         return self.spawn(cmd, lock_path, log_path)
 
     def job_30_run(self, cr, uid, build, lock_path, log_path):
