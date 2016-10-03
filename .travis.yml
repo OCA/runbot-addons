@@ -37,9 +37,9 @@ install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
+  - if [[ "${TESTS}" == "1"  ]]; then ${TRAVIS_BUILD_DIR}/.travis_requirements.sh; fi
   # odoo-extra has a bunch of v9 modules which aren't compatible, remove them
   - (cd ~/dependencies/odoo-extra; rm -rf $(ls | grep -v runbot$))
-  - if [[ "${TESTS}" == "1"  ]]; then ${TRAVIS_BUILD_DIR}/.travis_requirements.sh; fi
 
 script:
   - travis_run_tests
