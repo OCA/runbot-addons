@@ -7,7 +7,10 @@ sudo: required  # Required for docker
 services:
   - docker
 
-cache: pip
+cache:
+  apt: true
+  directories:
+    - $HOME/.cache/pip
 
 addons:
   apt:
@@ -36,6 +39,7 @@ install:
   - travis_install_nightly
   # odoo-extra has a bunch of v9 modules which aren't compatible, remove them
   - (cd ~/dependencies/odoo-extra; rm -rf $(ls | grep -v runbot$))
+  - if [[ "${TESTS}" == "1"  ]]; then ${TRAVIS_BUILD_DIR}/.travis_requirements.sh; fi
 
 script:
   - travis_run_tests
