@@ -3,7 +3,10 @@ language: python
 python:
   - "2.7"
 
-sudo: false
+sudo: required  # Required for docker
+services:
+  - docker
+
 cache: pip
 
 addons:
