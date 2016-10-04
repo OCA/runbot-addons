@@ -95,7 +95,7 @@ class RunbotBuild(models.Model):
         ] if 'refs/pull/' in build.branch_id.name else [
             '-e', 'TRAVIS_PULL_REQUEST=false',
         ]
-        travis_branch =  build._get_closest_branch_name(
+        travis_branch = build._get_closest_branch_name(
             build.repo_id.id
         )[1].split('/')[-1]
         cmd = [
