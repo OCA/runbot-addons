@@ -106,6 +106,8 @@ class RunbotBuild(models.Model):
             '-e', 'RUNBOT=1',
             '-e', 'UNBUFFER=0',
             '-e', 'START_SSH=1',
+            '-e', 'TEST_ENABLE=%d' % (
+                not build.repo_id.travis2docker_test_disable),
             '-p', '%d:%d' % (build.port, 8069),
             '-p', '%d:%d' % (build.port + 1, 22),
             '--name=' + build.docker_container,
