@@ -10,3 +10,4 @@ class RunbotRepo(models.Model):
     _inherit = "runbot.repo"
 
     is_travis2docker_build = fields.Boolean('Travis to docker build')
+    travis2docker_test_disable = fields.Boolean('Test Disable?')
