@@ -95,11 +95,13 @@ class RunbotBuild(models.Model):
         ] if 'refs/pull/' in build.branch_id.name else [
             '-e', 'TRAVIS_PULL_REQUEST=false',
         ]
+        travis_branch =  build._get_closest_branch_name(
+            build.repo_id.id
+        )[1].split('/')[-1]
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
-            '-e', 'TRAVIS_BRANCH=' + build._get_closest_branch_name(
-                build.repo_id.id)[1].split('/')[-1],
+            '-e', 'TRAVIS_BRANCH=' + travis_branch,
             '-e', 'TRAVIS_COMMIT=' + build.name,
             '-e', 'RUNBOT=1',
             '-e', 'UNBUFFER=0',
@@ -110,7 +112,7 @@ class RunbotBuild(models.Model):
             '-t', build.docker_image,
         ] + pr_cmd_env
         logdb = cr.dbname
-        if config['db_host']:
+        if config['db_host'] and not travis_branch.startswith('7.0'):
             logdb = 'postgres://{cfg[db_user]}:{cfg[db_password]}@' +\
                     '{cfg[db_host]}/{db}'.format(cfg=config, db=cr.dbname)
         cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
