@@ -9,6 +9,7 @@
         <xpath expr="//group" position="after">
           <group name="travis2docker">
             <field name="is_travis2docker_build"/>
+            <field name="travis2docker_test_disable" attrs="{'invisible': [('is_travis2docker_build', '=', False)]}"/>
           </group>
         </xpath>
       </field>
