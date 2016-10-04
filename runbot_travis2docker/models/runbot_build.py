@@ -110,7 +110,7 @@ class RunbotBuild(models.Model):
             '-t', build.docker_image,
         ] + pr_cmd_env
         logdb = cr.dbname
-        if config['db_host'] and grep(build.server('sql_db.py'), 'allow_uri'):
+        if config['db_host']:
             logdb = 'postgres://{cfg[db_user]}:{cfg[db_password]}@' +\
                     '{cfg[db_host]}/{db}'.format(cfg=config, db=cr.dbname)
         cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
