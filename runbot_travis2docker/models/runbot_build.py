@@ -10,6 +10,7 @@ import sys
 
 import openerp
 from openerp import fields, models
+from openerp.tools import config
 from openerp.addons.runbot_build_instructions.runbot_build \
     import MAGIC_PID_RUN_NEXT_JOB
 from openerp.addons.runbot.runbot import (
@@ -108,6 +109,11 @@ class RunbotBuild(models.Model):
             '--name=' + build.docker_container,
             '-t', build.docker_image,
         ] + pr_cmd_env
+        logdb = cr.dbname
+        if config['db_host'] and grep(build.server('sql_db.py'), 'allow_uri'):
+            logdb = 'postgres://{cfg[db_user]}:{cfg[db_password]}@' +\
+                    '{cfg[db_host]}/{db}'.format(cfg=config, db=cr.dbname)
+        cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
         return self.spawn(cmd, lock_path, log_path)
 
     def job_30_run(self, cr, uid, build, lock_path, log_path):
