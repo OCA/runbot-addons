@@ -17,7 +17,7 @@ Available addons
 ----------------
 addon | version | summary
 --- | --- | ---
-[runbot_travis2docker](runbot_travis2docker/) | 9.0.1.0.0 | Generate docker with odoo instance based on .travis.yml
+[runbot_travis2docker](runbot_travis2docker/) | 9.0.1.1.0 | Generate docker with odoo instance based on .travis.yml
 
 Unported addons
 ---------------
