@@ -29,5 +29,5 @@
         "demo/runbot_repo_demo.xml",
     ],
     "application": False,
-    "installable": True,
+    'installable': False,
 }
