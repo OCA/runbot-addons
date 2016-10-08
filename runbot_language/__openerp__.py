@@ -12,7 +12,7 @@
     'name': 'Runbot Language',
     'category': 'Website',
     'summary': 'Runbot',
-    'version': '1.1',
+    'version': '8.0.1.1.0',
     "website": "http://www.vauxoo.com/",
     'license': 'AGPL-3',
     'author': 'Vauxoo,Odoo Community Association (OCA)',
