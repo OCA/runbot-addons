@@ -168,8 +168,9 @@ class RunbotBuild(models.Model):
                                   "$PYTHONPATH:%s\n" %
                                   (build.server()))
             for module_to_check_pylint in modules_to_check_pylint:
-                cmd = "pylint --rcfile=%s %s" % \
+                cmd = "pylint --rcfile=%s %s %s" % \
                       (path_pylint_conf,
+                       build.repo_id.pylint_extra_parameters or '',
                        os.path.join(build.server('addons'),
                                     module_to_check_pylint))
                 f_pylint_run_sh.write(cmd + '\n')
