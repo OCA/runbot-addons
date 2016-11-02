@@ -9,5 +9,5 @@ class RunbotRepo(models.Model):
 
     _order = 'sequence asc'
 
-    sequence = fields.Integer()
+    sequence = fields.Integer(default=0)
     website_published = fields.Boolean(default=True)
