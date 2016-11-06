@@ -24,23 +24,8 @@
     'name': 'Runbot Skip Tests',
     'category': 'Website',
     'summary': 'Skip tests on runbot builds',
-    'version': '8.0.1.0.0',
-    'description': """
-Runbot Skip Tests
-=================
-
-This module will take out "--tests-enable" from all commands given to instances
-built by runbot.
-
-Speeds up runbot if the only intention is to do manual browsing tests
-
-Contributors
-------------
-* Sandy Carter (sandy.carter@savoirfairelinux.com)
-""",
+    'version': '9.0.1.0.0',
     'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
     'depends': ['runbot'],
-    'data': [
-    ],
-    'installable': False,
+    'installable': True,
 }
