@@ -11,7 +11,7 @@ import sys
 import openerp
 from openerp import fields, models
 from openerp.tools import config
-from openerp.addons.runbot_build_instructions.runbot_build \
+from openerp.addons.runbot_build_instructions.models.runbot_build \
     import MAGIC_PID_RUN_NEXT_JOB
 from openerp.addons.runbot.runbot import (
     grep, rfind, run, _re_error, _re_warning)
