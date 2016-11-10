@@ -3,7 +3,7 @@
     <data>
 
         <record id="runbot_repo_demo1" model="runbot.repo">
-            <field name="name">https://github.com/vauxoo-dev/fast-travis-test.git</field>
+            <field name="name">github.com/vauxoo-dev/fast-travis-test.git</field>
             <field name="is_travis2docker_build" eval="True"/>
         </record>
 
