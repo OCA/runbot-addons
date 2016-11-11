@@ -169,8 +169,12 @@ class RunbotBuild(models.Model):
             branch_short_name = build.branch_id.name.replace(
                 'refs/heads/', '', 1).replace('refs/pull/', 'pull/', 1)
             t2d_path = os.path.join(build.repo_id.root(), 'travis2docker')
+            repo_name = build.repo_id.name
+            if not (repo_name.startswith('https://') or
+                    repo_name.startswith('git@')):
+                repo_name = 'https://' + repo_name
             sys.argv = [
-                'travisfile2dockerfile', build.repo_id.name,
+                'travisfile2dockerfile', repo_name,
                 branch_short_name, '--root-path=' + t2d_path,
             ]
             try:
