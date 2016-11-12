@@ -17,6 +17,7 @@ Available addons
 ----------------
 addon | version | summary
 --- | --- | ---
+[runbot_skip_tests](runbot_skip_tests/) | 9.0.1.0.0 | Skip tests on runbot builds
 [runbot_travis2docker](runbot_travis2docker/) | 9.0.1.1.0 | Generate docker with odoo instance based on .travis.yml
 
 Unported addons
@@ -27,6 +28,5 @@ addon | version | summary
 [runbot_gitlab](runbot_gitlab/) | 8.0.1.1.0 (unported) | Runbot with Gitlab integration
 [runbot_pylint](runbot_pylint/) | 8.0.1.0.0 (unported) | Runbot
 [runbot_secure](runbot_secure/) | 8.0.1.0.0 (unported) | Provide https links
-[runbot_skip_tests](runbot_skip_tests/) | 8.0.1.0.0 (unported) | Skip tests on runbot builds
 
 [//]: # (end addons)
