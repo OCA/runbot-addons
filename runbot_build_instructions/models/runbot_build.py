@@ -1,32 +1,15 @@
-# -*- encoding: utf-8 -*-
-##############################################################################
-#
-#    OpenERP, Open Source Management Solution
-#    This module copyright (C) 2010 - 2014 Savoir-faire Linux
+# coding: utf-8
+# Copyrigh 2010 - 2014 Savoir-faire Linux
 #    (<http://www.savoirfairelinux.com>).
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
 import os
-import sys
 import shutil
+import sys
 
 import openerp
-from openerp.osv import orm, fields
+from openerp import fields, models
 from openerp.addons.runbot.runbot import mkdirs
 
 _logger = logging.getLogger(__name__)
@@ -46,7 +29,7 @@ def custom_build(func):
         regular_ids = list(set(ids) - set(custom_ids))
         ret = None
         if regular_ids:
-            regular_func = getattr(super(runbot_build, self), func.func_name)
+            regular_func = getattr(super(RunbotBuild, self), func.func_name)
             ret = regular_func(cr, uid, regular_ids, context=context)
         if custom_ids:
             assert ret is None
@@ -55,14 +38,12 @@ def custom_build(func):
     return custom_func
 
 
-class runbot_build(orm.Model):
+class RunbotBuild(models.Model):
     _inherit = "runbot.build"
-    _columns = {
-        'prebuilt': fields.boolean("Prebuilt"),
-    }
+    prebuilt = fields.Boolean("Prebuilt")
 
     def job_00_init(self, cr, uid, build, lock_path, log_path):
-        res = super(runbot_build, self).job_00_init(
+        res = super(RunbotBuild, self).job_00_init(
             cr, uid, build, lock_path, log_path
         )
         if build.branch_id.repo_id.is_custom_build:
@@ -75,19 +56,19 @@ class runbot_build(orm.Model):
             _logger.info('skipping job_10_test_base')
             return MAGIC_PID_RUN_NEXT_JOB
         else:
-            return super(runbot_build, self).job_10_test_base(
+            return super(RunbotBuild, self).job_10_test_base(
                 cr, uid, build, lock_path, log_path
             )
 
     def job_20_test_all(self, cr, uid, build, lock_path, log_path):
         if build.branch_id.repo_id.skip_test_jobs:
             _logger.info('skipping job_20_test_all')
-            with open(log_path, 'w') as f:
-                f.write('consider tests as passed: '
-                        '.modules.loading: Modules loaded.')
+            with open(log_path, 'w') as f_log:
+                f_log.write('consider tests as passed: '
+                            '.modules.loading: Modules loaded.')
             return MAGIC_PID_RUN_NEXT_JOB
         else:
-            return super(runbot_build, self).job_20_test_all(
+            return super(RunbotBuild, self).job_20_test_all(
                 cr, uid, build, lock_path, log_path
             )
 
