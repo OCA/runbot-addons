@@ -78,7 +78,7 @@ class RunbotBuild(models.Model):
             return MAGIC_PID_RUN_NEXT_JOB
         cmd = [
             'docker', 'build',
-            "--no-cache",
+            "--no-cache", '--pull',
             "-t", build.docker_image,
             build.dockerfile_path,
         ]
