@@ -2,43 +2,27 @@
     :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
     :alt: License: AGPL-3
 
-===============
-runbot_coverage
-===============
+===================
+Coverage for runbot
+===================
 
-This module was written to extend the functionality of ... to support ...
-and allow you to ...
-
-Installation
-============
-
-To install this module, you need to:
-
-#. do this ...
+This module was written to have coverage tests in runbot.
 
 Configuration
 =============
 
 To configure this module, you need to:
 
-#. go to ...
+#. check the box `Coverage` on a runbot repository
+#. optionally fill in a configuration file
+#. optionally fill in the path to you coverage script (``/usr/bin/python-coverage`` for example on debian systems)
 
 Usage
 =====
 
-To use this module, you need to:
-
-#. go to ...
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
     :alt: Try me on Runbot
-    :target: https://runbot.odoo-community.org/runbot/{repo_id}/8.0
-
-.. repo_id is available in https://github.com/OCA/maintainer-tools/blob/master/tools/repos_with_ids.txt
-
-Known issues / Roadmap
-======================
-
-* ...
+    :target: https://runbot.odoo-community.org/runbot/146/8.0
 
 Bug Tracker
 ===========
@@ -59,7 +43,7 @@ Images
 Contributors
 ------------
 
-* Holger Brunn <hbrunn@therp.nl>  
+* Holger Brunn <hbrunn@therp.nl>
 
 Do not contact contributors directly about help with questions or problems concerning this addon, but use the `community mailing list <mailto:community@mail.odoo.com>`_ or the `appropriate specialized mailinglist <https://odoo-community.org/groups>`_ for help, and the bug tracker linked in `Bug Tracker`_ above for technical issues.
 
