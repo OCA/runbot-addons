@@ -2,6 +2,7 @@
 # © 2016 Therp BV <http://therp.nl>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 import os
+from lxml import etree
 from contextlib import contextmanager
 from openerp import api, fields, models
 from openerp.addons.runbot.runbot import run, mkdirs
@@ -9,6 +10,8 @@ from openerp.addons.runbot.runbot import run, mkdirs
 
 class RunbotBuild(models.Model):
     _inherit = 'runbot.build'
+
+    coverage = fields.Float('Coverage', digits=(10, 2))
 
     @api.model
     def job_20_test_all(self, build, lock_path, log_path):
@@ -42,6 +45,16 @@ class RunbotBuild(models.Model):
                 'result': 'ko',
             })
             build.github_status()
+        output = os.path.join(output, 'index.html')
+        if os.path.exists(output):
+            doc = etree.fromstring(open(output).read(), etree.HTMLParser())
+            coverage = 0.0
+            for node in doc.xpath("//tr[@class='total']/td[@data-ratio]"):
+                covered_lines, all_lines = node.get('data-ratio').split()
+                coverage = float(covered_lines or 0) / float(all_lines or 1)
+            build.write({
+                'coverage': coverage,
+            })
         return result
 
     @api.multi
