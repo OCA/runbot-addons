@@ -84,5 +84,7 @@ class RunbotBuild(models.Model):
         self.ensure_one()
         current_dir = os.getcwd()
         os.chdir(self.path(*args))
-        yield
-        os.chdir(current_dir)
+        try:
+            yield
+        finally:
+            os.chdir(current_dir)
