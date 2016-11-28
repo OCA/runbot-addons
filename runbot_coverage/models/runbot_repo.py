@@ -26,7 +26,7 @@ class RunbotRepo(models.Model):
                 sys.executable,
                 self.coverage_command,
             ]
-        ) + command + (
+        ) + [command] + (
             ['--rcfile', self.coverage_config] if self.coverage_config
             else []
         ) + list(args)
