@@ -15,21 +15,4 @@
         "views/runbot_repo.xml",
         'views/templates.xml',
     ],
-    "qweb": [
-    ],
-    "test": [
-    ],
-    "images": [
-    ],
-    "pre_init_hook": False,
-    "post_init_hook": False,
-    "uninstall_hook": False,
-    "auto_install": False,
-    "installable": True,
-    "application": False,
-    "external_dependencies": {
-        'binary': [
-            'coverage',
-        ],
-    },
 }
