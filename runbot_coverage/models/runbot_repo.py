@@ -19,14 +19,14 @@ class RunbotRepo(models.Model):
         'expected')
 
     @api.multi
-    def _coverage_command(self, *args):
+    def _coverage_command(self, command, *args):
         self.ensure_one()
         return (
             ['coverage'] if not self.coverage_command else [
                 sys.executable,
                 self.coverage_command,
             ]
-        ) + (
+        ) + command + (
             ['--rcfile', self.coverage_config] if self.coverage_config
             else []
         ) + list(args)
