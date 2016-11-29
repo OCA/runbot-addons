@@ -63,10 +63,12 @@ class RunbotBuild(models.Model):
         if self.env.context.get('runbot_coverage'):
             cmd = self.repo_id._coverage_command('run') + [
                 '--source'
-            ] + ','.join(map(
-                lambda x: self.path('openerp/addons', x),
-                modules.split(','),
-            )) + cmd[1:]
+            ] + [
+                ','.join(map(
+                    lambda x: self.path('openerp/addons', x),
+                    modules.split(','),
+                ))
+            ] + cmd[1:]
         return cmd, modules
 
     @contextmanager
