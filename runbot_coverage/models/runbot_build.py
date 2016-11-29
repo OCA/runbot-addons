@@ -53,7 +53,7 @@ class RunbotBuild(models.Model):
                 covered_lines, all_lines = node.get('data-ratio').split()
                 coverage = float(covered_lines or 0) / float(all_lines or 1)
             build.write({
-                'coverage': coverage,
+                'coverage': coverage * 100,
             })
         return result
 
