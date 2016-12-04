@@ -186,14 +186,17 @@ class RunbotRepo(models.Model):
         for merge_request in self._query_gitlab_api(
                 'projects/%s/merge_requests' % project['id'],
                 get_data={'state': 'opened'}):
-            commits = self._query_gitlab_api(
-                'projects/%s/merge_requests/%s/commits' % (
+            # strangely enough, we can't query the commits with
+            # projects/%s/merge_request/%s/commits, so we fetch the
+            # source branch and get its last commit
+            branch = self._query_gitlab_api(
+                'projects/%s/repository/branches/%s' % (
                     merge_request['source_project_id'],
-                    merge_request['id']))
-            if not commits:
+                    merge_request['source_branch']))
+            if not branch:
                 continue
             branch['merge_request'] = merge_request
-            branches[branch['commit']['id']] = commits[0]
+            branches[branch['commit']['id']] = branch
 
         builds_created = self.env['runbot.build'].browse([])
 
