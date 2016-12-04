@@ -52,9 +52,26 @@ class RunbotBuild(models.Model):
             for node in doc.xpath("//tr[@class='total']/td[@data-ratio]"):
                 covered_lines, all_lines = node.get('data-ratio').split()
                 coverage = float(covered_lines or 0) / float(all_lines or 1)
+                coverage *= 100
             build.write({
-                'coverage': coverage * 100,
+                'coverage': coverage,
             })
+            version = (build.branch_id.branch_name or '').split('-')[0]
+            target_build = self.env['runbot.build'].search([
+                ('repo_id', 'in', build.repo_id.ids),
+                ('branch_id.branch_name', '=', version)
+            ], limit=1)
+            if target_build.coverage and target_build.coverage > coverage:
+                build._log(
+                    'coverage', 'coverage dropped from %d in %s to %d' % (
+                        target_build.coverage, target_build.branch_name,
+                        coverage
+                    )
+                )
+                build.write({
+                    'result': 'ko',
+                })
+                build.github_status()
         return result
 
     @api.multi
