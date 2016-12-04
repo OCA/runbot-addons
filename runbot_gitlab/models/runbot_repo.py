@@ -243,12 +243,12 @@ class RunbotRepo(models.Model):
             if not build_ids:
                 logger.debug(
                     'repo %s merge request %s new build found commit %s',
-                    branch_ids.repo_id.name,
-                    branch_ids.name,
+                    branch_ids[:1].repo_id.name,
+                    branch_ids[:1].name,
                     sha,
                 )
                 builds_created += self.env['runbot.build'].create({
-                    'branch_id': branch_ids.id,
+                    'branch_id': branch_ids[:1].id,
                     'name': sha,
                     'author': author,
                     'committer': committer,
