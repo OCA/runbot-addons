@@ -44,6 +44,19 @@ class runbot_build(models.Model):
     gitlab_runner_token = fields.Char()
 
     @api.multi
+    def _prepare_gitlab_status_post(self, state):
+        self.ensure_one()
+        return {
+            'state': state,
+            'ref': self.branch_id.branch_name,
+            'name': 'runbot',
+            'target_url': '//%s/runbot/build/%s' % (
+                self.repo_id.domain(),
+                self.id,
+            ),
+        }
+
+    @api.multi
     def github_status(self):
         gitlab_builds = self.filtered('repo_id.uses_gitlab')
         for this in gitlab_builds:
@@ -61,15 +74,8 @@ class runbot_build(models.Model):
                     this.branch_id.project_id,
                     this.name,
                 ),
-                post_data={
-                    'state': state,
-                    'ref': this.branch_id.branch_name,
-                    'name': 'runbot',
-                    'target_url': '//%s/runbot/build/%s' % (
-                        this.repo_id.domain(),
-                        this.id,
-                    ),
-                })
+                post_data=this._prepare_gitlab_status_post(state)
+                )
         return super(
             runbot_build, self - gitlab_builds).github_status()
 
