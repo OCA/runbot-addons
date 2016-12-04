@@ -240,9 +240,7 @@ class RunbotRepo(models.Model):
                 ('branch_id', 'in', branch_ids.ids),
                 ('name', '=', sha),
             ])
-            if self.mr_only and not branch.get('merge_request'):
-                build_ids.skip()
-            elif not build_ids:
+            if not build_ids:
                 logger.debug(
                     'repo %s merge request %s new build found commit %s',
                     branch_ids.repo_id.name,
