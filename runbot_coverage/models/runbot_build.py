@@ -64,7 +64,8 @@ class RunbotBuild(models.Model):
             if target_build.coverage and target_build.coverage > coverage:
                 build._log(
                     'coverage', 'coverage dropped from %d in %s to %d' % (
-                        target_build.coverage, target_build.branch_name,
+                        target_build.coverage,
+                        target_build.branch_id.branch_name,
                         coverage
                     )
                 )
