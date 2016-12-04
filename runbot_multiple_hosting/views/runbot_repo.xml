@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_repo_form" model="ir.ui.view">
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_form"/>
+            <field name="arch" type="xml">
+
+                <field name="dependency_ids" position="after">
+                    <field name="dependency_nested_ids">
+                        <tree editable="True">
+                            <field name="repo_dst_id" />
+                            <field name="reference" />
+                        </tree>
+                    </field>
+                </field>
+
+                <field name="token" position="attributes">
+                    <attribute name="string">API Token</attribute>
+                </field>
+
+                <field name="modules_auto" position="after">
+                    <field name="hosting"/>
+                    <field name="username"/>
+                    <field name="password"/>
+                </field>
+
+            </field>
+        </record>
+
+    </data>
+</openerp>
