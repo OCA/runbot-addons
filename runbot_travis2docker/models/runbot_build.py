@@ -6,7 +6,6 @@
 import logging
 import os
 import time
-import sys
 
 import openerp
 from openerp import fields, models
@@ -16,16 +15,14 @@ from openerp.addons.runbot_build_instructions.models.runbot_build \
 from openerp.addons.runbot.runbot import (
     grep, rfind, run, _re_error, _re_warning)
 
+_logger = logging.getLogger(__name__)
+
 try:
     from travis2docker.git_run import GitRun
-except ImportError:
-    GitRun = None
-try:
-    from travis2docker.cli import main as t2d
-except ImportError:
-    t2d = None
-
-_logger = logging.getLogger(__name__)
+    from travis2docker.cli import get_git_data
+    from travis2docker.travis2docker import Travis2Docker
+except ImportError as err:
+    _logger.debug(err)
 
 
 def custom_build(func):
@@ -61,7 +58,8 @@ class RunbotBuild(models.Model):
     def get_docker_image(self, cr, uid, build, context=None):
         git_obj = GitRun(build.repo_id.name, '')
         image_name = git_obj.owner + '-' + git_obj.repo + ':' + \
-            build.name[:7] + '_' + os.path.basename(build.dockerfile_path)
+            build.name[:7] + '_' + os.path.basename(build.dockerfile_path) + \
+            '_' + str(build.id)
         return image_name.lower()
 
     def get_docker_container(self, cr, uid, build, context=None):
@@ -166,7 +164,7 @@ class RunbotBuild(models.Model):
     @custom_build
     def checkout(self, cr, uid, ids, context=None):
         """Save travis2docker output"""
-        to_be_skipped_ids = ids
+        to_be_skipped_ids = ids[:]
         for build in self.browse(cr, uid, ids, context=context):
             branch_short_name = build.branch_id.name.replace(
                 'refs/heads/', '', 1).replace('refs/pull/', 'pull/', 1)
@@ -175,14 +173,26 @@ class RunbotBuild(models.Model):
             if not (repo_name.startswith('https://') or
                     repo_name.startswith('git@')):
                 repo_name = 'https://' + repo_name
-            sys.argv = [
-                'travisfile2dockerfile', repo_name,
-                branch_short_name, '--root-path=' + t2d_path,
-            ]
+            sha = build.name
+            git_data = get_git_data(
+                repo_name, os.path.join(t2d_path, 'repo'), sha)
+            git_data['revision'] = branch_short_name
+            yml_content = git_data['content']
+            t2d_e = None
             try:
-                path_scripts = t2d()
-            except BaseException:  # TODO: Add custom exception to t2d
+                t2d_obj = Travis2Docker(
+                    yml_buffer=yml_content,
+                    work_path=os.path.join(t2d_path, 'script',
+                                           str(build.id) + "_" + sha[:7]),
+                    os_kwargs=git_data,
+                    copy_paths=[("~/.ssh", "$HOME/.ssh")],
+                )
+                path_scripts = t2d_obj.compute_dockerfile(
+                    skip_after_success=True)
+            except BaseException as t2d_e:
                 path_scripts = []
+                build._log('t2d error', t2d_e.message)
+                _logger.error('t2d build#%d: "%s"', build.id, t2d_e.message)
             for path_script in path_scripts:
                 df_content = open(os.path.join(
                     path_script, 'Dockerfile')).read()
@@ -195,10 +205,13 @@ class RunbotBuild(models.Model):
                     if build.id in to_be_skipped_ids:
                         to_be_skipped_ids.remove(build.id)
                     break
-        if to_be_skipped_ids:
-            _logger.info('Dockerfile without TESTS=1 env. '
-                         'Skipping builds %s', to_be_skipped_ids)
-            self.skip(cr, uid, to_be_skipped_ids, context=context)
+        for build in self.browse(cr, uid, to_be_skipped_ids, context=context):
+            build._log('Dockerfile without TESTS=1 env.', 'Skipping')
+            _logger.warning('Dockerfile without TESTS=1 env. '
+                            'Skipping build %d: %s %s',
+                            build.id, build.repo_id.name, build.branch_id.name,
+                            )
+            build.skip()
 
     @custom_build
     def _local_cleanup(self, cr, uid, ids, context=None):
