@@ -118,7 +118,7 @@ class TestRunbotJobs(TransactionCase):
 
     def test_jobs_ci_skip(self):
         """Test the [ci skip] feature"""
-        'Create build and run all jobs'
+        # 'Create build and run all jobs'
         self.assertEqual(len(self.repo), 1, "Repo not found")
         _logger.info("Repo update to get branches")
         self.repo.update()
