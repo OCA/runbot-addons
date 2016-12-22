@@ -116,6 +116,40 @@ class TestRunbotJobs(TransactionCase):
         self.assertEqual(
             self.build.result, u'ok', "Job result should be ok")
 
+    def test_jobs_ci_skip(self):
+        """Test the [ci skip] feature"""
+        'Create build and run all jobs'
+        self.assertEqual(len(self.repo), 1, "Repo not found")
+        _logger.info("Repo update to get branches")
+        self.repo.update()
+
+        branch = self.branch_obj.create({
+            'repo_id': self.repo.id,
+            'name': 'refs/heads/fast-travis-oca',
+            'subject': '[CI SKIP] TEST SUBJECT'
+        })
+        self.assertEqual(len(branch), 1, "Branch not found")
+        self.build_obj.search([('branch_id', '=', branch.id)]).unlink()
+        self.build_obj.create({'branch_id': branch.id, 'name': 'HEAD'})
+        # runbot module has a inherit in create method
+        # but a "return id" is missed. Then we need to search it.
+        # https://github.com/odoo/odoo-extra/blob/038fd3e/runbot/runbot.py#L599
+        self.build = self.build_obj.search([('branch_id', '=', branch.id)],
+                                           limit=1)
+        self.assertEqual(len(self.build) == 0, False, "Build not found")
+
+        if self.build.state == 'done' and self.build.result == 'skipped':
+            # When the last commit of the repo is too old,
+            # runbot will skip this build then we are forcing it
+            self.build.force()
+
+        self.assertEqual(
+            self.build.state, u'skipped', "State should be skipped")
+
+        self.build.kill()
+        self.assertEqual(
+            self.build.state, u'done', "Job state should be done")
+
     def connection_test(self, build, attempts=1, delay=0):
         username = "admin"
         password = "admin"
