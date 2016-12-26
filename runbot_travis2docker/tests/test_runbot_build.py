@@ -165,6 +165,26 @@ class TestRunbotJobs(TransactionCase):
         self.assertEqual(
             self.build.result, u'ok', "Job result should be ok")
 
+    def test_jobs_ci_skip(self):
+        """Test the [ci skip] feature"""
+        self.assertEqual(len(self.repo), 1, "Repo not found")
+        _logger.info("Set a max age to get too old branches in order to avoid"
+                     " ignore the branch without changes")
+        self.env['ir.config_parameter'].sudo().set_param(
+            "runbot.runbot_max_age", 365*10)
+        _logger.info("Repo update to get branches")
+        self.repo._update(self.repo)
+        branch = self.branch_obj.search(self.repo_domain + [
+            ('branch_name', '=', 'fast-travis-oca')], limit=1)
+        self.assertTrue(branch, "Branch not found")
+        self.build = self.build_obj.create({
+            'name': 'HEAD', 'subject': '[ci skip]', 'branch_id': branch.id})
+        self.assertTrue(len(self.build) == 1, "More than one builds created")
+        self.assertEqual(
+            self.build.state, 'done', "State should be done")
+        self.assertEqual(
+            self.build.result, 'skipped', "Result should be skipped")
+
     def connection_test(self, build, attempts=1, delay=0):
         username = "admin"
         password = "admin"
