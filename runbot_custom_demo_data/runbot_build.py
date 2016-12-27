@@ -1,43 +1,26 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Samuel Lefever
-#    Copyright 2015 Niboo SPRL
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2015 Niboo
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
-import openerp
-from openerp.fields import Boolean
-from openerp.models import api, Model
+
+from openerp import api, fields, models, tools
+
 from openerp.addons.runbot.runbot import now
 from openerp.addons.runbot.runbot import grep
 
 _logger = logging.getLogger(__name__)
 
 
-class RunbotRepo(Model):
+class RunbotRepo(models.Model):
     _inherit = 'runbot.repo'
 
-    custom_demo_data = Boolean(
+    custom_demo_data = fields.Boolean(
         'Load custom data', default=False,
         help="Load only the demo data from this repository")
 
 
-class RunbotBuild(Model):
+class RunbotBuild(models.Model):
     _inherit = "runbot.build"
 
     @api.model
@@ -55,7 +38,7 @@ class RunbotBuild(Model):
                 '-d',
                 '%s-all' % build.dest,
                 '-i',
-                openerp.tools.ustr(mods),
+                tools.ustr(mods),
                 '--without-demo=all',
                 '--stop-after-init',
                 '--log-level=test',
@@ -80,7 +63,7 @@ class RunbotBuild(Model):
             '-d',
             '%s-all' % build.dest,
             '-i',
-            openerp.tools.ustr(mods),
+            tools.ustr(mods),
             '--stop-after-init',
             '--log-level=test',
             '--max-cron-threads=0'
