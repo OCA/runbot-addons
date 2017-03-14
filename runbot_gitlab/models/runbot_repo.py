@@ -185,6 +185,9 @@ class RunbotRepo(models.Model):
         for merge_request in self._query_gitlab_api(
                 'projects/%s/merge_requests' % project['id'],
                 get_data={'state': 'opened'}):
+            if merge_request['sha'] not in branches:
+                # this is a MR pointing to a deleted branch
+                continue
             branch = branches[merge_request['sha']]
             branch['merge_request'] = merge_request
             branches[branch['commit']['id']] = branch
