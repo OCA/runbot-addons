@@ -50,7 +50,7 @@ class runbot_build(models.Model):
             'state': state,
             'ref': self.branch_id.branch_name,
             'name': 'runbot',
-            'target_url': '//%s/runbot/build/%s' % (
+            'target_url': 'https://%s/runbot/build/%s' % (
                 self.repo_id.domain(),
                 self.id,
             ),
@@ -75,7 +75,7 @@ class runbot_build(models.Model):
                     this.name,
                 ),
                 post_data=this._prepare_gitlab_status_post(state)
-                )
+            )
         return super(
             runbot_build, self - gitlab_builds).github_status()
 
