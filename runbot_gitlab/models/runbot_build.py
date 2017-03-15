@@ -18,7 +18,7 @@ class RunbotBuild(models.Model):
     def github_status(self, cr, uid, ids, context=None):
         runbot_domain = self.pool['runbot.repo'].domain(cr, uid)
         for build in self.browse(cr, uid, ids, context=context):
-            is_merge_request = build.branch_id.branch_name.isdigit()
+            is_merge_request = build.branch_id.name.startswith('refs/pull')
             source_project_id = False
             _url = _get_url('/projects/:owner/:repo/statuses/%s' % build.name,
                             build.repo_id.base)
