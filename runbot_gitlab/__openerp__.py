@@ -4,9 +4,9 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    'name': 'Runbot Gitlab Integration Minimal',
-    'summary': 'Gitlab Integration Minimal',
-    'author': 'Vauxoo, Odoo Community Association (OCA)',
+    'name': 'Runbot Gitlab Integration',
+    'summary': 'Gitlab Integration',
+    'author': 'Savoir-faire Linux, Vauxoo, Odoo Community Association (OCA)',
     'website': "http://www.vauxoo.com",
     'license': 'AGPL-3',
     'category': 'runbot',
