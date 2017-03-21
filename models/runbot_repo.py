@@ -10,8 +10,6 @@ import urllib
 import requests
 
 from openerp import models, fields, api
-from openerp.addons.runbot_travis2docker.models.runbot_build \
-    import RunbotBuild as BaseRunbotBuild
 
 _logger = logging.getLogger(__name__)
 
@@ -19,13 +17,25 @@ _logger = logging.getLogger(__name__)
 def _get_url(url, base):
     match_object = re.search('([^/]+)/([^/]+)/([^/.]+(.git)?)', base)
     if match_object:
+        """When get is URL_GITHUB/api/v3/User/keys must be convert to
+        URL_GITLAB/User.keys Because the api of gitlab required admin token
+        for get the ssh keys
+        https://docs.gitlab.com/ee/api/users.html#list-ssh-keys"""
+        prefix = ('https://%s/api/v3%s'
+                  if not url.endswith('/keys') else 'https://%s%s')
         project_name = (match_object.group(2) + '/' + match_object.group(3))
         url = url.replace(':owner', match_object.group(2))
         url = url.replace(':repo', match_object.group(3))
-        url = 'https://%s/api/v3%s' % (match_object.group(1), url)
+        url = prefix % (match_object.group(1), url)
         url = url.replace('/repos/', '/projects/')
         url = url.replace('/commits/', '/repository/commits/')
         url = url.replace(project_name, urllib.quote(project_name, safe=''))
+        if url.endswith('/keys'):
+            url = url.replace('users/', '').replace('/keys', '')
+            url = url + '.keys'
+        if '/pulls/' in url:
+            urls = url.split('/pulls/')
+            url = urls[0] + '/merge_requests?iid=' + urls[1]
     return url
 
 
@@ -90,40 +100,53 @@ class RunbotRepo(models.Model):
             input: URL_GITLAB/projects/... instead of URL_GITHUB/repos/...
             output: res['base']['ref'] = res['gitlab_base_mr']
                     res['head']['ref'] = res['gitlab_head_mr']
+        - Get user public keys
+            input: URL_GITLAB/User.keys... instead of
+                   URL_GITHUB/users/User/keys...
+            output: res['author'] = {'login': data['username']}
+                    res['commiter'] = {'login': data['username']}
         - Report statutes
             input: URL_GITLABL/... instead of URL_GITHUB/statuses/...
             output: N/A
         """
         for repo in self.browse(cr, uid, ids, context=context):
-            is_url_merge = False
             if not repo.token:
                 continue
             try:
                 url = _get_url(url, repo.base)
-                if url:
-                    if '/pulls/' in url:
-                        urls = url.split('/pulls/')
-                        url = urls[0] + '/merge_requests?iid=' + urls[1]
-                        is_url_merge = True
-                    session = _get_session(repo.token)
-                    if payload:
-                        response = session.post(url, data=payload)
-                    else:
-                        response = session.get(url)
-                    response.raise_for_status()
-                    json = response.json()
-                    if is_url_merge:
-                        json = json[0]
-                        json['head'] = {'ref': json['target_branch']}
-                        json['base'] = {'ref': json['source_branch']}
-                    if '/commits/' in url:
-                        url = _get_url('/users?search=%s' %
-                                       json['committer_email'], repo.base)
-                        response = session.get(url)
-                        response.raise_for_status()
-                        json['author'] = response.json()[0]['username']
-                        json['user_id'] = response.json()[0]['id']
-                    return json
+                if not url:
+                    return
+                is_url_keys = url.endswith('.keys')
+                session = _get_session(repo.token)
+                if payload:
+                    response = session.post(url, data=payload)
+                else:
+                    response = session.get(url)
+                response.raise_for_status()
+                json = (response.json() if not is_url_keys
+                        else response._content)
+                if 'merge_requests?iid=' in url:
+                    json = json[0]
+                    json['head'] = {'ref': json['target_branch']}
+                    json['base'] = {'ref': json['source_branch']}
+                if '/commits/' in url:
+                    for own_key in ['author', 'committer']:
+                        key_email = '%s_email' % own_key
+                        if json[key_email]:
+                            url = _get_url('/users?search=%s' %
+                                           json[key_email],
+                                           repo.base)
+                            response = session.get(url)
+                            response.raise_for_status()
+                            data = response.json()
+                            json[own_key] = {
+                                'login':
+                                len(data) and data[0]['username'] or {}
+                            }
+                if is_url_keys:
+                    json = [{'key': ssh_rsa} for ssh_rsa
+                             in json.split('\n')]
+                return json
             except Exception:
                 if ignore_errors:
                     _logger.exception('Ignored gitlab error %s %r', url,
@@ -132,26 +155,10 @@ class RunbotRepo(models.Model):
                     raise
 
 
-class RunbotBuild(BaseRunbotBuild):
+class RunbotBuild(models.Model):
     _inherit = "runbot.build"
 
-    def get_ssh_keys(self, cr, uid, build, context=None):
-        response = build.repo_id.github(
-            "/repos/:owner/:repo/commits/%s" % build.name)
-        if not response:
-            return
-        try:
-            ssh_keys = ""
-            response = build.repo_id.github("/users/%s/keys" %
-                                            response['user_id'])
-            for key in response:
-                ssh_keys += key['key']
-            return ssh_keys
-        except requests.RequestException as excep:
-            _logger.exception("Error to fetch %s", excep)
-
-    def github_status(self, cr, uid, ids, context=None):  \
-            # pylint: disable=missing-return
+    def github_status(self, cr, uid, ids, context=None):
         runbot_domain = self.pool['runbot.repo'].domain(cr, uid)
         for build in self.browse(cr, uid, ids, context=context):
             is_merge_request = build.branch_id.branch_name.isdigit()
@@ -159,8 +166,8 @@ class RunbotBuild(BaseRunbotBuild):
             _url = _get_url('/projects/:owner/:repo/statuses/%s' % build.name,
                             build.repo_id.base)
             if not build.repo_id.uses_gitlab:
-                return super(RunbotBuild, self).github_status(cr, uid, ids,
-                                                              context=context)
+                super(RunbotBuild, self).github_status(cr, uid, ids,
+                                                       context=context)
                 continue
             if not build.repo_id.token:
                 continue
@@ -218,11 +225,10 @@ class RunbotBuild(BaseRunbotBuild):
 class RunbotBranch(models.Model):
     _inherit = "runbot.branch"
 
-    branch_url = fields.Char(compute='_get_branch_url')  \
-        # pylint: disable=method-compute
+    branch_url = fields.Char(compute='_get_branch_url')
 
     @api.multi
-    def _get_branch_url(self):  # pylint: disable=missing-return
+    def _get_branch_url(self):
         _branch_urls = super(RunbotBranch, self)._get_branch_url(None, None)
         for branch in self:
             if not branch.repo_id.uses_gitlab:
