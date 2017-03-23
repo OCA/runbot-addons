@@ -63,7 +63,7 @@ class RunbotBuild(models.Model):
     docker_container = fields.Char()
     docker_executed_commands = fields.Boolean(
         help='True: Executed "docker exec CONTAINER_BUILD custom_commands"',
-        readonly=True)
+        readonly=True, copy=False)
 
     def get_docker_image(self, cr, uid, build, context=None):
         git_obj = GitRun(build.repo_id.name, '')
