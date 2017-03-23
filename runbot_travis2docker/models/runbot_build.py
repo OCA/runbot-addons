@@ -3,6 +3,9 @@
 #   Coded by: moylop260@vauxoo.com
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+# Allow old api because is based original methods are old api from odoo
+# pylint: disable=old-api7-method-defined
+
 import logging
 import os
 import requests
@@ -184,6 +187,7 @@ class RunbotBuild(models.Model):
             sys.argv = [
                 'travisfile2dockerfile', repo_name,
                 branch_short_name, '--root-path=' + t2d_path,
+                '--exclude-after-success',
             ]
             try:
                 path_scripts = t2d()
