@@ -135,13 +135,21 @@ class RunbotBuild(models.Model):
         cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
         return self.spawn(cmd, lock_path, log_path)
 
+    def job_21_coverage(self, cr, uid, build, lock_path, log_path):
+        if (not build.branch_id.repo_id.is_travis2docker_build and
+                hasattr(super(RunbotBuild, self), 'job_21_coverage')):
+            return super(RunbotBuild, self).job_21_coverage(
+                cr, uid, build, lock_path, log_path)
+        _logger.info('docker build skipping job_21_coverage')
+        return MAGIC_PID_RUN_NEXT_JOB
+
     def job_30_run(self, cr, uid, build, lock_path, log_path):
         'Run docker container with odoo server started'
         if not build.branch_id.repo_id.is_travis2docker_build:
             return super(RunbotBuild, self).job_30_run(
                 cr, uid, build, lock_path, log_path)
-        if (not build.docker_image or not build.dockerfile_path
-                or build.result == 'skipped'):
+        if (not build.docker_image or not build.dockerfile_path or
+                build.result == 'skipped'):
             _logger.info('docker build skipping job_30_run')
             return MAGIC_PID_RUN_NEXT_JOB
 
@@ -252,5 +260,6 @@ class RunbotBuild(models.Model):
                 run(['docker', 'exec', '-d', '--user', 'odoo',
                      build.docker_container,
                      "bash", "-c", "echo '%(keys)s' | tee -a '%(dir)s'" % dict(
-                         keys=ssh_keys, dir="/home/odoo/.ssh/authorized_keys")])
+                         keys=ssh_keys, dir="/home/odoo/.ssh/authorized_keys"),
+                     ])
         return res
