@@ -5,6 +5,7 @@
 
 import logging
 import os
+import subprocess
 import time
 import xmlrpclib
 
@@ -108,6 +109,15 @@ class TestRunbotJobs(TransactionCase):
             "Job state should be running still")
         self.assertEqual(
             len(user_ids) >= 1, True, "Failed connection test")
+
+        self.repo.cron()
+        self.assertTrue(self.build.docker_executed_commands,
+                        "docker_executed_commands should be True")
+        time.sleep(5)
+        output = subprocess.check_output([
+            "docker", "exec", self.build.docker_container,
+            "/etc/init.d/ssh", "status"])
+        self.assertIn('sshd is running', output, "SSH should be running")
 
         self.build.kill()
         self.assertEqual(
