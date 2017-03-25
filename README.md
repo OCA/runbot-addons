@@ -13,6 +13,7 @@ Dependencies
          * matplotlib (through runbot)
 
 [//]: # (addons)
+
 Available addons
 ----------------
 addon | version | summary
