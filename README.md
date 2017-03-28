@@ -23,6 +23,7 @@ addon | version | summary
 [runbot_travis2docker](runbot_travis2docker/) | 9.0.1.2.0 | Generate docker with odoo instance based on .travis.yml
 [runbot_website_display](runbot_website_display/) | 9.0.1.0.0 | Allows to reorder and hide runbot repositories
 
+
 Unported addons
 ---------------
 addon | version | summary
