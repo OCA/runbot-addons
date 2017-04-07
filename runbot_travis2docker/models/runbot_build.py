@@ -57,6 +57,7 @@ class RunbotBuild(models.Model):
     dockerfile_path = fields.Char()
     docker_image = fields.Char()
     docker_container = fields.Char()
+    sync_weblate = fields.Boolean('Synchronized with weblate', readonly=True)
 
     def get_docker_image(self, cr, uid, build, context=None):
         git_obj = GitRun(build.repo_id.name, '')
@@ -104,6 +105,15 @@ class RunbotBuild(models.Model):
         travis_branch = build._get_closest_branch_name(
             build.repo_id.id
         )[1].split('/')[-1]
+        wl_cmd_env = []
+        if build.branch_id.sync_weblate:
+            wl_cmd_env = [
+                '-e', 'WEBLATE=1',
+                '-e', ('WEBLATE_TOKEN=%s' %
+                        build.branch_id.repo_id.weblate_token),
+                '-e', ('WEBLATE_HOST=%s' %
+                       build.branch_id.repo_id.weblate_url)
+            ]
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
@@ -116,9 +126,9 @@ class RunbotBuild(models.Model):
                 not build.repo_id.travis2docker_test_disable),
             '-p', '%d:%d' % (build.port, 8069),
             '-p', '%d:%d' % (build.port + 1, 22),
-            '--name=' + build.docker_container,
-            '-t', build.docker_image,
-        ] + pr_cmd_env
+        ] + pr_cmd_env + wl_cmd_env
+        cmd = cmd + ['--name=' + build.docker_container,
+                     '-t', build.docker_image]
         logdb = cr.dbname
         if config['db_host'] and not travis_branch.startswith('7.0'):
             logdb = 'postgres://%s:%s@%s/%s' % (
@@ -156,6 +166,8 @@ class RunbotBuild(models.Model):
                 v['result'] = "ok"
         else:
             v['result'] = "ko"
+        if build.branch_id.sync_weblate:
+            v['sync_weblate'] = True
         build.write(v)
         build.github_status()
         # end copy and paste from original method

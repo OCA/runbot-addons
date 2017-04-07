@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_runbot_repo_form" model="ir.ui.view">
+      <field name="model">runbot.repo</field>
+      <field name="inherit_id" ref="runbot.view_repo_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//group" position="after">
+          <group name="travis2docker">
+            <field name="is_travis2docker_build"/>
+            <field name="travis2docker_test_disable" attrs="{'invisible': [('is_travis2docker_build', '=', False)]}"/>
+            <field name="uses_weblate" attrs="{'invisible': [('is_travis2docker_build', '=', False)]}"/>
+            <field name="weblate_url"
+                attrs="{'invisible': [('uses_weblate', '=', False)],
+                        'required': [('uses_weblate', '=', True)]}"/>
+            <field name="weblate_token"
+                attrs="{'invisible': [('uses_weblate', '=', False)],
+                        'required': [('uses_weblate', '=', True)]}"/>
+          </group>
+        </xpath>
+      </field>
+    </record>
+
+    <record id="view_runbot_branch_form" model="ir.ui.view">
+        <field name="model">runbot.branch</field>
+        <field name="inherit_id" ref="runbot.view_branch_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <group name="travis2docker">
+                    <!-- TODO attrs="{'invisible': [('repo_id.uses_weblate', '=', False)]}" -->
+                    <field name="sync_weblate"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="viem_runbot_build form" model="ir.ui.view">
+        <field name="model">runbot.build</field>
+        <field name="inherit_id" ref="runbot.view_build_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <group name="travis2docker">
+                    <field name="sync_weblate"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+  </data>
+
+    <data noupdate="1">
+        <record model="ir.cron" id="cron">
+            <field name='name'>Runbot Travis2docker Weblate Cron</field>
+            <field name='interval_number'>1</field>
+            <field name='interval_type'>days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="True"/>
+            <field name="model">runbot.branch</field>
+            <field name="function">cron_weblate</field>
+            <field name="args">()</field>
+        </record>
+    </data>
+
+</openerp>
