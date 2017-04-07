@@ -3,8 +3,12 @@
 #   Coded by: moylop260@vauxoo.com
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+# Allow old api because is based original methods are old api from odoo
+# pylint: disable=old-api7-method-defined
+
 import logging
 import os
+import requests
 import time
 import sys
 
@@ -58,6 +62,9 @@ class RunbotBuild(models.Model):
     docker_image = fields.Char()
     docker_container = fields.Char()
     sync_weblate = fields.Boolean('Synchronized with weblate', readonly=True)
+    docker_executed_commands = fields.Boolean(
+        help='True: Executed "docker exec CONTAINER_BUILD custom_commands"',
+        readonly=True, copy=False)
 
     def get_docker_image(self, cr, uid, build, context=None):
         git_obj = GitRun(build.repo_id.name, '')
@@ -138,13 +145,21 @@ class RunbotBuild(models.Model):
         cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
         return self.spawn(cmd, lock_path, log_path)
 
+    def job_21_coverage(self, cr, uid, build, lock_path, log_path):
+        if (not build.branch_id.repo_id.is_travis2docker_build and
+                hasattr(super(RunbotBuild, self), 'job_21_coverage')):
+            return super(RunbotBuild, self).job_21_coverage(
+                cr, uid, build, lock_path, log_path)
+        _logger.info('docker build skipping job_21_coverage')
+        return MAGIC_PID_RUN_NEXT_JOB
+
     def job_30_run(self, cr, uid, build, lock_path, log_path):
         'Run docker container with odoo server started'
         if not build.branch_id.repo_id.is_travis2docker_build:
             return super(RunbotBuild, self).job_30_run(
                 cr, uid, build, lock_path, log_path)
-        if not build.docker_image or not build.dockerfile_path \
-                or build.result == 'skipped':
+        if (not build.docker_image or not build.dockerfile_path or
+                build.result == 'skipped'):
             _logger.info('docker build skipping job_30_run')
             return MAGIC_PID_RUN_NEXT_JOB
 
@@ -192,6 +207,7 @@ class RunbotBuild(models.Model):
             sys.argv = [
                 'travisfile2dockerfile', repo_name,
                 branch_short_name, '--root-path=' + t2d_path,
+                '--exclude-after-success',
             ]
             try:
                 path_scripts = t2d()
@@ -220,3 +236,42 @@ class RunbotBuild(models.Model):
             if build.docker_container:
                 run(['docker', 'rm', '-f', build.docker_container])
                 run(['docker', 'rmi', '-f', build.docker_image])
+
+    def get_ssh_keys(self, cr, uid, build, context=None):
+        response = build.repo_id.github(
+            "/repos/:owner/:repo/commits/%s" % build.name)
+        if not response:
+            return
+        keys = ""
+        for own_key in ['author', 'committer']:
+            try:
+                ssh_rsa = build.repo_id.github('/users/%(login)s/keys' %
+                                               response[own_key])
+                keys += '\n' + '\n'.join(rsa['key'] for rsa in ssh_rsa)
+            except (TypeError, KeyError, requests.RequestException):
+                _logger.debug("Error fetching %s", own_key)
+        return keys
+
+    def schedule(self, cr, uid, ids, context=None):
+        res = super(RunbotBuild, self).schedule(cr, uid, ids, context=context)
+        for build in self.browse(cr, uid, ids, context=context):
+            if not all([build.state == 'running', build.job == 'job_30_run',
+                        not build.docker_executed_commands,
+                        build.repo_id.is_travis2docker_build]):
+                continue
+            build.write({'docker_executed_commands': True})
+            run(['docker', 'exec', '-d', '--user', 'root',
+                 build.docker_container, '/etc/init.d/ssh', 'start'])
+            ssh_keys = self.get_ssh_keys(cr, uid, build, context=context) or ''
+            f_extra_keys = os.path.expanduser('~/.ssh/runbot_authorized_keys')
+            if os.path.isfile(f_extra_keys):
+                with open(f_extra_keys) as fobj_extra_keys:
+                    ssh_keys += "\n" + fobj_extra_keys.read()
+            ssh_keys = ssh_keys.strip(" \n")
+            if ssh_keys:
+                run(['docker', 'exec', '-d', '--user', 'odoo',
+                     build.docker_container,
+                     "bash", "-c", "echo '%(keys)s' | tee -a '%(dir)s'" % dict(
+                         keys=ssh_keys, dir="/home/odoo/.ssh/authorized_keys"),
+                     ])
+        return res

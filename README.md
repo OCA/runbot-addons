@@ -13,13 +13,16 @@ Dependencies
          * matplotlib (through runbot)
 
 [//]: # (addons)
+
 Available addons
 ----------------
 addon | version | summary
 --- | --- | ---
 [runbot_build_instructions](runbot_build_instructions/) | 9.0.1.0.0 | Runbot with custom build and run instructions
 [runbot_skip_tests](runbot_skip_tests/) | 9.0.1.0.0 | Skip tests on runbot builds
-[runbot_travis2docker](runbot_travis2docker/) | 9.0.1.1.0 | Generate docker with odoo instance based on .travis.yml
+[runbot_travis2docker](runbot_travis2docker/) | 9.0.1.2.0 | Generate docker with odoo instance based on .travis.yml
+[runbot_website_display](runbot_website_display/) | 9.0.1.0.0 | Allows to reorder and hide runbot repositories
+
 
 Unported addons
 ---------------
