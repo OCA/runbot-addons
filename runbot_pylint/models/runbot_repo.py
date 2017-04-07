@@ -44,7 +44,9 @@ class RunbotRepo(models.Model):
             # get addons list from main repo
             repo_paths_str = None
             try:
-                repo.git(command_git + ['addons/', 'openerp/addons/'])
+                repo_paths_str = repo.git(
+                    command_git + ['addons/', 'openerp/addons/']
+                )
             except subprocess.CalledProcessError:
                 # ignore errors from nonexisting branches, rebases etc
                 pass
