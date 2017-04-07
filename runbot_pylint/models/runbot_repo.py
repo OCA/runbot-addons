@@ -53,7 +53,11 @@ class RunbotRepo(models.Model):
 
             if not repo_paths_str:
                 # get addons list from module repo
-                repo_paths_str = repo.git(command_git)
+                try:
+                    repo_paths_str = repo.git(command_git)
+                except subprocess.CalledProcessError:
+                    # ignore errors from nonexisting branches, rebases etc
+                    pass
             repo_paths_list = repo_paths_str and\
                 repo_paths_str.rstrip().split('\n') or []
             repo_paths_list = [os.path.basename(module)
