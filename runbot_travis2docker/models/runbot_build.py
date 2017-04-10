@@ -121,6 +121,9 @@ class RunbotBuild(models.Model):
                 '-e', ('WEBLATE_HOST=%s' %
                        build.branch_id.repo_id.weblate_url)
             ]
+            if build.branch_id.repo_id.token:
+                wl_cmd_env = wl_cmd_env + ['-e', 'GITHUB_TOKEN=%s' %
+                                           build.branch_id.repo_id.token]
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
