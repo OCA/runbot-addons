@@ -11,6 +11,10 @@ class RunbotBranch(models.Model):
 
     sync_weblate = fields.Boolean('Synchronize with Weblate')
 
-    def cron_weblate(self, uid, *args):
-        for branch in self.search(uid, args, [['sync_weblate', '=', True]]):
-            pass
+    def cron_weblate(self, cr, uid, *args):
+        for branch in self.search(cr, uid, [['sync_weblate', '=', True]]):
+            build = self.pool['runbot.build']
+            build_id = build.search(cr, uid, [['branch_id', '=', branch]],
+                                    order='id DESC', limit=1)
+            if build_id:
+                build.force(cr, uid, build_id)
