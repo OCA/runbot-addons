@@ -61,7 +61,7 @@ class RunbotBuild(models.Model):
     dockerfile_path = fields.Char()
     docker_image = fields.Char()
     docker_container = fields.Char()
-    sync_weblate = fields.Boolean(help='Synchronize with weblate', copy=False)
+    uses_weblate = fields.Boolean(help='Synchronize with weblate', copy=False)
     docker_executed_commands = fields.Boolean(
         help='True: Executed "docker exec CONTAINER_BUILD custom_commands"',
         readonly=True, copy=False)

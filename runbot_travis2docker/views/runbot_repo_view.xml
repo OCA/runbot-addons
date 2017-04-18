@@ -10,13 +10,8 @@
           <group name="travis2docker">
             <field name="is_travis2docker_build"/>
             <field name="travis2docker_test_disable" attrs="{'invisible': [('is_travis2docker_build', '=', False)]}"/>
-            <field name="uses_weblate" attrs="{'invisible': [('is_travis2docker_build', '=', False)]}"/>
-            <field name="weblate_url"
-                attrs="{'invisible': [('uses_weblate', '=', False)],
-                        'required': [('uses_weblate', '=', True)]}"/>
-            <field name="weblate_token"
-                attrs="{'invisible': [('uses_weblate', '=', False)],
-                        'required': [('uses_weblate', '=', True)]}"/>
+            <field name="weblate_url"/>
+            <field name="weblate_token"/>
           </group>
         </xpath>
       </field>
@@ -40,7 +35,7 @@
         <field name="arch" type="xml">
             <xpath expr="//group" position="after">
                 <group name="travis2docker">
-                    <field name="sync_weblate"/>
+                    <field name="uses_weblate"/>
                 </group>
             </xpath>
         </field>
