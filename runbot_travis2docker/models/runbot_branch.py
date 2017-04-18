@@ -3,7 +3,7 @@
 #   Coded by: moylop260@vauxoo.com
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import fields, models
+from openerp import fields, models, api
 
 
 class RunbotBranch(models.Model):
@@ -11,10 +11,9 @@ class RunbotBranch(models.Model):
 
     sync_weblate = fields.Boolean('Synchronize with Weblate')
 
-    def cron_weblate(self, cr, uid, *args):
-        for branch in self.search(cr, uid, [['sync_weblate', '=', True]]):
-            build = self.pool['runbot.build']
-            build_id = build.search(cr, uid, [['branch_id', '=', branch]],
-                                    order='id DESC', limit=1)
-            if build_id:
-                build.force(cr, uid, build_id)
+    @api.model
+    def cron_weblate(self):
+        for branch in self.search([('sync_weblate', '=', True)]):
+            self.env['runbot.build'].create({'branch_id': branch.id,
+                                             'name': 'HEAD',
+                                             'sync_weblate': True})

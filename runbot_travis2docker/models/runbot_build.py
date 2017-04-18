@@ -61,7 +61,7 @@ class RunbotBuild(models.Model):
     dockerfile_path = fields.Char()
     docker_image = fields.Char()
     docker_container = fields.Char()
-    sync_weblate = fields.Boolean('Synchronized with weblate', readonly=True)
+    sync_weblate = fields.Boolean('Synchronize with weblate', copy=False)
     docker_executed_commands = fields.Boolean(
         help='True: Executed "docker exec CONTAINER_BUILD custom_commands"',
         readonly=True, copy=False)
@@ -113,7 +113,7 @@ class RunbotBuild(models.Model):
             build.repo_id.id
         )[1].split('/')[-1]
         wl_cmd_env = []
-        if build.branch_id.sync_weblate:
+        if build.sync_weblate:
             wl_cmd_env = [
                 '-e', 'WEBLATE=1',
                 '-e', ('WEBLATE_TOKEN=%s' %
@@ -184,8 +184,6 @@ class RunbotBuild(models.Model):
                 v['result'] = "ok"
         else:
             v['result'] = "ko"
-        if build.branch_id.sync_weblate:
-            v['sync_weblate'] = True
         build.write(v)
         build.github_status()
         # end copy and paste from original method

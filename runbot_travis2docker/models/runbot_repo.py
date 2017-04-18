@@ -3,6 +3,8 @@
 #   Coded by: moylop260@vauxoo.com
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+import requests
+
 from openerp import fields, models, api
 from openerp.exceptions import ValidationError
 
@@ -20,7 +22,6 @@ class RunbotRepo(models.Model):
     def weblate_validation(self):
         if not self.uses_weblate:
             return
-        import requests
         session = requests.Session()
         session.headers.update({
             'Accept': 'application/json',
@@ -32,6 +33,6 @@ class RunbotRepo(models.Model):
             response.raise_for_status()
             json = response.json()
             if 'projects' not in json:
-                raise Exception('Response json bad formated')
+                raise ValidationError('Response json bad formated')
         except Exception as error:
             raise ValidationError(str(error))
