@@ -17,8 +17,7 @@ class RunbotRepo(models.Model):
     weblate_url = fields.Char(default="https://weblate.vauxoo.com/api")
     weblate_token = fields.Char()
 
-    @api.constrains('weblate_url')
-    @api.constrains('weblate_token')
+    @api.constrains('weblate_url', 'weblate_token')
     def weblate_validation(self):
         if not self.uses_weblate:
             return

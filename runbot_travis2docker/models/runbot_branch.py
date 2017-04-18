@@ -9,7 +9,7 @@ from openerp import fields, models, api
 class RunbotBranch(models.Model):
     _inherit = "runbot.branch"
 
-    sync_weblate = fields.Boolean('Synchronize with Weblate')
+    sync_weblate = fields.Boolean(help='Synchronize with Weblate')
 
     @api.model
     def cron_weblate(self):

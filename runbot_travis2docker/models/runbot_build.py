@@ -61,7 +61,7 @@ class RunbotBuild(models.Model):
     dockerfile_path = fields.Char()
     docker_image = fields.Char()
     docker_container = fields.Char()
-    sync_weblate = fields.Boolean('Synchronize with weblate', copy=False)
+    sync_weblate = fields.Boolean(help='Synchronize with weblate', copy=False)
     docker_executed_commands = fields.Boolean(
         help='True: Executed "docker exec CONTAINER_BUILD custom_commands"',
         readonly=True, copy=False)
@@ -113,7 +113,7 @@ class RunbotBuild(models.Model):
             build.repo_id.id
         )[1].split('/')[-1]
         wl_cmd_env = []
-        if build.sync_weblate:
+        if build.sync_weblate and 'refs/pull' not in build.branch_id.name:
             wl_cmd_env = [
                 '-e', 'WEBLATE=1',
                 '-e', ('WEBLATE_TOKEN=%s' %
