@@ -8,6 +8,7 @@ import requests
 from openerp import _, fields, models, api
 from openerp.exceptions import ValidationError
 
+
 class RunbotRepo(models.Model):
     _inherit = "runbot.repo"
 

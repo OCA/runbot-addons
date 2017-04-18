@@ -117,7 +117,7 @@ class RunbotBuild(models.Model):
             wl_cmd_env = [
                 '-e', 'WEBLATE=1',
                 '-e', ('WEBLATE_TOKEN=%s' %
-                        build.branch_id.repo_id.weblate_token),
+                       build.branch_id.repo_id.weblate_token),
                 '-e', ('WEBLATE_HOST=%s' %
                        build.branch_id.repo_id.weblate_url)
             ]
