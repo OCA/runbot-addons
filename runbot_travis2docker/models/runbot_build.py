@@ -113,7 +113,7 @@ class RunbotBuild(models.Model):
             build.repo_id.id
         )[1].split('/')[-1]
         wl_cmd_env = []
-        if build.sync_weblate and 'refs/pull' not in build.branch_id.name:
+        if build.uses_weblate and 'refs/pull' not in build.branch_id.name:
             wl_cmd_env = [
                 '-e', 'WEBLATE=1',
                 '-e', ('WEBLATE_TOKEN=%s' %

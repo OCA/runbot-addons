@@ -9,11 +9,11 @@ from openerp import fields, models, api
 class RunbotBranch(models.Model):
     _inherit = "runbot.branch"
 
-    sync_weblate = fields.Boolean(help='Synchronize with Weblate')
+    uses_weblate = fields.Boolean(help='Synchronize with Weblate')
 
     @api.model
     def cron_weblate(self):
-        for branch in self.search([('sync_weblate', '=', True)]):
+        for branch in self.search([('uses_weblate', '=', True)]):
             self.env['runbot.build'].create({'branch_id': branch.id,
                                              'name': 'HEAD',
-                                             'sync_weblate': True})
+                                             'uses_weblate': True})

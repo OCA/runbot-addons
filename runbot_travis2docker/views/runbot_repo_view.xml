@@ -23,7 +23,7 @@
         <field name="arch" type="xml">
             <xpath expr="//group" position="after">
                 <group name="travis2docker">
-                    <field name="sync_weblate"/>
+                    <field name="uses_weblate"/>
                 </group>
             </xpath>
         </field>
