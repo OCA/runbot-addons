@@ -76,4 +76,4 @@ class RunbotBuild(models.Model):
                 response = session.post(_url, status)
                 response.raise_for_status()
             except Exception:
-                _logger.exception('gitlab API error %s', url)
+                _logger.exception('gitlab API error %s', _url)
