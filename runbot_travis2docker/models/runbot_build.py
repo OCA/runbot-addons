@@ -227,7 +227,7 @@ class RunbotBuild(models.Model):
 
     def get_ssh_keys(self, cr, uid, build, context=None):
         response = build.repo_id.github(
-            "/repos/:owner/:repo/commits/%s" % build.name)
+            "/repos/:owner/:repo/commits/%s" % build.name, ignore_errors=True)
         if not response:
             return
         keys = ""

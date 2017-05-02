@@ -3,6 +3,9 @@
 set -v
 
 export DEPS=${HOME}/dependencies
+# odoo-extra break compatibility because change name of many methods
+# TODO: Test new changes and remove this freeze sha
+(cd $DEPS/odoo-extra; git reset --hard 0c41e17^)
 # odoo-extra has a bunch of v9 modules which aren't compatible, remove them
 (cd $DEPS/odoo-extra; rm -rf $(ls | grep -v runbot$))
 
