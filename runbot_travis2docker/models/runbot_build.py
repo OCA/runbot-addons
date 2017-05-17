@@ -114,16 +114,20 @@ class RunbotBuild(models.Model):
         )[1].split('/')[-1]
         wl_cmd_env = []
         if build.uses_weblate and 'refs/pull' not in build.branch_id.name:
-            wl_cmd_env += [
+            wl_cmd_env.extend([
                 '-e', 'WEBLATE=1',
                 '-e', ('WEBLATE_TOKEN=%s' %
                        build.branch_id.repo_id.weblate_token),
                 '-e', ('WEBLATE_HOST=%s' %
                        build.branch_id.repo_id.weblate_url)
-            ]
+            ])
             if build.branch_id.repo_id.token:
-                wl_cmd_env += [
-                    '-e', 'GITHUB_TOKEN=%s' % build.branch_id.repo_id.token]
+                wl_cmd_env.extend([
+                    '-e', 'GITHUB_TOKEN=%s' % build.branch_id.repo_id.token])
+            if (hasattr(build.branch_id.repo_id, 'uses_gitlab') and
+                    build.branch_id.repo_id.uses_gitlab):
+                wl_cmd_env.extend([
+                    '-e', 'GITLAB_TOKEN=%s' % build.branch_id.repo_id.token])
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
@@ -137,7 +141,8 @@ class RunbotBuild(models.Model):
             '-p', '%d:%d' % (build.port, 8069),
             '-p', '%d:%d' % (build.port + 1, 22),
         ] + pr_cmd_env + wl_cmd_env
-        cmd += ['--name=' + build.docker_container, '-t', build.docker_image]
+        cmd.extend(['--name=' + build.docker_container, '-t',
+                    build.docker_image])
         logdb = cr.dbname
         if config['db_host'] and not travis_branch.startswith('7.0'):
             logdb = 'postgres://%s:%s@%s/%s' % (

@@ -11,7 +11,12 @@
             <field name="is_travis2docker_build"/>
             <field name="travis2docker_test_disable" attrs="{'invisible': [('is_travis2docker_build', '=', False)]}"/>
             <field name="weblate_url"/>
-            <field name="weblate_token"/>
+            <label for="weblate_token"/>
+            <div class="o_row">
+                <field name="weblate_token"/>
+                <button name="weblate_validation" string="Check"
+                    class="oe_link pull-right oe_edit_only" type="object"/>
+            </div>
           </group>
         </xpath>
       </field>
@@ -24,6 +29,7 @@
             <xpath expr="//group" position="after">
                 <group name="travis2docker">
                     <field name="uses_weblate"/>
+                    <field name="updated_weblate"/>
                 </group>
             </xpath>
         </field>
