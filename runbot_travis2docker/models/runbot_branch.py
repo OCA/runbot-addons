@@ -99,4 +99,3 @@ class RunbotBranch(models.Model):
                             'name': component['branch'],
                             'uses_weblate': True})
                         updated_branch = component['branch']
-

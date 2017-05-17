@@ -6,7 +6,7 @@
 import requests
 
 from openerp import _, fields, models, api
-from openerp.exceptions import ValidationError, Warning
+from openerp.exceptions import ValidationError, Warning as UserError
 
 
 class RunbotRepo(models.Model):
@@ -32,4 +32,4 @@ class RunbotRepo(models.Model):
             json = response.json()
             if 'projects' not in json:
                 raise ValidationError(_('Response json bad formated'))
-            raise Warning(_('Connection with weblate successful'))
+            raise UserError(_('Connection with weblate successful'))
