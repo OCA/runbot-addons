@@ -33,3 +33,13 @@ class RunbotRepo(models.Model):
             if 'projects' not in json:
                 raise ValidationError(_('Response json bad formated'))
             raise UserError(_('Connection with weblate successful'))
+
+    @api.multi
+    def cron_weblate(self):
+        self.ensure_one()
+        if not self.weblate_url or not self.weblate_token:
+            return
+        branch_ids = self.env['runbot.branch'].search([
+            ['repo_id', '=', self.id], ['uses_weblate', '=', True]])
+        for branch in branch_ids:
+            branch.cron_weblate()

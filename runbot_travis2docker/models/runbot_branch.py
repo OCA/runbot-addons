@@ -55,14 +55,18 @@ class RunbotBranch(models.Model):
             projects = []
             page = 1
             while True:
-                data = session.get('%s/projects/?page=%s' % (url, page)).json()
+                response = session.get('%s/projects/?page=%s' % (url, page))
+                response.raise_for_status()
+                data = response.json()
                 projects.extend(data['results'] or [])
                 if not data['next']:
                     break
                 page += 1
             for project in projects:
-                components = session.get('%s/projects/%s/components'
-                                         % (url, project['slug'])).json()
+                response = session.get('%s/projects/%s/components'
+                                       % (url, project['slug']))
+                response.raise_for_status()
+                components = response.json()
                 updated_branch = None
                 for component in components['results']:
                     if (updated_branch and
@@ -72,9 +76,11 @@ class RunbotBranch(models.Model):
                         continue
                     if project['name'] != branch.name_weblate:
                         continue
-                    changes = session.get('%s/components/%s/%s/changes/'
-                                          % (url, project['slug'],
-                                             component['slug'])).json()
+                    response = session.get('%s/components/%s/%s/changes/'
+                                           % (url, project['slug'],
+                                              component['slug']))
+                    response.raise_for_status()
+                    changes = response.json()
                     if not changes['results']:
                         continue
                     change = None
