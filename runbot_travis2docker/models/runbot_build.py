@@ -124,10 +124,6 @@ class RunbotBuild(models.Model):
             if build.branch_id.repo_id.token:
                 wl_cmd_env.extend([
                     '-e', 'GITHUB_TOKEN=%s' % build.branch_id.repo_id.token])
-            if (hasattr(build.branch_id.repo_id, 'uses_gitlab') and
-                    build.branch_id.repo_id.uses_gitlab):
-                wl_cmd_env.extend([
-                    '-e', 'GITLAB_TOKEN=%s' % build.branch_id.repo_id.token])
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
