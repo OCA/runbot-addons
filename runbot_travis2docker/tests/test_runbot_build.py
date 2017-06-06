@@ -8,9 +8,10 @@ import os
 import subprocess
 import time
 import xmlrpclib
+import mock
 
 from openerp.tests.common import TransactionCase
-
+from openerp.exceptions import ValidationError, Warning as UserError
 from openerp.tools.misc import mute_logger
 
 _logger = logging.getLogger(__name__)
@@ -30,8 +31,48 @@ class TestRunbotJobs(TransactionCase):
         self.cron.write({'active': False})
         self.build = None
 
+    def test_00_no_weblate_token(self):
+        token = self.repo.weblate_token
+        self.repo.weblate_token = None
+        self.assertEqual(self.repo.weblate_validation(), None)
+        self.assertEqual(self.repo.cron_weblate(), None)
+        self.repo.weblate_token = token
+
+    @mock.patch('requests.Session.get')
+    def test_10_ok_weblate_validation(self, response):
+
+        class Response(object):
+
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return {'projects': []}
+
+        response.return_value = Response()
+        self.assertRaises(UserError, self.repo.weblate_validation)
+
+    @mock.patch('requests.Session.get')
+    def test_20_ko_weblate_validation(self, response):
+
+        class Response(object):
+
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return {}
+
+        response.return_value = Response()
+        self.assertRaises(ValidationError, self.repo.weblate_validation)
+
+    def test_30_cron_weblate(self):
+        self.assertEqual(self.repo.cron_weblate(), None)
+
     def tearDown(self):
         super(TestRunbotJobs, self).tearDown()
+        if not self.build:
+            return
         self.cron.write({'active': True})
         _logger.info('job_10_test_base log' +
                      open(os.path.join(self.build.path(), "logs",
@@ -64,6 +105,7 @@ class TestRunbotJobs(TransactionCase):
                 'repo_id': self.repo.id,
                 'name': 'refs/heads/fast-travis-oca',
             })
+        self.branch_obj.write({'uses_weblate', True})
         self.assertEqual(len(branch), 1, "Branch not found")
         self.build_obj.search([('branch_id', '=', branch.id)]).unlink()
         self.build_obj.create({'branch_id': branch.id, 'name': 'HEAD'})
@@ -72,6 +114,7 @@ class TestRunbotJobs(TransactionCase):
         # https://github.com/odoo/odoo-extra/blob/038fd3e/runbot/runbot.py#L599
         self.build = self.build_obj.search([('branch_id', '=', branch.id)],
                                            limit=1)
+        self.build.write({'uses_weblate': True})
         self.assertEqual(len(self.build) == 0, False, "Build not found")
 
         if self.build.state == 'done' and self.build.result == 'skipped':
