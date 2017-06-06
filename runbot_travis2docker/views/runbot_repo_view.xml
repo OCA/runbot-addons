@@ -21,6 +21,7 @@
                 <button name="weblate_validation" string="Check"
                     class="oe_link pull-right oe_edit_only" type="object"/>
             </div>
+            <field name="weblate_languages"/>
           </group>
         </xpath>
       </field>
@@ -30,10 +31,15 @@
         <field name="model">runbot.branch</field>
         <field name="inherit_id" ref="runbot.view_branch_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="force_weblate" type="object" string="Force weblate"
+                        groups="runbot.group_runbot_admin"/>
+                </header>
+            </xpath>
             <xpath expr="//group" position="after">
                 <group name="travis2docker">
                     <field name="uses_weblate"/>
-                    <field name="updated_weblate"/>
                 </group>
             </xpath>
         </field>

@@ -4,18 +4,17 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import re
-from datetime import datetime
 
 import requests
+import subprocess
 
-from openerp import fields, models, api
+from openerp import fields, models, api, tools
 
 
 class RunbotBranch(models.Model):
     _inherit = "runbot.branch"
 
     uses_weblate = fields.Boolean(help='Synchronize with Weblate')
-    updated_weblate = fields.Datetime(help='Last update of weblate')
     name_weblate = fields.Char(compute='_compute_name_weblate', store=True)
 
     @api.multi
@@ -34,74 +33,88 @@ class RunbotBranch(models.Model):
                     dict(match.groupdict(), branch=branch['branch_name']))
         branch.name_weblate = name
 
+    @tools.ormcache('url', 'token')
+    def get_weblate_projects(self, url, token):
+        """Find all projects and components that are on weblate url.
+        The cache is handled by @tools.ormcache annotation if the url and token
+        were already searched"""
+        projects = []
+        items = []
+        page = 1
+        session = requests.Session()
+        session.headers.update({
+            'Accept': 'application/json',
+            'User-Agent': 'runbot_travis2docker',
+            'Authorization': 'Token %s' % token
+        })
+        while True:
+            response = session.get('%s/projects/?page=%s' % (url, page))
+            response.raise_for_status()
+            data = response.json()
+            items.extend(data['results'])
+            if not data['next']:
+                break
+            page += 1
+        for project in items:
+            response = session.get('%s/projects/%s/components'
+                                   % (url, project['slug']))
+            response.raise_for_status()
+            data = response.json()
+            project['components'] = data['results']
+            projects.append(project)
+        return projects
+
     @api.model
     def cron_weblate(self):
         for branch in self.search([('uses_weblate', '=', True)]):
             if (not branch.repo_id.weblate_token or
                     not branch.repo_id.weblate_url):
                 continue
-            current_date = (datetime.strptime(branch.updated_weblate,
-                                              '%Y-%m-%d %H:%M:%S')
-                            if branch.updated_weblate
-                            else None)
-            new_date = None
-            url = branch.repo_id.weblate_url
-            session = requests.Session()
-            session.headers.update({
-                'Accept': 'application/json',
-                'User-Agent': 'runbot_travis2docker',
-                'Authorization': 'Token %s' % branch.repo_id.weblate_token
-            })
-            projects = []
-            page = 1
-            while True:
-                response = session.get('%s/projects/?page=%s' % (url, page))
-                response.raise_for_status()
-                data = response.json()
-                projects.extend(data['results'] or [])
-                if not data['next']:
-                    break
-                page += 1
+            cmd = ['git', '--git-dir=%s' % branch.repo_id.path]
+            projects = self.get_weblate_projects(branch.repo_id.weblate_url,
+                                                 branch.repo_id.weblate_token)
             for project in projects:
-                response = session.get('%s/projects/%s/components'
-                                       % (url, project['slug']))
-                response.raise_for_status()
-                components = response.json()
                 updated_branch = None
-                for component in components['results']:
-                    if (updated_branch and
-                            updated_branch == component['branch']):
+                for component in project['components']:
+                    if ((updated_branch and
+                            updated_branch == component['branch']) or
+                            (component['branch'] != branch['branch_name']) or
+                            (project['name'] != branch.name_weblate)):
                         continue
-                    if component['branch'] != branch['branch_name']:
+                    has_build = self.env['runbot.build'].search(
+                        [('branch_id', '=', branch.id),
+                         ('state', 'in', ('pending', 'running', 'testing')),
+                         ('name', '=', component['branch']),
+                         ('uses_weblate', '=', True)])
+                    if has_build:
                         continue
-                    if project['name'] != branch.name_weblate:
+                    remote = 'wl-%s' % project['slug']
+                    url_repo = '/'.join([
+                        branch.repo_id.weblate_url.replace('api', 'git'),
+                        project['slug'], component['slug']])
+                    try:
+                        subprocess.check_output(cmd + ['remote', 'add', remote,
+                                                       url_repo])
+                    except subprocess.CalledProcessError:
+                        pass
+                    subprocess.check_output(cmd + ['fetch', remote])
+                    diff = subprocess.check_output(
+                        cmd + ['diff',
+                               '%(branch)s..%(remote)s/%(branch)s'
+                               % {'branch': branch['branch_name'],
+                                  'remote': remote}, '--stat'])
+                    if not diff:
                         continue
-                    response = session.get('%s/components/%s/%s/changes/'
-                                           % (url, project['slug'],
-                                              component['slug']))
-                    response.raise_for_status()
-                    changes = response.json()
-                    if not changes['results']:
-                        continue
-                    change = None
-                    for record in changes['results']:
-                        if record['action'] == 17:
-                            change = record
-                            break
-                    if not change:
-                        continue
-                    date = datetime.strptime(
-                        change['timestamp'], '%Y-%m-%dT%H:%M:%S.%fZ')
-                    new_date = (date
-                                if (not new_date or date > new_date)
-                                else new_date)
-                    if ((current_date and new_date and
-                            current_date < new_date.replace(microsecond=0)) or
-                            (not current_date and new_date)):
-                        branch.write({'updated_weblate':
-                                      new_date.strftime('%Y-%m-%d %H:%M:%S')})
-                        self.env['runbot.build'].create({
-                            'branch_id': branch.id,
-                            'name': component['branch'],
-                            'uses_weblate': True})
-                        updated_branch = component['branch']
+                    branch.force_weblate()
+                    updated_branch = component['branch']
+        # The cache must be deleted to query the weblate API next time and get
+        # the latest changes
+        self.clear_caches()
+
+    @api.multi
+    def force_weblate(self):
+        for record in self:
+            self.env['runbot.build'].create({
+                'branch_id': record.id,
+                'name': record.branch_name,
+                'uses_weblate': True})
