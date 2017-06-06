@@ -61,6 +61,7 @@ class RunbotBuild(models.Model):
     dockerfile_path = fields.Char()
     docker_image = fields.Char()
     docker_container = fields.Char()
+    uses_weblate = fields.Boolean(help='Synchronize with weblate', copy=False)
     docker_executed_commands = fields.Boolean(
         help='True: Executed "docker exec CONTAINER_BUILD custom_commands"',
         readonly=True, copy=False)
@@ -111,6 +112,23 @@ class RunbotBuild(models.Model):
         travis_branch = build._get_closest_branch_name(
             build.repo_id.id
         )[1].split('/')[-1]
+        wl_cmd_env = []
+        if build.uses_weblate and 'refs/pull' not in build.branch_id.name:
+            wl_cmd_env.extend([
+                '-e', 'WEBLATE=1',
+                '-e', ('WEBLATE_TOKEN=%s' %
+                       build.branch_id.repo_id.weblate_token),
+                '-e', ('WEBLATE_HOST=%s' %
+                       build.branch_id.repo_id.weblate_url)
+            ])
+            if build.branch_id.repo_id.weblate_languages:
+                wl_cmd_env.extend([
+                    '-e', 'LANG_ALLOWED=%s' %
+                    build.branch_id.repo_id.weblate_languages
+                ])
+            if build.branch_id.repo_id.token:
+                wl_cmd_env.extend([
+                    '-e', 'GITHUB_TOKEN=%s' % build.branch_id.repo_id.token])
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
@@ -123,9 +141,9 @@ class RunbotBuild(models.Model):
                 not build.repo_id.travis2docker_test_disable),
             '-p', '%d:%d' % (build.port, 8069),
             '-p', '%d:%d' % (build.port + 1, 22),
-            '--name=' + build.docker_container,
-            '-t', build.docker_image,
-        ] + pr_cmd_env
+        ] + pr_cmd_env + wl_cmd_env
+        cmd.extend(['--name=' + build.docker_container, '-t',
+                    build.docker_image])
         logdb = cr.dbname
         if config['db_host'] and not travis_branch.startswith('7.0'):
             logdb = 'postgres://%s:%s@%s/%s' % (
