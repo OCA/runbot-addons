@@ -6,14 +6,70 @@
       <field name="model">runbot.repo</field>
       <field name="inherit_id" ref="runbot.view_repo_form"/>
       <field name="arch" type="xml">
+        <xpath expr="//div[@class='oe_title']" position="inside">
+            <button name="cron_weblate" type="object" string="Cron weblate"
+                groups="runbot.group_runbot_admin"/>
+        </xpath>
         <xpath expr="//group" position="after">
           <group name="travis2docker">
             <field name="is_travis2docker_build"/>
             <field name="travis2docker_test_disable" attrs="{'invisible': [('is_travis2docker_build', '=', False)]}"/>
+            <field name="weblate_url"/>
+            <label for="weblate_token"/>
+            <div class="o_row">
+                <field name="weblate_token"/>
+                <button name="weblate_validation" string="Check"
+                    class="oe_link pull-right oe_edit_only" type="object"/>
+            </div>
+            <field name="weblate_languages"/>
           </group>
         </xpath>
       </field>
     </record>
 
+    <record id="view_runbot_branch_form" model="ir.ui.view">
+        <field name="model">runbot.branch</field>
+        <field name="inherit_id" ref="runbot.view_branch_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="force_weblate" type="object" string="Force weblate"
+                        groups="runbot.group_runbot_admin"/>
+                </header>
+            </xpath>
+            <xpath expr="//group" position="after">
+                <group name="travis2docker">
+                    <field name="uses_weblate"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="viem_runbot_build_form" model="ir.ui.view">
+        <field name="model">runbot.build</field>
+        <field name="inherit_id" ref="runbot.view_build_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <group name="travis2docker">
+                    <field name="uses_weblate"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
   </data>
+
+    <data noupdate="1">
+        <record model="ir.cron" id="cron">
+            <field name='name'>Runbot Travis2docker Weblate Cron</field>
+            <field name='interval_number'>1</field>
+            <field name='interval_type'>days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="True"/>
+            <field name="model">runbot.branch</field>
+            <field name="function">cron_weblate</field>
+            <field name="args">()</field>
+        </record>
+    </data>
+
 </openerp>
