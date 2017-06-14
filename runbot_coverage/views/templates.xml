@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <template id="build_button" inherit_id="runbot.build_button">
+            <xpath expr="//li[./a[contains(@t-attf-href, 'job_20_test_all.txt')]]" position="after">
+                <li t-if="bu['host']">
+                    <a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_21_coverage/index.html">Coverage logs <i class="fa fa-file-text-o"/></a>
+                </li>
+            </xpath>
+        </template>
+        <template id="build_name" inherit_id="runbot.build_name">
+            <xpath expr="//t[./i[contains(@class, 'fa-times')]]" position="after">
+                <t t-if="'coverage' in bu and bu['coverage']"><i t-attf-class="fa fa-code"/> <t t-esc="bu['coverage']" />%</t>
+            </xpath>
+        </template>
+    </data>
+</openerp>

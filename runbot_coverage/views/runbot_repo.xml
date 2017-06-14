@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="view_repo_form" model="ir.ui.view">
+            <field name="model">runbot.repo</field>
+            <field name="inherit_id" ref="runbot.view_repo_form" />
+            <field name="arch" type="xml">
+                <group string="Params" position="after">
+                    <group name="runbot_coverage" string="Coverage">
+                        <field name="use_coverage" />
+                        <field name="coverage_config" placeholder=".coveragerc" />
+                        <field name="coverage_command" placeholder="/usr/bin/coverage" />
+                    </group>
+                </group>
+            </field>
+        </record>
+    </data>
+</openerp>
