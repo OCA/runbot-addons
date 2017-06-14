@@ -24,6 +24,8 @@ class RunbotRepo(models.Model):
     @api.constrains('weblate_languages')
     def _check_weblate_languages(self):
         supported_langs = [item[0] for item in scan_languages()]
+        supported_langs.extend(set([lang.split('_')[0] for lang in
+                                    supported_langs]))
         for record in self.filtered('weblate_languages'):
             langs = record.weblate_languages.split(',')
             for lang in langs:
