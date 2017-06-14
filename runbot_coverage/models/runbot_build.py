@@ -83,7 +83,7 @@ class RunbotBuild(models.Model):
                 '--source'
             ] + [
                 ','.join(map(
-                    lambda x: self.path('openerp/addons', x),
+                    lambda x: self.server('addons', x),
                     modules.split(','),
                 ))
             ] + cmd[1:]
