@@ -60,7 +60,7 @@ class RunbotBuild(models.Model):
                 build._log(
                     'buildout',
                     'No working buildout branch found for %s in %s!' % (
-                        version,
+                        build.branch_id.name.split('/')[-1].split('-')[0],
                         buildout_branch.branch_name,
                     )
                 )
