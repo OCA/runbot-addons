@@ -57,18 +57,6 @@ class RunbotBuild(models.Model):
             build.github_status()
             buildout_build = build._get_buildout_build()
             if not buildout_build:
-                build._log(
-                    'buildout',
-                    'No working buildout branch found for %s in %s!' % (
-                        build.branch_id.name.split('/')[-1].split('-')[0],
-                        buildout_branch.branch_name,
-                    )
-                )
-                build.write({
-                    'state': 'done',
-                    'result': 'ko',
-                })
-                build.github_status()
                 return -2
             build._log('buildout', 'Using buildout %s@%s' % (
                 buildout_build.branch_id.name,
@@ -182,12 +170,25 @@ class RunbotBuild(models.Model):
             ('repo_id', '=', self.repo_id.id),
             ('buildout_version', '=', version),
         ], order='buildout_default desc, name asc', limit=1)
-        return self.search([
+        buildout_build = self.search([
             ('repo_id', '=', self.repo_id.id),
             ('state', '=', 'done'),
             ('result', '=', 'ok'),
             ('branch_id', '=', buildout_branch.id),
         ], order='create_date desc', limit=1)
+        if not buildout_build:
+            self._log(
+                'buildout',
+                'No working buildout branch found for %s in %s!' % (
+                    version, buildout_branch.branch_name,
+                )
+            )
+            self.write({
+                'state': 'done',
+                'result': 'ko',
+            })
+            self.github_status()
+        return buildout_build
 
     @api.multi
     def _init_from_buildout(self, buildout_build):
