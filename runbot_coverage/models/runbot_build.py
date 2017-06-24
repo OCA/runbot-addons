@@ -84,7 +84,7 @@ class RunbotBuild(models.Model):
             ] + [
                 ','.join(map(
                     lambda x: self.server('addons', x),
-                    modules.split(','),
+                    (modules or '').split(','),
                 ))
             ] + cmd[1:]
         return cmd, modules
