@@ -195,6 +195,12 @@ class RunbotBuild(models.Model):
         self.ensure_one()
         if os.path.isdir(self.path()):
             shutil.rmtree(self.path(), ignore_errors=True)
+        if not os.path.isdir(buildout_build.path()):
+            self._log(
+                'buildout',
+                'Buildout directory %s does not exist' % buildout_build.path()
+            )
+            return False
         self._log(
             'buildout', 'Copying buildout from %s' % buildout_build.path()
         )
