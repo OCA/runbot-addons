@@ -64,7 +64,7 @@ class RunbotBuild(models.Model):
             ))
             if not build._init_from_buildout(buildout_build):
                 return -2
-            buildout_file = build._adapt_buildout()
+            buildout_file = build._adapt_buildout(log_path)
             if not buildout_file:
                 return -2
             build._log('buildout', 'Running buildout')
@@ -212,7 +212,7 @@ class RunbotBuild(models.Model):
         return True
 
     @api.multi
-    def _adapt_buildout(self):
+    def _adapt_buildout(self, log_path):
         adaption_script = file_open(
             'runbot_buildout/__scripts__/adapt_buildout.py'
         )
@@ -227,7 +227,8 @@ class RunbotBuild(models.Model):
                 self.path('buildout.cfg'),
                 self.repo_id.buildout_section,
                 self.repo_id.name,
-                self.name
+                self.name,
+                log_path,
             ], stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as exception:
             self._log('buildout', exception.output)
