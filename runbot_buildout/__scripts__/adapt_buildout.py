@@ -14,7 +14,6 @@ parser.add_argument('buildout_cfg')
 parser.add_argument('buildout_section')
 parser.add_argument('target_repo')
 parser.add_argument('target_commit')
-parser.add_argument('logfile')
 args = parser.parse_args()
 
 buildout = Buildout(args.buildout_cfg, [])
@@ -40,7 +39,7 @@ extends = %(buildout_cfg)s
 [%(buildout_section)s]
 addons +=
     git %(target_repo)s %(path)s %(target_commit)s
-options.logfile = %(logfile)s
+options.logfile = False
 options.workers = 0
 options.without_demo = False''' % dict(
         vars(args), path=path
