@@ -138,9 +138,9 @@ class RunbotBuild(models.Model):
         out = open(log_path, "w")
 
         def preexec():
-            lock(lock_path)
             os.setsid()
             os.closerange(3, os.sysconf("SC_OPEN_MAX"))
+            lock(lock_path)
 
         return subprocess.Popen(
             [sys.executable] + cmd, stdout=out, stderr=out, cwd=self.path(),
