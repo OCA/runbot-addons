@@ -136,13 +136,15 @@ class RunbotBuild(models.Model):
     def _spawn_buildout(self, cmd, lock_path, log_path):
         self.ensure_one()
         out = open(log_path, "w")
+
+        def preexec():
+            lock(lock_path)
+            os.setsid()
+            os.closerange(3, os.sysconf("SC_OPEN_MAX"))
+
         return subprocess.Popen(
             [sys.executable] + cmd, stdout=out, stderr=out, cwd=self.path(),
-            preexec_fn=lambda: [
-                lock(lock_path),
-                os.setsid(),
-                os.closerange(3, os.sysconf("SC_OPEN_MAX")),
-            ],
+            preexec_fn=preexec,
         ).pid
 
     @api.multi
