@@ -41,6 +41,7 @@ addons +=
     git %(target_repo)s %(path)s %(target_commit)s
 options.logfile = False
 options.workers = 0
-options.without_demo = False''' % dict(
+options.without_demo = False
+options.lang = en_US''' % dict(
         vars(args), path=path
     )
