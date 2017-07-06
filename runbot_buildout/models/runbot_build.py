@@ -82,6 +82,7 @@ class RunbotBuild(models.Model):
         if build.repo_id.uses_buildout:
             if build.branch_id.buildout_version:
                 return build._bootstrap_buildout(lock_path, log_path)
+            available_modules = []
             # move modules from buildout repos
             for manifest in ['__openerp__.py', '__manifest__.py']:
                 for module in glob.glob(
@@ -99,6 +100,21 @@ class RunbotBuild(models.Model):
                             ignore_errors=True
                         )
                     shutil.move(dirname, build.server('addons'))
+                    available_modules.append(basename)
+            modules_to_test = (
+                (build.branch_id.modules or '') + ',' +
+                (build.repo_id.modules or '')
+            )
+            modules_to_test = filter(None, modules_to_test.split(','))
+            explicit_modules = set(modules_to_test)
+            if build.repo_id.modules_auto == 'all':
+                modules_to_test += available_modules
+
+            build.write({
+                'modules': ','.join(self.filter_modules(
+                    modules_to_test, set(available_modules), explicit_modules,
+                ))
+            })
         return super(RunbotBuild, self).job_10_test_base(
             build, lock_path, log_path
         )
