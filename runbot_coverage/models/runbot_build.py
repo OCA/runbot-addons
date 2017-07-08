@@ -58,12 +58,13 @@ class RunbotBuild(models.Model):
             })
             version = (build.branch_id.branch_name or '').split('-')[0]
             target_build = self.env['runbot.build'].search([
+                ('id', 'not in', build.ids),
                 ('repo_id', 'in', build.repo_id.ids),
                 ('branch_id.branch_name', '=', version)
             ], limit=1)
             if target_build.coverage and target_build.coverage > coverage:
                 build._log(
-                    'coverage', 'coverage dropped from %d in %s to %d' % (
+                    'coverage', 'coverage dropped from %.2f in %s to %.2f' % (
                         target_build.coverage,
                         target_build.branch_id.branch_name,
                         coverage
