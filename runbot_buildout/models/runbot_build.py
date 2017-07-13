@@ -265,3 +265,20 @@ class RunbotBuild(models.Model):
         buildout_file.write(adapted_buildout)
         buildout_file.close()
         return buildout_file.name
+
+    @api.multi
+    def _local_cleanup(self):
+        # super will rm the branch's checkout from the file system if the build
+        # is older than a week. We can't have that for the first build of a
+        # buildout branch
+        for branch in self.env['runbot.branch'].search([
+                ('buildout_version', '!=', False),
+        ]):
+            self.search([
+                    ('branch_id', '=', branch.id),
+                    ('state', '=', 'done'),
+                    ('result', '=', 'ok'),
+            ], limit=1).write({
+                'job_end': fields.Datetime.now(),
+            })
+        return super(RunbotBuild, self)._local_cleanup()
