@@ -101,7 +101,7 @@ class RunbotBuild(models.Model):
                 or build.result == 'skipped':
             _logger.info('docker build skipping job_20_test_all')
             return MAGIC_PID_RUN_NEXT_JOB
-        return self.spawn(self._get_run_cmd(), lock_path, log_path)
+        return self.spawn(build._get_run_cmd(), lock_path, log_path)
 
     def job_21_coverage(self, cr, uid, build, lock_path, log_path):
         if (not build.branch_id.repo_id.is_travis2docker_build and
