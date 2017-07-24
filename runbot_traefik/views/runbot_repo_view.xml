@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Copyright 2016 LasLabs Inc.
+    License LGPL-3 or later (http://www.gnu.org/licenses/lgpl.html).
+-->
+
+<odoo>
+
+    <record id="view_runbot_repo_form" model="ir.ui.view">
+        <field name="model">runbot.repo</field>
+        <field name="inherit_id" ref="runbot_travis2docker.view_runbot_repo_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='travis2docker']" position="inside">
+                <field name="is_traefik"
+                       attrs="{'invisible': [('is_travis2docker_build', '=', False)]}" />
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>
