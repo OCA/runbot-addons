@@ -13,7 +13,7 @@ import time
 import sys
 
 import openerp
-from openerp import fields, models
+from openerp import api, fields, models
 from openerp.tools import config
 from openerp.addons.runbot_build_instructions.models.runbot_build \
     import MAGIC_PID_RUN_NEXT_JOB
@@ -101,9 +101,9 @@ class RunbotBuild(models.Model):
                 or build.result == 'skipped':
             _logger.info('docker build skipping job_20_test_all')
             return MAGIC_PID_RUN_NEXT_JOB
-        run(['docker', 'rm', '-vf', self.docker_container])
-        self._get_run_cmd(cr, uid, build)
-        return self.spawn(cmd, lock_path, log_path)
+        return self.spawn(
+            self._get_run_cmd(build), lock_path, log_path,
+        )
 
     def job_21_coverage(self, cr, uid, build, lock_path, log_path):
         if (not build.branch_id.repo_id.is_travis2docker_build and
@@ -234,8 +234,11 @@ class RunbotBuild(models.Model):
                      ])
         return res
 
-    def _get_run_cmd(self, cr, uid, build):
+    @api.model
+    def _get_run_cmd(self, build):
         """Returns the docker run command for this build. """
+        build.ensure_one()
+        run(['docker', 'rm', '-vf', build.docker_container])
         pr_cmd_env = [
             '-e', 'TRAVIS_PULL_REQUEST=' +
             build.branch_id.branch_name,
@@ -278,11 +281,11 @@ class RunbotBuild(models.Model):
         ] + pr_cmd_env + wl_cmd_env
         cmd.extend(['--name=' + build.docker_container, '-t',
                     build.docker_image])
-        logdb = cr.dbname
+        logdb = build.env.cr.dbname
         if config['db_host'] and not travis_branch.startswith('7.0'):
             logdb = 'postgres://%s:%s@%s/%s' % (
                 config['db_user'], config['db_password'],
-                config['db_host'], cr.dbname,
+                config['db_host'], build.env.cr.dbname,
             )
         cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
         return cmd
