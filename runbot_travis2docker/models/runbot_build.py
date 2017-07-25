@@ -13,7 +13,7 @@ import time
 import sys
 
 import openerp
-from openerp import api, fields, models
+from openerp import fields, models
 from openerp.tools import config
 from openerp.addons.runbot_build_instructions.models.runbot_build \
     import MAGIC_PID_RUN_NEXT_JOB
@@ -101,7 +101,9 @@ class RunbotBuild(models.Model):
                 or build.result == 'skipped':
             _logger.info('docker build skipping job_20_test_all')
             return MAGIC_PID_RUN_NEXT_JOB
-        return self.spawn(build._get_run_cmd(), lock_path, log_path)
+        run(['docker', 'rm', '-vf', self.docker_container])
+        self._get_run_cmd(cr, uid, build)
+        return self.spawn(cmd, lock_path, log_path)
 
     def job_21_coverage(self, cr, uid, build, lock_path, log_path):
         if (not build.branch_id.repo_id.is_travis2docker_build and
@@ -232,58 +234,55 @@ class RunbotBuild(models.Model):
                      ])
         return res
 
-    @api.multi
-    def _get_run_cmd(self):
+    def _get_run_cmd(self, cr, uid, build):
         """Returns the docker run command for this build. """
-        self.ensure_one()
-        run(['docker', 'rm', '-vf', self.docker_container])
         pr_cmd_env = [
             '-e', 'TRAVIS_PULL_REQUEST=' +
-            self.branch_id.branch_name,
-            '-e', 'CI_PULL_REQUEST=' + self.branch_id.branch_name,
-        ] if 'refs/pull/' in self.branch_id.name else [
+            build.branch_id.branch_name,
+            '-e', 'CI_PULL_REQUEST=' + build.branch_id.branch_name,
+        ] if 'refs/pull/' in build.branch_id.name else [
             '-e', 'TRAVIS_PULL_REQUEST=false',
         ]
-        travis_branch = self._get_closest_branch_name(
-            self.repo_id.id
+        travis_branch = build._get_closest_branch_name(
+            build.repo_id.id
         )[1].split('/')[-1]
         wl_cmd_env = []
-        if self.uses_weblate and 'refs/pull' not in self.branch_id.name:
+        if build.uses_weblate and 'refs/pull' not in build.branch_id.name:
             wl_cmd_env.extend([
                 '-e', 'WEBLATE=1',
                 '-e', ('WEBLATE_TOKEN=%s' %
-                       self.branch_id.repo_id.weblate_token),
+                       build.branch_id.repo_id.weblate_token),
                 '-e', ('WEBLATE_HOST=%s' %
-                       self.branch_id.repo_id.weblate_url)
+                       build.branch_id.repo_id.weblate_url)
             ])
-            if self.branch_id.repo_id.weblate_languages:
+            if build.branch_id.repo_id.weblate_languages:
                 wl_cmd_env.extend([
                     '-e', 'LANG_ALLOWED=%s' %
-                    self.branch_id.repo_id.weblate_languages
+                    build.branch_id.repo_id.weblate_languages
                 ])
-            if self.branch_id.repo_id.token:
+            if build.branch_id.repo_id.token:
                 wl_cmd_env.extend([
-                    '-e', 'GITHUB_TOKEN=%s' % self.branch_id.repo_id.token])
+                    '-e', 'GITHUB_TOKEN=%s' % build.branch_id.repo_id.token])
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
             '-e', 'TRAVIS_BRANCH=' + travis_branch,
-            '-e', 'TRAVIS_COMMIT=' + self.name,
+            '-e', 'TRAVIS_COMMIT=' + build.name,
             '-e', 'RUNBOT=1',
             '-e', 'UNBUFFER=0',
             '-e', 'START_SSH=1',
             '-e', 'TEST_ENABLE=%d' % (
-                not self.repo_id.travis2docker_test_disable),
-            '-p', '%d:%d' % (self.port, 8069),
-            '-p', '%d:%d' % (self.port + 1, 22),
+                not build.repo_id.travis2docker_test_disable),
+            '-p', '%d:%d' % (build.port, 8069),
+            '-p', '%d:%d' % (build.port + 1, 22),
         ] + pr_cmd_env + wl_cmd_env
-        cmd.extend(['--name=' + self.docker_container, '-t',
-                    self.docker_image])
-        logdb = self.env.cr.dbname
+        cmd.extend(['--name=' + build.docker_container, '-t',
+                    build.docker_image])
+        logdb = cr.dbname
         if config['db_host'] and not travis_branch.startswith('7.0'):
             logdb = 'postgres://%s:%s@%s/%s' % (
                 config['db_user'], config['db_password'],
-                config['db_host'], self.env.cr.dbname,
+                config['db_host'], cr.dbname,
             )
         cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
         return cmd
