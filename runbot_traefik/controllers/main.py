@@ -18,9 +18,7 @@ class RunbotController(RunbotController):
         build_info = super(RunbotController, self).build_info(build)
         if build.repo_id.is_traefik:
             build_info.update({
-                'host': '%s.%s' % (
-                    build_info['host'], build.repo_id._domain(),
-                ),
+                'host': build.repo_id._domain(),
                 'domain': build._get_traefik_domain(),
             })
         return build_info
