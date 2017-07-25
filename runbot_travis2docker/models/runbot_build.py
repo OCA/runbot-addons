@@ -288,7 +288,7 @@ class RunbotBuild(models.Model):
                 config['db_user'], config['db_password'],
                 config['db_host'], self.env.cr.dbname,
             )
-        cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
+        cmd += ['-e', 'SERVER_OPTIONS=--log-db=%s' % logdb]
         cmd.extend(['--name=%s' % self.docker_container, '-t',
                     self.docker_image])
         return cmd
