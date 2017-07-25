@@ -237,12 +237,15 @@ class RunbotBuild(models.Model):
 
     @api.multi
     def _get_run_cmd(self):
-        """Returns the docker run command for this build. """
+        """Returns the docker run command for this build.
+
+        Use this in child modules to append to the command sent to Odoo.
+        """
         self.ensure_one()
         pr_cmd_env = [
-            '-e', 'TRAVIS_PULL_REQUEST=' +
+            '-e', 'TRAVIS_PULL_REQUEST=%s' %
             self.branch_id.branch_name,
-            '-e', 'CI_PULL_REQUEST=' + self.branch_id.branch_name,
+            '-e', 'CI_PULL_REQUEST=%s' % self.branch_id.branch_name,
         ] if 'refs/pull/' in self.branch_id.name else [
             '-e', 'TRAVIS_PULL_REQUEST=false',
         ]
@@ -269,8 +272,8 @@ class RunbotBuild(models.Model):
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',
-            '-e', 'TRAVIS_BRANCH=' + travis_branch,
-            '-e', 'TRAVIS_COMMIT=' + self.name,
+            '-e', 'TRAVIS_BRANCH=%s' % travis_branch,
+            '-e', 'TRAVIS_COMMIT=%s' % self.name,
             '-e', 'RUNBOT=1',
             '-e', 'UNBUFFER=0',
             '-e', 'START_SSH=1',
@@ -278,9 +281,7 @@ class RunbotBuild(models.Model):
                 not self.repo_id.travis2docker_test_disable),
             '-p', '%d:%d' % (self.port, 8069),
             '-p', '%d:%d' % (self.port + 1, 22),
-        ] + pr_cmd_env + wl_cmd_env
-        cmd.extend(['--name=' + self.docker_container, '-t',
-                    self.docker_image])
+        ] + pr_cmd_env + wl_cmd_env + self._get_run_extra()
         logdb = self.env.cr.dbname
         if config['db_host'] and not travis_branch.startswith('7.0'):
             logdb = 'postgres://%s:%s@%s/%s' % (
@@ -288,4 +289,15 @@ class RunbotBuild(models.Model):
                 config['db_host'], self.env.cr.dbname,
             )
         cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
+        cmd.extend(['--name=%s' % self.docker_container, '-t',
+                    self.docker_image])
         return cmd
+
+    @api.multi
+    def _get_run_extra(self):
+        """Use this in child modules to append into the run arguments.
+
+        Returns:
+            list: Additional arguments to add into docker run command.
+        """
+        return []
