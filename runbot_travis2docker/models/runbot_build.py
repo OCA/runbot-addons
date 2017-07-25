@@ -279,11 +279,11 @@ class RunbotBuild(models.Model):
         ] + pr_cmd_env + wl_cmd_env
         cmd.extend(['--name=' + self.docker_container, '-t',
                     self.docker_image])
-        logdb = cr.dbname
+        logdb = self.env.cr.dbname
         if config['db_host'] and not travis_branch.startswith('7.0'):
             logdb = 'postgres://%s:%s@%s/%s' % (
                 config['db_user'], config['db_password'],
-                config['db_host'], cr.dbname,
+                config['db_host'], self.env.cr.dbname,
             )
         cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
         return cmd
