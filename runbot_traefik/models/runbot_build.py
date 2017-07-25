@@ -27,8 +27,8 @@ class RunbotBuild(models.Model):
             results[build.id] = self._get_traefik_domain()
 
     @api.multi
-    def _get_run_cmd(self):
-        cmd = super(RunbotBuild, self)._get_run_cmd()
+    def _get_run_extra(self):
+        cmd = super(RunbotBuild, self)._get_run_extra()
         if self.repo_id.is_traefik:
             cmd += [
                 '-l', 'traefik.domain=%s' % self.repo_id._domain(),
