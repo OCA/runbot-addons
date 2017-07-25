@@ -2,6 +2,8 @@
 # Copyright 2016 LasLabs Inc.
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
+import socket
+
 from openerp import api, fields, models, _
 from openerp.exceptions import ValidationError
 
@@ -30,3 +32,10 @@ class RunbotRepo(models.Model):
     def onchange_is_traefik(self):
         self.is_travis2docker_build = True
         self.nginx = False
+
+    @api.model
+    def _domain(self):
+        domain = self.env['ir.config_parameter'].get_param(
+            'runbot.domain', socket.getfqdn(),
+        )
+        return domain
