@@ -2,7 +2,12 @@
 # Copyright 2016 LasLabs Inc.
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
+import logging
+
 from openerp import api, fields, models
+
+
+_logger = logging.getLogger(__name__)
 
 
 class RunbotBuild(models.Model):
@@ -21,15 +26,16 @@ class RunbotBuild(models.Model):
         for build in self.filtered(lambda r: r.repo_id.is_traefik):
             results[build.id] = self._get_traefik_domain()
 
-    @api.model
-    def _get_run_cmd(self, build):
-        cmd = super(RunbotBuild, self)._get_run_cmd(build)
+    @api.multi
+    def _get_run_cmd(self):
+        cmd = super(RunbotBuild, self)._get_run_cmd()
         if self.repo_id.is_traefik:
             cmd += [
-                '-l', 'traefik.domain=%s' % build.repo_id._domain(),
-                '-l', 'traefik.alias.fqdn=%s' % build._get_traefik_domain(),
+                '-l', 'traefik.domain=%s' % self.repo_id._domain(),
+                '-l', 'traefik.alias.fqdn=%s' % self._get_traefik_domain(),
                 '-l', 'traefik.enable=true',
                 '-l', 'traefik.frontend.passHostHeader=true',
                 '-l', 'traefik.port=8069',
             ]
+        _logger.info(cmd)
         return cmd
