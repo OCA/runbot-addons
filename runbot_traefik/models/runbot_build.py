@@ -31,11 +31,9 @@ class RunbotBuild(models.Model):
         cmd = super(RunbotBuild, self)._get_run_extra()
         if self.repo_id.is_traefik:
             cmd += [
-                '-l', 'traefik.domain=%s' % self.repo_id._domain(),
-                '-l', 'traefik.alias.fqdn=%s' % self._get_traefik_domain(),
                 '-l', 'traefik.enable=true',
+                '-l', 'traefik.frontend.rule=Host:%s;' % self._get_traefik_domain(),
                 '-l', 'traefik.frontend.passHostHeader=true',
                 '-l', 'traefik.port=8069',
             ]
-        _logger.info(cmd)
         return cmd
