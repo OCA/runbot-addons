@@ -91,7 +91,7 @@ class RunbotBranch(models.Model):
                         continue
                     component = [item for item in project['components']
                                  if item['git_export']]
-                    if len(component) > 1:
+                    if len(component) != 1:
                         continue
                     component = component[0]
                     remote = 'wl-%s-%s' % (project['slug'], component['slug'])
