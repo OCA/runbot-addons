@@ -119,8 +119,9 @@ class RunbotBuild(models.Model):
                 '-e', ('WEBLATE_TOKEN=%s' %
                        build.branch_id.repo_id.weblate_token),
                 '-e', ('WEBLATE_HOST=%s' %
-                       build.branch_id.repo_id.weblate_url)
-            ])
+                       build.branch_id.repo_id.weblate_url),
+                '-e', ('WEBLATE_SSH=%s' %
+                       build.branch_id.repo_id.weblate_ssh)])
             if build.branch_id.repo_id.weblate_languages:
                 wl_cmd_env.extend([
                     '-e', 'LANG_ALLOWED=%s' %

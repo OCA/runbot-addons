@@ -16,6 +16,8 @@ class RunbotRepo(models.Model):
     is_travis2docker_build = fields.Boolean('Travis to docker build')
     travis2docker_test_disable = fields.Boolean('Test Disable?')
     weblate_url = fields.Char(default="https://weblate.odoo-community.org/api")
+    weblate_ssh = fields.Char(
+        default="ssh://user@webpage.com")
     weblate_token = fields.Char()
     weblate_languages = fields.Char(help="List of code iso of languages E.g."
                                     " en_US,es_ES")
