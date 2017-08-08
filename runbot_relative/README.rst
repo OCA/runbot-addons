@@ -1,6 +1,6 @@
-.. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
-   :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   :alt: License: AGPL-3
+.. image:: https://img.shields.io/badge/licence-LGPL--3-blue.svg
+   :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
+   :alt: License: LGPL-3
 
 ==============================
 Runbot Protocol Relative Links
@@ -15,12 +15,6 @@ Usage
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
    :target: https://runbot.odoo-community.org/runbot/146/9.0
-
-Known issues / Roadmap
-======================
-
-* Xpaths are repetitive and very much coupled to implementation. Would be nice to somehow use the existing attribute in the format.
-
 
 Bug Tracker
 ===========
@@ -42,7 +36,6 @@ Contributors
 ------------
 
 * Dave Lasley <dave@laslabs.com>
-* Sandy Carter <sandy.carter@savoirfairelinux.com>
 
 Maintainer
 ----------

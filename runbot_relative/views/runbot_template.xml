@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Copyright 2016 LasLabs Inc.
-    License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 -->
 <odoo>
 
   <template id="build_button" inherit_id="runbot.build_button" name="Build Button Protocol Relative">
-    <xpath expr="//a[contains(@t-attf-href, '-all')]" position="attributes">
-      <attribute name="t-attf-href">//{{bu['domain']}}/?db={{bu['dest']}}-all</attribute>
-    </xpath>
-    <xpath expr="//ul[@role='menu']//a[contains(@t-attf-href, '-base')]" position="attributes">
-      <attribute name="t-attf-href">//{{bu['domain']}}/?db={{bu['real_dest']}}-base</attribute>
-    </xpath>
-    <xpath expr="//ul[@role='menu']//a[substring(@t-attf-href, string-length(@t-attf-href) - string-length('/') + 1) = '/']" position="attributes">
-      <attribute name="t-attf-href">//{{bu['domain']}}/</attribute>
-    </xpath>
-    <xpath expr="//ul[@role='menu']//a[contains(@t-attf-href, 'test_base.txt')]" position="attributes">
-      <attribute name="t-attf-href">//{{bu['host']}}/runbot/static/build/#{bu['real_dest']}/logs/job_10_test_base.txt</attribute>
-    </xpath>
-    <xpath expr="//ul[@role='menu']//a[contains(@t-attf-href, 'test_all.txt')]" position="attributes">
-      <attribute name="t-attf-href">//{{bu['host']}}/runbot/static/build/#{bu['real_dest']}/logs/job_20_test_all.txt</attribute>
-    </xpath>
+      <xpath expr="." position="inside">
+          <input type="hidden" id="runbot-host" t-att-value="bu['host']" />
+          <input type="hidden" id="runbot-domain" t-att-value="bu['domain']" />
+      </xpath>
   </template>
 
 </odoo>
