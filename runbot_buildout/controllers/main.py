@@ -17,8 +17,8 @@ class RunbotController(runbot.RunbotController):
         type='http', auth="public", methods=['POST'], csrf=False,
     )
     def build_rerun_buildout(self, build, **post):
-        if build.branch_id.buildout_version:
-            build.write({
+        if build.sudo().branch_id.buildout_version:
+            build.sudo().write({
                 'state': 'testing',
                 'result': False,
                 'job': 'job_10_test_base',
