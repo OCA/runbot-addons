@@ -214,6 +214,7 @@ class RunbotBuild(models.Model):
                 'travisfile2dockerfile', repo_name,
                 branch_short_name, '--root-path=' + t2d_path,
                 '--exclude-after-success',
+                '--docker-image=%s' % build.repo_id.travis2docker_image,
             ]
             try:
                 path_scripts = t2d()

@@ -65,6 +65,7 @@ Contributors
 ------------
 
 * Moisés López <moylop260@vauxoo.com>
+* Dave Lasley <dave@laslabs.com>
 
 Maintainer
 ----------
