@@ -19,6 +19,7 @@
                            'required': [('is_travis2docker_build', '=', True)]
                            }"/>
             <field name="weblate_url"/>
+            <field name="weblate_ssh"/>
             <label for="weblate_token"/>
             <div class="o_row">
                 <field name="weblate_token"/>
