@@ -56,11 +56,18 @@ class RunbotBranch(models.Model):
                 break
             page += 1
         for project in items:
-            response = session.get('%s/projects/%s/components'
-                                   % (url, project['slug']))
-            response.raise_for_status()
-            data = response.json()
-            project['components'] = data['results']
+            components = []
+            page = 1
+            while True:
+                response = session.get('%s/projects/%s/components/?page=%s'
+                                       % (url, project['slug'], page))
+                response.raise_for_status()
+                data = response.json()
+                components.extend(data['results'] or [])
+                if not data['next']:
+                    break
+                page += 1
+            project['components'] = components
             projects.append(project)
         return projects
 
