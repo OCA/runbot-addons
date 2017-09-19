@@ -42,8 +42,8 @@ class RunbotBranch(models.Model):
             'Are you sure you want to continue connecting (yes/no)?'"""
         cmd = ['ssh-keyscan', '-p']
         match = re.search(
-            r'(ssh\:\/\/\w+@(?P<host>[\w\.]+))(:{0,1})(?P<port>(\d+))?',
-            ssh)
+            r'(ssh\:\/\/\w+@(?P<host>[a-zA-Z0-9_.-]+))(:{0,1})'
+            r'(?P<port>(\d+))?', ssh)
         if not match:
             return False
         data = match.groupdict()
