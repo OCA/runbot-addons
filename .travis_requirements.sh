@@ -22,3 +22,6 @@ sed -i "s/'interval_number'>1</'interval_number'>60</g" $DEPS/odoo-extra/runbot/
 
 # Disabling test_crawl (native runbot fail)
 find ${HOME} -name __init__.py -exec sed -i  "/import test_crawl/d" {} \;
+
+# Download docker image required
+if [[ "${TESTS}" == "1"  ]]; then docker pull vauxoo/odoo-80-image-shippable-auto; fi
