@@ -12,13 +12,11 @@ odoo.define('runbot_relative.runbot_relative', function(require){
         selector: 'a',
 
         start: function() {
-            var domains = [
-                $('#runbot-host').val(),
-                $('#runbot-domain').val()
-            ];
+            var runbotHost =  $('#runbot-host').val();
             var elHref = this.$el.attr('href')
             var elHost = this.getHostname(elHref);
-            if ( ! domains.includes(elHost) ) {
+            var regex = new RegExp(runbotHost + '$');
+            if ( ! elHost.match(regex) ) {
                 return;
             }
             this.$el.attr('href', elHref.replace(/https?:/, ''));
