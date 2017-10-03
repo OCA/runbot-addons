@@ -12,11 +12,12 @@ odoo.define('runbot_relative.runbot_relative', function(require){
         selector: 'a',
 
         start: function() {
-            var runbotHost =  $('#runbot-host').val();
-            var elHref = this.$el.attr('href')
+            var runbotHost = $('#runbot-host').val();
+            var elHref = this.$el.attr('href');
             var elHost = this.getHostname(elHref);
             var regex = new RegExp(runbotHost + '$');
             if ( ! elHost.match(regex) ) {
+                // Host doesn't end with the correct domain
                 return;
             }
             this.$el.attr('href', elHref.replace(/https?:/, ''));
@@ -24,8 +25,10 @@ odoo.define('runbot_relative.runbot_relative', function(require){
 
         getHostname: function(uri) {
             // Remove protocol
-            var split = uri.split('/')
-            var host = (uri.indexOf('://') > -1) ? split[2] : split[0];
+            var split = uri.split('/');
+            var host = uri.indexOf('://') > -1
+                ? split[2]
+                : split[0];
             // Remove port
             host = host.split(':')[0];
             // Remove query args
