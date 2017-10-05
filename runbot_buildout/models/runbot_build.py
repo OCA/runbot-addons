@@ -83,6 +83,9 @@ class RunbotBuild(models.Model):
             if build.branch_id.buildout_version:
                 return build._bootstrap_buildout(lock_path, log_path)
             if not self._check_buildout_success(build):
+                build.write({
+                    'state': 'done',
+                })
                 return -2
             available_modules = []
             # move modules from buildout repos
@@ -156,6 +159,7 @@ class RunbotBuild(models.Model):
             build.write({'result': 'ko'})
             result = False
         build.github_status()
+        return result
 
     @api.multi
     def _spawn_buildout(self, cmd, lock_path, log_path):
