@@ -82,6 +82,8 @@ class RunbotBuild(models.Model):
         if build.repo_id.uses_buildout:
             if build.branch_id.buildout_version:
                 return build._bootstrap_buildout(lock_path, log_path)
+            if not self._check_buildout_success(build):
+                return -2
             available_modules = []
             # move modules from buildout repos
             for manifest in ['__openerp__.py', '__manifest__.py']:
@@ -134,19 +136,26 @@ class RunbotBuild(models.Model):
     @api.model
     def job_30_run(self, build, lock_path, log_path):
         if build.repo_id.uses_buildout and build.branch_id.buildout_version:
-            if os.path.exists(
-                build.path('bin/start_%s') % build.repo_id.buildout_section
-            ):
-                build._log('buildout', 'Buildout succeeded')
-                build.write({'result': 'ok'})
-            else:
-                build._log('buildout', 'Buildout failed')
-                build.write({'result': 'ko'})
-            build.github_status()
+            self._check_buildout_success(build)
             return -2
         return super(RunbotBuild, self).job_30_run(
             build, lock_path, log_path
         )
+
+    @api.model
+    def _check_buildout_success(self, build):
+        result = None
+        if os.path.exists(
+            build.path('bin/start_%s') % build.repo_id.buildout_section
+        ):
+            build._log('buildout', 'Buildout succeeded')
+            build.write({'result': 'ok'})
+            result = True
+        else:
+            build._log('buildout', 'Buildout failed')
+            build.write({'result': 'ko'})
+            result = False
+        build.github_status()
 
     @api.multi
     def _spawn_buildout(self, cmd, lock_path, log_path):
