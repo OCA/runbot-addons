@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2016 LasLabs Inc.
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
+-->
+<odoo>
+
+  <template id="build_button" inherit_id="runbot.build_button" name="Build Button Protocol Relative">
+      <xpath expr="." position="inside">
+          <input type="hidden" id="runbot-host" t-att-value="bu['host']" />
+          <input type="hidden" id="runbot-domain" t-att-value="bu['domain']" />
+      </xpath>
+  </template>
+
+</odoo>
