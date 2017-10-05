@@ -9,6 +9,7 @@ from openerp.addons.runbot import runbot
 class RunbotController(runbot.RunbotController):
     def build_info(self, build):
         result = super(RunbotController, self).build_info(build)
+        result['uses_buildout'] = build.repo_id.uses_buildout
         result['buildout_version'] = build.branch_id.buildout_version
         return result
 

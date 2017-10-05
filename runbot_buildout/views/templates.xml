@@ -7,6 +7,11 @@
                     <a href="#" class="runbot-rerun-buildout" t-att-data-runbot-build="bu['id']">Rerun buildout <i class="fa fa-refresh"/></a>
                 </li>
             </xpath>
+            <xpath expr="//a[contains(@t-attf-href, 'job_10_test_base.txt')]/parent::li" position="before">
+                <li t-if="bu['uses_buildout'] and not bu['buildout_version']">
+                    <a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_00_init.txt">Buildout logs <i class="fa fa-file-text-o"/></a>
+                </li>
+            </xpath>
         </template>
         <template id="build" inherit_id="runbot.build">
             <xpath expr="//a[contains(@class, 'runbot-rebuild')]/parent::form" position="after">
