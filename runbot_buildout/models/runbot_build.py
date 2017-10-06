@@ -139,7 +139,8 @@ class RunbotBuild(models.Model):
     @api.model
     def job_30_run(self, build, lock_path, log_path):
         if build.repo_id.uses_buildout and build.branch_id.buildout_version:
-            self._check_buildout_success(build)
+            if self._check_buildout_success(build):
+                build.write({'result': 'ok'})
             return -2
         return super(RunbotBuild, self).job_30_run(
             build, lock_path, log_path
@@ -152,7 +153,6 @@ class RunbotBuild(models.Model):
             build.path('bin/start_%s') % build.repo_id.buildout_section
         ):
             build._log('buildout', 'Buildout succeeded')
-            build.write({'result': 'ok'})
             result = True
         else:
             build._log('buildout', 'Buildout failed')
