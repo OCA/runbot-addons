@@ -19,6 +19,7 @@ Available addons
 addon | version | summary
 --- | --- | ---
 [runbot_build_instructions](runbot_build_instructions/) | 9.0.1.0.0 | Runbot with custom build and run instructions
+[runbot_relative](runbot_relative/) | 9.0.1.0.0 | Provide protocol relative links in Runbot
 [runbot_skip_tests](runbot_skip_tests/) | 9.0.1.0.0 | Skip tests on runbot builds
 [runbot_travis2docker](runbot_travis2docker/) | 9.0.1.2.0 | Generate docker with odoo instance based on .travis.yml
 [runbot_website_display](runbot_website_display/) | 9.0.1.0.0 | Allows to reorder and hide runbot repositories
@@ -30,6 +31,5 @@ addon | version | summary
 --- | --- | ---
 [runbot_gitlab](runbot_gitlab/) | 8.0.1.1.0 (unported) | Runbot with Gitlab integration
 [runbot_pylint](runbot_pylint/) | 8.0.1.0.0 (unported) | Runbot
-[runbot_secure](runbot_secure/) | 8.0.1.0.0 (unported) | Provide https links
 
 [//]: # (end addons)
