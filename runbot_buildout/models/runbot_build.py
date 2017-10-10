@@ -86,6 +86,7 @@ class RunbotBuild(models.Model):
                 build.write({
                     'state': 'done',
                 })
+                build._log(file(build.path('logs', 'job_00_init.txt')).read())
                 return -2
             available_modules = []
             # move modules from buildout repos
