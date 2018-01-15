@@ -243,7 +243,7 @@ class RunbotBuild(models.Model):
         Use this in child modules to append to the command sent to Odoo.
         """
         self.ensure_one()
-        
+
         pr_cmd_env = [
             '-e', 'TRAVIS_PULL_REQUEST=' +
             self.branch_id.branch_name,
