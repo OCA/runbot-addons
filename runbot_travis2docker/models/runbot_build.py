@@ -287,15 +287,30 @@ class RunbotBuild(models.Model):
         ] + pr_cmd_env + wl_cmd_env
         cmd.extend(['--name=' + self.docker_container, '-t',
                     self.docker_image])
-        logdb = self.env.cr.dbname
+
+        cmd += ['-e', '"SERVER_OPTIONS=%s"' % self._get_server_options()]
+
+        return cmd
+
+    @api.multi
+    def _get_server_options(self):
+        """Use this in child modules to append into the server arguments.
+
+        Returns:
+            str: Space separated list of string arguments to be sent to the
+                Odoo server.
+        """
+        log_db = self.env.cr.dbname
         if config['db_host'] and not travis_branch.startswith('7.0'):
-            logdb = 'postgres://%s:%s@%s/%s' % (
+            log_db = 'postgres://%s:%s@%s/%s' % (
                 config['db_user'], config['db_password'],
                 config['db_host'], self.env.cr.dbname,
             )
-        cmd += ['-e', 'SERVER_OPTIONS="--log-db=%s"' % logdb]
-
-        return cmd
+        options = ['--log-db=%s' % log_db]
+        if self.branch_id.repo_id.travis2docker_server_flags:
+            flags = self.branch_id.repo_id.travis2docker_server_flags
+            options += flags.split()
+        return options.join(' ')
 
     @api.multi
     def _get_run_extra(self):
