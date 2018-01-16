@@ -18,6 +18,8 @@
                    attrs="{'invisible': [('is_travis2docker_build', '=', False)],
                            'required': [('is_travis2docker_build', '=', True)]
                            }"/>
+            <field name="travis2docker_server_flags"
+                   attrs="{'invisible': [('is_travis2docker_build', '=', False)]}"/>
             <field name="weblate_url"/>
             <field name="weblate_ssh"/>
             <label for="weblate_token"/>

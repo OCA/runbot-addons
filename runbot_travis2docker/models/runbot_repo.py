@@ -18,6 +18,12 @@ class RunbotRepo(models.Model):
     travis2docker_image = fields.Char(
         default=lambda s: s._default_travis2docker_image(),
     )
+    travis2docker_server_flags = fields.Char(
+        string='Server Flags',
+        help='Space separated list of flags that should be issued to '
+             'the Odoo server. Example: '
+             '`--load=web,web_kanban,queue_job --workers=2`',
+    )
     weblate_url = fields.Char(default="https://weblate.odoo-community.org/api")
     weblate_ssh = fields.Char(
         default="ssh://user@webpage.com")
