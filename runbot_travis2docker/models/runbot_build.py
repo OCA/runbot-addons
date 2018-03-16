@@ -8,13 +8,14 @@
 import logging
 import os
 import requests
+import subprocess
 import time
 import sys
 
 from odoo import fields, models
 from odoo.tools import config
-from odoo.addons.runbot.common import grep, rfind, run, time2str
-from opeenrp.addons.runbot.models.build import _re_error, _re_warning
+from odoo.addons.runbot.common import grep, rfind, time2str
+from odoo.addons.runbot.models.build import _re_error, _re_warning
 
 try:
     from travis2docker.git_run import GitRun
@@ -27,28 +28,7 @@ except ImportError:
 
 _logger = logging.getLogger(__name__)
 
-
-def custom_build(func):
-    # TODO: Make this method more generic for re-use in all custom modules
-    """Decorator for functions which should be overwritten only if
-    is_travis2docker_build is enabled in repo.
-    """
-    def custom_func(self, cr, uid, ids, context=None):
-        args = [
-            ('id', 'in', ids),
-            ('branch_id.repo_id.is_travis2docker_build', '=', True)
-        ]
-        custom_ids = self.search(cr, uid, args, context=context)
-        regular_ids = list(set(ids) - set(custom_ids))
-        ret = None
-        if regular_ids:
-            regular_func = getattr(super(RunbotBuild, self), func.func_name)
-            ret = regular_func(cr, uid, regular_ids, context=context)
-        if custom_ids:
-            assert ret is None
-            ret = func(self, cr, uid, custom_ids, context=context)
-        return ret
-    return custom_func
+MAGIC_PID_RUN_NEXT_JOB = -2
 
 
 class RunbotBuild(models.Model):
@@ -62,20 +42,22 @@ class RunbotBuild(models.Model):
         help='True: Executed "docker exec CONTAINER_BUILD custom_commands"',
         readonly=True, copy=False)
 
-    def get_docker_image(self, cr, uid, build, context=None):
-        git_obj = GitRun(build.repo_id.name, '')
+    def _get_docker_image(self):
+        self.ensure_one()
+        git_obj = GitRun(self.repo_id.name, '')
         image_name = git_obj.owner + '-' + git_obj.repo + ':' + \
-            build.name[:7] + '_' + os.path.basename(build.dockerfile_path)
+            self.name[:7] + '_' + os.path.basename(self.dockerfile_path)
         return image_name.lower()
 
-    def get_docker_container(self, cr, uid, build, context=None):
-        return "build_%d" % (build.sequence)
+    def _get_docker_container(self):
+        self.ensure_one()
+        return "build_%d" % (self.sequence)
 
-    def job_10_test_base(self, cr, uid, build, lock_path, log_path):
-        'Build docker image'
+    def _job_10_test_base(self, build, lock_path, log_path):
         if not build.branch_id.repo_id.is_travis2docker_build:
-            return super(RunbotBuild, self).job_10_test_base(
-                cr, uid, build, lock_path, log_path)
+            return super(RunbotBuild, self)._job_10_test_base(
+                build, lock_path, log_path)
+        build._log('test_base', 'Start test base module runbot_travis2docker')
         if not build.docker_image or not build.dockerfile_path \
                 or build.result == 'skipped':
             _logger.info('docker build skipping job_10_test_base')
@@ -86,73 +68,69 @@ class RunbotBuild(models.Model):
             "-t", build.docker_image,
             build.dockerfile_path,
         ]
-        return self.spawn(cmd, lock_path, log_path)
+        return self._spawn(cmd, lock_path, log_path, cpu_limit=1200)
 
-    def job_20_test_all(self, cr, uid, build, lock_path, log_path):
-        'create docker container'
+    def _job_20_test_all(self, build, lock_path, log_path):
         if not build.branch_id.repo_id.is_travis2docker_build:
-            return super(RunbotBuild, self).job_20_test_all(
-                cr, uid, build, lock_path, log_path)
+            return super(RunbotBuild, self)._job_20_test_all(
+                build, lock_path, log_path)
         if not build.docker_image or not build.dockerfile_path \
                 or build.result == 'skipped':
             _logger.info('docker build skipping job_20_test_all')
             return MAGIC_PID_RUN_NEXT_JOB
-        run(['docker', 'rm', '-vf', build.docker_container])
-        return self.spawn(
-            build._get_run_cmd(), lock_path, log_path,
+        subprocess.call(['docker', 'rm', '-vf', build.docker_container])
+        return self._spawn(
+            build._get_run_cmd(), lock_path, log_path, cpu_limit=1200,
         )
 
-    def job_21_coverage(self, cr, uid, build, lock_path, log_path):
-        if (not build.branch_id.repo_id.is_travis2docker_build and
-                hasattr(super(RunbotBuild, self), 'job_21_coverage')):
-            return super(RunbotBuild, self).job_21_coverage(
-                cr, uid, build, lock_path, log_path)
+    def _job_21_coverage(self, build, lock_path, log_path):
+        if not build.branch_id.repo_id.is_travis2docker_build:
+            return super(RunbotBuild, self)._job_21_coverage(
+                build, lock_path, log_path)
         _logger.info('docker build skipping job_21_coverage')
         return MAGIC_PID_RUN_NEXT_JOB
 
-    def job_30_run(self, cr, uid, build, lock_path, log_path):
-        'Run docker container with odoo server started'
+    def _job_30_run(self, build, lock_path, log_path):
         if not build.branch_id.repo_id.is_travis2docker_build:
-            return super(RunbotBuild, self).job_30_run(
-                cr, uid, build, lock_path, log_path)
+            return super(RunbotBuild, self)._job_30_run(
+                build, lock_path, log_path)
         if (not build.docker_image or not build.dockerfile_path or
                 build.result == 'skipped'):
             _logger.info('docker build skipping job_30_run')
             return MAGIC_PID_RUN_NEXT_JOB
 
         # Start copy and paste from original method (fix flake8)
-        log_all = build.path('logs', 'job_20_test_all.txt')
+        build._log('run', 'Start running build %s' % build.dest)
+        log_all = build._path('logs', 'job_20_test_all.txt')
         log_time = time.localtime(os.path.getmtime(log_all))
         v = {
-            'job_end': time.strftime(
-                openerp.tools.DEFAULT_SERVER_DATETIME_FORMAT, log_time),
+            'job_end': time2str(log_time),
         }
         if grep(log_all, ".modules.loading: Modules loaded."):
             if rfind(log_all, _re_error):
                 v['result'] = "ko"
             elif rfind(log_all, _re_warning):
                 v['result'] = "warn"
-            elif not grep(
-                build.server("test/common.py"), "post_install") or grep(
-                    log_all, "Initiating shutdown."):
+            elif not grep(build._server("test/common.py"), "post_install") or \
+                    grep(log_all, "Initiating shutdown."):
                 v['result'] = "ok"
         else:
             v['result'] = "ko"
         build.write(v)
-        build.github_status()
+        build._github_status()
         # end copy and paste from original method
 
         cmd = ['docker', 'start', '-i', build.docker_container]
-        return self.spawn(cmd, lock_path, log_path)
+        return self._spawn(cmd, lock_path, log_path, cpu_limit=None)
 
-    @custom_build
-    def checkout(self, cr, uid, ids, context=None):
-        """Save travis2docker output"""
-        to_be_skipped_ids = ids
-        for build in self.browse(cr, uid, ids, context=context):
+    def _checkout(self):
+        builds = self.filtered('branch_id.repo_id.is_travis2docker_build')
+        super(RunbotBuild, self - builds)._checkout()
+        to_be_skipped_ids = builds
+        for build in builds:
             branch_short_name = build.branch_id.name.replace(
                 'refs/heads/', '', 1).replace('refs/pull/', 'pull/', 1)
-            t2d_path = os.path.join(build.repo_id.root(), 'travis2docker')
+            t2d_path = os.path.join(build.repo_id._root(), 'travis2docker')
             repo_name = build.repo_id.name
             if not any((repo_name.startswith('https://'),
                         repo_name.startswith('ssh://'),
@@ -175,64 +153,66 @@ class RunbotBuild(models.Model):
                 if ' TESTS=1' in df_content or ' TESTS="1"' in df_content or \
                         " TESTS='1'" in df_content:
                     build.dockerfile_path = path_script
-                    build.docker_image = self.get_docker_image(cr, uid, build)
-                    build.docker_container = self.get_docker_container(
-                        cr, uid, build)
-                    if build.id in to_be_skipped_ids:
-                        to_be_skipped_ids.remove(build.id)
+                    build.docker_image = build._get_docker_image()
+                    build.docker_container = build._get_docker_container()
+                    if build in to_be_skipped_ids:
+                        to_be_skipped_ids -= build
                     break
         if to_be_skipped_ids:
             _logger.info('Dockerfile without TESTS=1 env. '
-                         'Skipping builds %s', to_be_skipped_ids)
-            self.skip(cr, uid, to_be_skipped_ids, context=context)
+                         'Skipping builds %s', to_be_skipped_ids.ids)
+            to_be_skipped_ids._skip()
 
-    @custom_build
-    def _local_cleanup(self, cr, uid, ids, context=None):
-        for build in self.browse(cr, uid, ids, context=context):
+    def _local_cleanup(self):
+        builds = self.filtered('branch_id.repo_id.is_travis2docker_build')
+        super(RunbotBuild, self - builds)._local_cleanup()
+        for build in builds:
             if build.docker_container:
-                run(['docker', 'rm', '-f', build.docker_container])
-                run(['docker', 'rmi', '-f', build.docker_image])
+                subprocess.call(['docker', 'rm', '-f', build.docker_container])
+                subprocess.call(['docker', 'rmi', '-f', build.docker_image])
 
-    def get_ssh_keys(self, cr, uid, build, context=None):
-        response = build.repo_id.github(
-            "/repos/:owner/:repo/commits/%s" % build.name, ignore_errors=True)
+    def _get_ssh_keys(self):
+        self.ensure_one()
+        response = self.repo_id._github(
+            "/repos/:owner/:repo/commits/%s" % self.name, ignore_errors=True)
         if not response:
             return
         keys = ""
         for own_key in ['author', 'committer']:
             try:
-                ssh_rsa = build.repo_id.github('/users/%(login)s/keys' %
+                ssh_rsa = self.repo_id._github('/users/%(login)s/keys' %
                                                response[own_key])
                 keys += '\n' + '\n'.join(rsa['key'] for rsa in ssh_rsa)
             except (TypeError, KeyError, requests.RequestException):
                 _logger.debug("Error fetching %s", own_key)
         return keys
 
-    def schedule(self, cr, uid, ids, context=None):
-        res = super(RunbotBuild, self).schedule(cr, uid, ids, context=context)
-        for build in self.browse(cr, uid, ids, context=context):
+    def _schedule(self):
+        res = super(RunbotBuild, self)._schedule()
+        for build in self:
             if not all([build.state == 'running', build.job == 'job_30_run',
                         not build.docker_executed_commands,
                         build.repo_id.is_travis2docker_build]):
                 continue
-            build.write({'docker_executed_commands': True})
-            run(['docker', 'exec', '-d', '--user', 'root',
-                 build.docker_container, '/etc/init.d/ssh', 'start'])
-            ssh_keys = self.get_ssh_keys(cr, uid, build, context=context) or ''
+            build.docker_executed_commands = True
+            subprocess.call([
+                'docker', 'exec', '-d', '--user', 'root',
+                build.docker_container, '/etc/init.d/ssh', 'start'])
+            ssh_keys = self._get_ssh_keys() or ''
             f_extra_keys = os.path.expanduser('~/.ssh/runbot_authorized_keys')
             if os.path.isfile(f_extra_keys):
                 with open(f_extra_keys) as fobj_extra_keys:
                     ssh_keys += "\n" + fobj_extra_keys.read()
             ssh_keys = ssh_keys.strip(" \n")
             if ssh_keys:
-                run(['docker', 'exec', '-d', '--user', 'odoo',
-                     build.docker_container,
-                     "bash", "-c", "echo '%(keys)s' | tee -a '%(dir)s'" % dict(
-                         keys=ssh_keys, dir="/home/odoo/.ssh/authorized_keys"),
-                     ])
+                subprocess.call([
+                    'docker', 'exec', '-d', '--user', 'odoo',
+                    build.docker_container,
+                    "bash", "-c", "echo '%(keys)s' | tee -a '%(dir)s'" % dict(
+                        keys=ssh_keys, dir="/home/odoo/.ssh/authorized_keys"),
+                ])
         return res
 
-    @api.multi
     def _get_run_cmd(self):
         """Returns the docker run command for this build.
 
@@ -293,7 +273,6 @@ class RunbotBuild(models.Model):
 
         return cmd
 
-    @api.multi
     def _get_run_extra(self):
         """Use this in child modules to append into the run arguments.
 
