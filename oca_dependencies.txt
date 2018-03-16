@@ -1,0 +1,1 @@
+runbot https://github.com/odoo/runbot master
