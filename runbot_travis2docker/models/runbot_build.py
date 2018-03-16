@@ -194,6 +194,7 @@ class RunbotBuild(models.Model):
                         not build.docker_executed_commands,
                         build.repo_id.is_travis2docker_build]):
                 continue
+            time.sleep(10)
             build.docker_executed_commands = True
             subprocess.call([
                 'docker', 'exec', '-d', '--user', 'root',
