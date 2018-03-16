@@ -1,4 +1,3 @@
-# coding: utf-8
 # © 2015 Vauxoo
 #   Coded by: moylop260@vauxoo.com
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
@@ -12,13 +11,10 @@ import requests
 import time
 import sys
 
-import openerp
-from openerp import api, fields, models
-from openerp.tools import config
-from openerp.addons.runbot_build_instructions.models.runbot_build \
-    import MAGIC_PID_RUN_NEXT_JOB
-from openerp.addons.runbot.runbot import (
-    grep, rfind, run, _re_error, _re_warning)
+from odoo import fields, models
+from odoo.tools import config
+from odoo.addons.runbot.common import grep, rfind, run, time2str
+from opeenrp.addons.runbot.models.build import _re_error, _re_warning
 
 try:
     from travis2docker.git_run import GitRun

@@ -15,8 +15,9 @@ Installation
 
 To install this module, you need to:
 
-- Install docker https://docs.docker.com/installationn
+- Install docker https://docs.docker.com/installation
 - Install travis2docker
+- Install runbot module https://github.com/odoo/runbot
 
 Configuration
 =============
@@ -34,24 +35,21 @@ and know the main funcitonallity of oca/maintainer-quality-tools.
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
-   :target: https://runbot.odoo-community.org/runbot/146/9.0
+   :target: https://runbot.odoo-community.org/runbot/146/11.0
 
 Known issues / Roadmap
 ======================
 
-* This module run the just the first build with environment variable TESTS="1"
+* This module run just the first build with environment variable TESTS="1"
 
 Bug Tracker
 ===========
 
 Bugs are tracked on `GitHub Issues
-<https://github.com/OCA/{project_repo}/issues>`_. In case of trouble, please
+<https://github.com/OCA/runbot-addons/issues>`_. In case of trouble, please
 check there if your issue has already been reported. If you spotted it first,
-help us smashing it by providing a detailed and welcomed `feedback
-<https://github.com/OCA/
-runbot-addons/issues/new?body=module:%20
-runbot_travis2docker%0Aversion:%20
-9.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+help us smash it by providing detailed and welcomed feedback.
+
 
 Credits
 =======
@@ -66,6 +64,16 @@ Contributors
 
 * Moisés López <moylop260@vauxoo.com>
 * Dave Lasley <dave@laslabs.com>
+
+Do not contact contributors directly about support or help with technical issues.
+
+Funders
+-------
+
+The development of this module has been financially supported by:
+
+* Vauxoo - https://www.vauxoo.com/
+* LasLabs - https://laslabs.com/
 
 Maintainer
 ----------

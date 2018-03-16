@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-    <data>
+<odoo>
 
-        <record id="runbot_repo_demo1" model="runbot.repo">
-            <field name="name">https://github.com/vauxoo-dev/fast-travis-test.git</field>
-            <field name="is_travis2docker_build" eval="True"/>
-            <field name="token">__token__</field>
-            <field name="weblate_token">__token_weblate__</field>
-        </record>
+    <record id="runbot_repo_demo1" model="runbot.repo">
+        <field name="name">https://github.com/vauxoo-dev/fast-travis-test.git</field>
+        <field name="is_travis2docker_build" eval="True"/>
+        <field name="token">__token__</field>
+        <field name="weblate_token">__token_weblate__</field>
+    </record>
 
-    </data>
-</openerp>
+</odoo>
