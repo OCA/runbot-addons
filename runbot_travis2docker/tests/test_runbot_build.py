@@ -6,7 +6,7 @@ import logging
 import os
 import subprocess
 import time
-import xmlrpc
+import xmlrpc.client
 import mock
 
 from odoo.tests.common import TransactionCase
@@ -26,7 +26,7 @@ class TestRunbotJobs(TransactionCase):
         self.repo = self.repo_obj.search([
             ('is_travis2docker_build', '=', True)], limit=1)
         self.repo_domain = [('repo_id', '=', self.repo.id)]
-        self.cron = self.env.ref('runbot.repo_cron')
+        self.cron = self.env.ref('runbot.runbot_repo_cron')
         self.cron.write({'active': False})
         self.build = None
 
@@ -34,7 +34,8 @@ class TestRunbotJobs(TransactionCase):
         token = self.repo.weblate_token
         self.repo.weblate_token = None
         self.assertEqual(self.repo.weblate_validation(), None)
-        self.assertEqual(self.repo.cron_weblate(), None)
+        with mute_logger('odoo.addons.runbot.models.repo'):
+            self.assertEqual(self.repo.cron_weblate(), None)
         self.repo.weblate_token = token
 
     @mock.patch('requests.Session.get')
@@ -66,7 +67,8 @@ class TestRunbotJobs(TransactionCase):
         self.assertRaises(ValidationError, self.repo.weblate_validation)
 
     def test_30_cron_weblate(self):
-        self.assertEqual(self.repo.cron_weblate(), None)
+        with mute_logger('odoo.addons.runbot.models.repo'):
+            self.assertEqual(self.repo.cron_weblate(), None)
 
     def tearDown(self):
         super(TestRunbotJobs, self).tearDown()
@@ -74,18 +76,18 @@ class TestRunbotJobs(TransactionCase):
             return
         self.cron.write({'active': True})
         _logger.info('job_10_test_base log' +
-                     open(os.path.join(self.build.path(), "logs",
+                     open(os.path.join(self.build._path(), "logs",
                                        "job_10_test_base.txt")).read())
         _logger.info('job_20_test_all log' +
-                     open(os.path.join(self.build.path(), "logs",
+                     open(os.path.join(self.build._path(), "logs",
                                        "job_20_test_all.txt")).read())
 
-    @mute_logger('odoo.addons.runbot.models.build')
     def wait_change_job(self, current_job, build,
                         loops=60, timeout=15):
         for loop in range(loops):
             _logger.info("Repo Cron to wait change of state")
-            self.repo.cron()
+            with mute_logger('odoo.addons.runbot.models.repo'):
+                self.repo._cron()
             if build.job != current_job:
                 break
             time.sleep(timeout)
@@ -95,7 +97,7 @@ class TestRunbotJobs(TransactionCase):
         'Create build and run all jobs'
         self.assertEqual(len(self.repo), 1, "Repo not found")
         _logger.info("Repo update to get branches")
-        self.repo.update()
+        self.repo._update(self.repo)
         branch = self.branch_obj.search(self.repo_domain + [
             ('branch_name', '=', 'fast-travis-oca')], limit=1)
         if not branch:
@@ -119,13 +121,14 @@ class TestRunbotJobs(TransactionCase):
         if self.build.state == 'done' and self.build.result == 'skipped':
             # When the last commit of the repo is too old,
             # runbot will skip this build then we are forcing it
-            self.build.force()
+            self.build._force()
 
         self.assertEqual(
             self.build.state, u'pending', "State should be pending")
 
         _logger.info("Repo Cron to change state to pending -> testing")
-        self.repo.cron()
+        with mute_logger('odoo.addons.runbot.models.repo'):
+            self.repo._cron()
         self.assertEqual(
             self.build.state, u'testing', "State should be testing")
         self.assertEqual(
@@ -152,16 +155,21 @@ class TestRunbotJobs(TransactionCase):
         self.assertEqual(
             len(user_ids) >= 1, True, "Failed connection test")
 
-        self.repo.cron()
+        with mute_logger('odoo.addons.runbot.models.repo'):
+            self.repo._cron()
         self.assertTrue(self.build.docker_executed_commands,
                         "docker_executed_commands should be True")
-        time.sleep(5)
-        output = subprocess.check_output([
-            "docker", "exec", self.build.docker_container,
-            "/etc/init.d/ssh", "status"])
+        time.sleep(35)
+        try:
+            output = subprocess.check_output([
+                "docker", "exec", self.build.docker_container,
+                "/etc/init.d/ssh", "status"])
+        except subprocess.CalledProcessError:
+            output = b''
         self.assertIn(b'sshd is running', output, "SSH should be running")
 
-        self.build.kill()
+        with mute_logger('odoo.addons.runbot.models.repo'):
+            self.build._kill()
         self.assertEqual(
             self.build.state, u'done', "Job state should be done")
 
@@ -177,11 +185,11 @@ class TestRunbotJobs(TransactionCase):
         user_ids = []
         for _ in range(attempts):
             try:
-                sock_common = xmlrpc.ServerProxy(
+                sock_common = xmlrpc.client.ServerProxy(
                     "http://%s:%d/xmlrpc/common" % (host, port))
                 uid = sock_common.login(
                     database_name, username, password)
-                sock = xmlrpc.ServerProxy(
+                sock = xmlrpc.client.ServerProxy(
                     "http://%s:%d/xmlrpc/object" % (host, port))
                 user_ids = sock.execute(
                     database_name, uid, password, 'res.users',
