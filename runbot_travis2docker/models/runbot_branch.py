@@ -94,6 +94,15 @@ class RunbotBranch(models.Model):
                     break
                 page += 1
             project['components'] = components
+            response = session.get('%s/projects/%s/repository'
+                                   % (url, project['slug']))
+            response.raise_for_status()
+            data = response.json()
+            if data['needs_commit']:
+                response = session.post('%s/projects/%s/repository'
+                                        % (url, project['slug']),
+                                        {'operation': 'commit'})
+                response.raise_for_status()
             projects.append(project)
         return projects
 
