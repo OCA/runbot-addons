@@ -1,13 +1,12 @@
-# coding: utf-8
 # © 2015 Vauxoo
 #   Coded by: moylop260@vauxoo.com
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import requests
 
-from openerp import _, fields, models, api
-from openerp.exceptions import ValidationError, Warning as UserError
-from openerp.tools.misc import scan_languages
+from odoo import _, fields, models, api
+from odoo.exceptions import ValidationError, Warning as UserError
+from odoo.tools.misc import scan_languages
 
 
 class RunbotRepo(models.Model):

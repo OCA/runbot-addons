@@ -1,4 +1,3 @@
-# coding: utf-8
 # © 2015 Vauxoo
 #   Coded by: moylop260@vauxoo.com
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
@@ -7,12 +6,12 @@ import logging
 import os
 import subprocess
 import time
-import xmlrpclib
+import xmlrpc
 import mock
 
-from openerp.tests.common import TransactionCase
-from openerp.exceptions import ValidationError, Warning as UserError
-from openerp.tools.misc import mute_logger
+from odoo.tests.common import TransactionCase
+from odoo.exceptions import ValidationError, Warning as UserError
+from odoo.tools.misc import mute_logger
 
 _logger = logging.getLogger(__name__)
 
@@ -81,7 +80,7 @@ class TestRunbotJobs(TransactionCase):
                      open(os.path.join(self.build.path(), "logs",
                                        "job_20_test_all.txt")).read())
 
-    @mute_logger('openerp.addons.runbot.runbot')
+    @mute_logger('odoo.addons.runbot.models.build')
     def wait_change_job(self, current_job, build,
                         loops=60, timeout=15):
         for loop in range(loops):
@@ -160,7 +159,7 @@ class TestRunbotJobs(TransactionCase):
         output = subprocess.check_output([
             "docker", "exec", self.build.docker_container,
             "/etc/init.d/ssh", "status"])
-        self.assertIn('sshd is running', output, "SSH should be running")
+        self.assertIn(b'sshd is running', output, "SSH should be running")
 
         self.build.kill()
         self.assertEqual(
@@ -178,11 +177,11 @@ class TestRunbotJobs(TransactionCase):
         user_ids = []
         for _ in range(attempts):
             try:
-                sock_common = xmlrpclib.ServerProxy(
+                sock_common = xmlrpc.ServerProxy(
                     "http://%s:%d/xmlrpc/common" % (host, port))
                 uid = sock_common.login(
                     database_name, username, password)
-                sock = xmlrpclib.ServerProxy(
+                sock = xmlrpc.ServerProxy(
                     "http://%s:%d/xmlrpc/object" % (host, port))
                 user_ids = sock.execute(
                     database_name, uid, password, 'res.users',
