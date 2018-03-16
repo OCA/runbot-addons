@@ -159,7 +159,7 @@ class TestRunbotJobs(TransactionCase):
             self.repo._cron()
         self.assertTrue(self.build.docker_executed_commands,
                         "docker_executed_commands should be True")
-        time.sleep(35)
+        time.sleep(5)
         try:
             output = subprocess.check_output([
                 "docker", "exec", self.build.docker_container,
