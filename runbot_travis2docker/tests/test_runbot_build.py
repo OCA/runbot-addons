@@ -83,7 +83,7 @@ class TestRunbotJobs(TransactionCase):
 
     @mute_logger('openerp.addons.runbot.runbot')
     def wait_change_job(self, current_job, build,
-                        loops=36, timeout=10):
+                        loops=60, timeout=15):
         for loop in range(loops):
             _logger.info("Repo Cron to wait change of state")
             self.repo.cron()
