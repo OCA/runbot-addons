@@ -30,12 +30,12 @@ class TestRunbotJobs(TransactionCase):
         self.cron.write({'active': False})
         self.build = None
 
+    @mute_logger('odoo.addons.runbot.models.repo')
     def test_00_no_weblate_token(self):
         token = self.repo.weblate_token
         self.repo.weblate_token = None
         self.assertEqual(self.repo.weblate_validation(), None)
-        with mute_logger('odoo.addons.runbot.models.repo'):
-            self.assertEqual(self.repo.cron_weblate(), None)
+        self.assertEqual(self.repo.cron_weblate(), None)
         self.repo.weblate_token = token
 
     @mock.patch('requests.Session.get')
@@ -66,9 +66,9 @@ class TestRunbotJobs(TransactionCase):
         response.return_value = Response()
         self.assertRaises(ValidationError, self.repo.weblate_validation)
 
+    @mute_logger('odoo.addons.runbot.models.repo')
     def test_30_cron_weblate(self):
-        with mute_logger('odoo.addons.runbot.models.repo'):
-            self.assertEqual(self.repo.cron_weblate(), None)
+        self.assertEqual(self.repo.cron_weblate(), None)
 
     def tearDown(self):
         super(TestRunbotJobs, self).tearDown()
@@ -86,13 +86,13 @@ class TestRunbotJobs(TransactionCase):
                         loops=60, timeout=15):
         for loop in range(loops):
             _logger.info("Repo Cron to wait change of state")
-            with mute_logger('odoo.addons.runbot.models.repo'):
-                self.repo._cron()
+            self.repo._cron()
             if build.job != current_job:
                 break
             time.sleep(timeout)
         return build.job
 
+    @mute_logger('odoo.addons.runbot.models.repo')
     def test_jobs(self):
         'Create build and run all jobs'
         self.assertEqual(len(self.repo), 1, "Repo not found")
@@ -127,8 +127,7 @@ class TestRunbotJobs(TransactionCase):
             self.build.state, u'pending', "State should be pending")
 
         _logger.info("Repo Cron to change state to pending -> testing")
-        with mute_logger('odoo.addons.runbot.models.repo'):
-            self.repo._cron()
+        self.repo._cron()
         self.assertEqual(
             self.build.state, u'testing', "State should be testing")
         self.assertEqual(
@@ -155,8 +154,7 @@ class TestRunbotJobs(TransactionCase):
         self.assertEqual(
             len(user_ids) >= 1, True, "Failed connection test")
 
-        with mute_logger('odoo.addons.runbot.models.repo'):
-            self.repo._cron()
+        self.repo._cron()
         self.assertTrue(self.build.docker_executed_commands,
                         "docker_executed_commands should be True")
         time.sleep(5)
@@ -168,8 +166,7 @@ class TestRunbotJobs(TransactionCase):
             output = b''
         self.assertIn(b'sshd is running', output, "SSH should be running")
 
-        with mute_logger('odoo.addons.runbot.models.repo'):
-            self.build._kill()
+        self.build._kill()
         self.assertEqual(
             self.build.state, u'done', "Job state should be done")
 
