@@ -5,7 +5,7 @@
 
 import logging
 
-from openerp import models
+from openerp import api, models
 
 from .runbot_repo import _get_url, _get_session
 
@@ -15,16 +15,16 @@ _logger = logging.getLogger(__name__)
 class RunbotBuild(models.Model):
     _inherit = "runbot.build"
 
-    def github_status(self, cr, uid, ids, context=None):
-        runbot_domain = self.pool['runbot.repo'].domain(cr, uid)
-        for build in self.browse(cr, uid, ids, context=context):
+    @api.multi
+    def _github_status(self):
+        runbot_domain = self.env['runbot.repo']._domain()
+        for build in self:
             is_merge_request = build.branch_id.name.startswith('refs/pull')
             source_project_id = False
             _url = _get_url('/projects/:owner/:repo/statuses/%s' % build.name,
                             build.repo_id.base)
             if not build.repo_id.uses_gitlab:
-                super(RunbotBuild, self).github_status(cr, uid, ids,
-                                                       context=context)
+                super(RunbotBuild, self)._github_status()
                 continue
             if not build.repo_id.token:
                 continue
@@ -59,8 +59,11 @@ class RunbotBuild(models.Model):
                         state = 'failed'
                     if build.result == 'skipped':
                         state = 'canceled'
-                    if build.result == 'killed':
+                    if build.result in ('killed', 'manually_killed'):
                         state = 'canceled'
+                    if build.result == 'warn':
+                        state = 'success'
+                        desc += " with warning"
                     desc += " (runtime %ss)" % (build.job_time,)
                 else:
                     continue

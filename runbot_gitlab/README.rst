@@ -36,6 +36,7 @@ Contributors
 
 * Jesus Zapata <jesus@vauxoo.com>
 * Moises Lopez <moylop260@vauxoo.com>
+* Holger Brunn <hbrunn@therp.nl>
 
 Maintainer
 ----------

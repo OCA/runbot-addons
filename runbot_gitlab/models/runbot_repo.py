@@ -3,14 +3,13 @@
 # Copyright 2017 Vauxoo <info@vauxoo.com> (<https://www.vauxoo.com>).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-import os
 import logging
+import os
 import re
-import urllib
-
 import requests
 
-from openerp import models, fields
+from urllib.parse import quote
+from openerp import api, models, fields
 
 _logger = logging.getLogger(__name__)
 
@@ -29,7 +28,7 @@ def _get_url(url, base):
         url = url.replace(':repo', match_object.group(3))
         url = prefix % (match_object.group(1), url)
         url = url.replace('/repos/', '/projects/')
-        url = url.replace(project_name, urllib.quote(project_name, safe=''))
+        url = url.replace(project_name, quote(project_name, safe=''))
         if url.endswith('/keys'):
             url = url.replace('users/', '').replace('/keys', '')
             url = url + '.keys'
@@ -50,21 +49,22 @@ def custom_repo(func):
     """Decorator for functions which should be overwritten only if
     uses_gitlab is enabled in repo.
     """
-    def custom_func(self, cr, uid, ids, *args, **kwargs):
-        custom_ids = []
-        regular_ids = []
+    def custom_func(self, *args, **kwargs):
+        custom_repos = self.browse([])
+        regular_repos = self.browse([])
         ret = None
-        repos = self.browse(cr, uid, ids)
-        for repo in repos:
+        for repo in self:
             if repo.uses_gitlab:
-                custom_ids.append(repo.id)
+                custom_repos += repo
             else:
-                regular_ids.append(repo.id)
-            if custom_ids:
-                ret = func(self, cr, uid, custom_ids, *args, **kwargs)
-            if regular_ids:
-                regular_func = getattr(super(RunbotRepo, self), func.func_name)
-                ret = regular_func(cr, uid, regular_ids, *args, **kwargs)
+                regular_repos += repo
+            if custom_repos:
+                ret = func(custom_repos, *args, **kwargs)
+            if regular_repos:
+                regular_func = getattr(
+                    super(RunbotRepo, regular_repos), func.__name__
+                )
+                ret = regular_func(*args, **kwargs)
         return ret
     return custom_func
 
@@ -75,25 +75,30 @@ class RunbotRepo(models.Model):
     uses_gitlab = fields.Boolean(help='Enable the ability to use gitlab '
                                       'instead of github')
 
-    def git(self, cr, uid, ids, cmd, context=None):
+    @api.multi
+    def _git(self, cmd):
         """Rewriting the parent method to avoid deleting the merge_request the
         gitlab"""
+        for this in self:
+            # this is what super does
+            if not this.uses_gitlab:
+                return super(RunbotRepo, self)._git(cmd)
         if cmd == ['fetch', '-p', 'origin', '+refs/pull/*/head:refs/pull/*']:
             cmd.remove('-p')
-        return super(RunbotRepo, self).git(cr, uid, ids, cmd, context=context)
+        return super(RunbotRepo, self)._git(cmd)
 
-    def update_git(self, cr, uid, repo, context=None):
+    @api.multi
+    def _update_git(self):
         """Download the gitlab merge request references to work with the
         referrals of pull github"""
-        if os.path.isdir(os.path.join(repo.path, 'refs')) and repo.uses_gitlab:
-            repo.git(['fetch', '-p', 'origin',
-                      '+refs/merge-requests/*/head:refs/pull/*'])
-        return super(RunbotRepo, self).update_git(cr, uid, repo,
-                                                  context=context)
+        self.ensure_one()
+        if os.path.isdir(os.path.join(self.path, 'refs')) and self.uses_gitlab:
+            self._git(['fetch', '-p', 'origin',
+                       '+refs/merge-requests/*/head:refs/pull/*'])
+        return super(RunbotRepo, self)._update_git()
 
     @custom_repo
-    def github(self, cr, uid, ids, url, payload=None, ignore_errors=False,
-               context=None):
+    def _github(self, url, payload=None, ignore_errors=False):
         """This method is the same as the one in the odoo-extra/runbot.py
         file but with the translation of each request github to gitlab format
         - Get information from merge requests
@@ -109,7 +114,7 @@ class RunbotRepo(models.Model):
             input: URL_GITLABL/... instead of URL_GITHUB/statuses/...
             output: N/A
         """
-        for repo in self.browse(cr, uid, ids, context=context):
+        for repo in self:
             if not repo.token:
                 continue
             try:
@@ -146,6 +151,7 @@ class RunbotRepo(models.Model):
                 if is_url_keys:
                     json = [{'key': ssh_rsa} for ssh_rsa
                              in json.split('\n')]
+                return json
             except Exception:
                 if ignore_errors:
                     _logger.exception('Ignored gitlab error %s %r', url,

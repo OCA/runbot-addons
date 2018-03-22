@@ -7,10 +7,10 @@
     'name': 'Runbot Gitlab Integration',
     'summary': 'Gitlab Integration',
     'author': 'Savoir-faire Linux, Vauxoo, Odoo Community Association (OCA)',
-    'website': "http://www.vauxoo.com",
+    'website': "https://github.com/OCA/runbot-addons",
     'license': 'AGPL-3',
-    'category': 'runbot',
-    'version': '9.0.1.1.0',
+    'category': 'Runbot',
+    'version': '11.0.1.0.0',
     'depends': ['runbot'],
     'data': [
         'views/runbot_repo.xml',
