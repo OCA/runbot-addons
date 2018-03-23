@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 # Copyright <2017> <Vauxoo info@vauxoo.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
 
-from openerp import models
+from odoo import models
 
 from .runbot_repo import _get_url, _get_session
 

@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
 # Copyright <2017> <Vauxoo info@vauxoo.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import json
 import logging
 
-from openerp import http, SUPERUSER_ID
-from openerp.http import request
-from openerp.addons.runbot import runbot
+from odoo import http, SUPERUSER_ID
+from odoo.http import request
+from odoo.addons.runbot import runbot
 
 _logger = logging.getLogger(__name__)
 
