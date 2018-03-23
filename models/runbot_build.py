@@ -13,19 +13,15 @@ _logger = logging.getLogger(__name__)
 class RunbotBuild(models.Model):
     _inherit = "runbot.build"
 
-    def github_status(self, cr, uid, ids, context=None):
-        runbot_domain = self.pool['runbot.repo'].domain(cr, uid)
-        for build in self.browse(cr, uid, ids, context=context):
+    def _github_status(self):
+        records_gitlab = self.filtered('repo_id.uses_gitlab')
+        super(RunbotBuild, self - records_gitlab)._github_status()
+        runbot_domain = self.env['runbot.repo']._domain()
+        for build in records_gitlab.filtered('repo_id.token'):
             is_merge_request = build.branch_id.branch_name.isdigit()
             source_project_id = False
             _url = _get_url('/projects/:owner/:repo/statuses/%s' % build.name,
                             build.repo_id.base)
-            if not build.repo_id.uses_gitlab:
-                super(RunbotBuild, self).github_status(cr, uid, ids,
-                                                       context=context)
-                continue
-            if not build.repo_id.token:
-                continue
             session = _get_session(build.repo_id.token)
             try:
                 if is_merge_request:
@@ -75,4 +71,3 @@ class RunbotBuild(models.Model):
                 response.raise_for_status()
             except Exception:
                 _logger.exception('gitlab API error %s', _url)
-
