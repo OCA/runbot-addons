@@ -4,14 +4,14 @@
 import json
 import logging
 
-from odoo import http, SUPERUSER_ID
+from odoo import http
 from odoo.http import request
-from odoo.addons.runbot import runbot
+from odoo.addons.runbot.controllers.hook import RunbotHook
 
 _logger = logging.getLogger(__name__)
 
 
-class RunbotCIController(runbot.RunbotController):
+class RunbotCIController(RunbotHook):
 
     @http.route(['/runbot/hook_gitlab/<int:repo_id>',
                  '/runbot/hook_gitlab/org', '/runbot/hook/<int:repo_id>',
@@ -27,9 +27,7 @@ class RunbotCIController(runbot.RunbotController):
                                '|',
                                ('name', '=', repository['homepage']),
                                ('name', '=', repository['homepage'] + '.git')]
-                repo = request.registry['runbot.repo'].search(request.cr,
-                                                              SUPERUSER_ID,
-                                                              repo_domain,
-                                                              limit=1)
-                repo_id = repo[0] if repo else None
+                repo = request.env['runbot.repo'].sudo().search(repo_domain,
+                                                                limit=1)
+                repo_id = repo.id
         return super(RunbotCIController, self).hook(repo_id, **post)

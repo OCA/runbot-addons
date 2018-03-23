@@ -2,7 +2,7 @@
 <odoo>
     <record id="view_repo_form" model="ir.ui.view">
         <field name="model">runbot.repo</field>
-        <field name="inherit_id" ref="runbot.view_repo_form"/>
+        <field name="inherit_id" ref="runbot.repo_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='hook_time']" position="after">
                 <field name="uses_gitlab"/>
