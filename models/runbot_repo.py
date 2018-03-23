@@ -65,8 +65,8 @@ class RunbotRepo(models.Model):
         self.ensure_one()
         repo = self
         if os.path.isdir(os.path.join(repo.path, 'refs')) and repo.uses_gitlab:
-            repo.git(['fetch', '-p', 'origin',
-                      '+refs/merge-requests/*/head:refs/pull/*'])
+            repo._git(['fetch', '-p', 'origin',
+                       '+refs/merge-requests/*/head:refs/pull/*'])
         return super(RunbotRepo, self)._update_git()
 
     def _github(self, url, payload=None, ignore_errors=False):
