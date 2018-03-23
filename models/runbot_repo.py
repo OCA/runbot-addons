@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 # Copyright <2017> <Vauxoo info@vauxoo.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import os
 import logging
 import re
-import urllib
+import urllib.parse
 
 import requests
 
-from openerp import models, fields
+from odoo import models, fields
 
 _logger = logging.getLogger(__name__)
 
@@ -29,7 +28,8 @@ def _get_url(url, base):
         url = prefix % (match_object.group(1), url)
         url = url.replace('/repos/', '/projects/')
         url = url.replace('/commits/', '/repository/commits/')
-        url = url.replace(project_name, urllib.quote(project_name, safe=''))
+        url = url.replace(project_name,
+                          urllib.parse.quote(project_name, safe=''))
         if url.endswith('/keys'):
             url = url.replace('users/', '').replace('/keys', '')
             url = url + '.keys'
@@ -63,7 +63,7 @@ def custom_repo(func):
             if custom_ids:
                 ret = func(self, cr, uid, custom_ids, *args, **kwargs)
             if regular_ids:
-                regular_func = getattr(super(RunbotRepo, self), func.func_name)
+                regular_func = getattr(super(RunbotRepo, self), func.__name__)
                 ret = regular_func(cr, uid, regular_ids, *args, **kwargs)
         return ret
     return custom_func
