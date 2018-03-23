@@ -5,8 +5,8 @@ import json
 import logging
 
 from odoo import http
-from odoo.http import request
 from odoo.addons.runbot.controllers.hook import RunbotHook
+from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 

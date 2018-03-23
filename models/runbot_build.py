@@ -5,7 +5,7 @@ import logging
 
 from odoo import models
 
-from .runbot_repo import _get_url, _get_session
+from .runbot_repo import _get_session, _get_url
 
 _logger = logging.getLogger(__name__)
 
