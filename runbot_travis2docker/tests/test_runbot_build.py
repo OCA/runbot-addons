@@ -96,38 +96,27 @@ class TestRunbotJobs(TransactionCase):
     def test_jobs(self):
         'Create build and run all jobs'
         self.assertEqual(len(self.repo), 1, "Repo not found")
+        _logger.info("Set a max age to get too old branches in order to avoid"
+                     " ignore the branch without changes")
+        self.env['ir.config_parameter'].sudo().set_param(
+            "runbot.runbot_max_age", 365*10)
         _logger.info("Repo update to get branches")
         self.repo._update(self.repo)
         branch = self.branch_obj.search(self.repo_domain + [
             ('branch_name', '=', 'fast-travis-oca')], limit=1)
-        if not branch:
-            # If the branch has a commit too old then runbot ignore it
-            branch = self.branch_obj.create({
-                'repo_id': self.repo.id,
-                'name': 'refs/heads/fast-travis-oca',
-            })
-        # self.branch_obj.write({'uses_weblate', True})  # Weblate is down :(
-        self.assertEqual(len(branch), 1, "Branch not found")
+        self.assertTrue(branch, "Branch not found")
+        _logger.info("Clean current builds")
         self.build_obj.search([('branch_id', '=', branch.id)]).unlink()
-        self.build_obj.create({'branch_id': branch.id, 'name': 'HEAD'})
-        # runbot module has a inherit in create method
-        # but a "return id" is missed. Then we need to search it.
-        # https://github.com/odoo/odoo-extra/blob/038fd3e/runbot/runbot.py#L599
-        self.build = self.build_obj.search([('branch_id', '=', branch.id)],
-                                           limit=1)
-        # self.build.write({'uses_weblate': True})  # Weblate is down :(
-        self.assertEqual(len(self.build) == 0, False, "Build not found")
-
-        if self.build.state == 'done' and self.build.result == 'skipped':
-            # When the last commit of the repo is too old,
-            # runbot will skip this build then we are forcing it
-            self.build._force()
-
+        # branch.write({'uses_weblate', True})  # Weblate is down :(
+        self.repo._update(self.repo)
+        self.build = self.build_obj.search([('branch_id', '=', branch.id)])
+        self.assertTrue(len(self.build) == 1, "More than one builds created")
         self.assertEqual(
             self.build.state, u'pending', "State should be pending")
 
         _logger.info("Repo Cron to change state to pending -> testing")
         self.repo._cron()
+        # self.build.write({'uses_weblate': True})  # Weblate is down :(
         self.assertEqual(
             self.build.state, u'testing', "State should be testing")
         self.assertEqual(
@@ -151,8 +140,8 @@ class TestRunbotJobs(TransactionCase):
         self.assertEqual(
             self.build.state, u'running',
             "Job state should be running still")
-        self.assertEqual(
-            len(user_ids) >= 1, True, "Failed connection test")
+        self.assertTrue(
+            len(user_ids) >= 1, "Failed connection test")
 
         self.repo._cron()
         self.assertTrue(self.build.docker_executed_commands,
