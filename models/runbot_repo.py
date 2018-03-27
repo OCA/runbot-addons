@@ -2,7 +2,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
-import os
 import re
 import urllib.parse
 
@@ -53,21 +52,16 @@ class RunbotRepo(models.Model):
                                       'instead of github')
 
     def _git(self, cmd):
-        """Rewriting the parent method to avoid deleting the merge_request the
-        gitlab"""
-        if cmd == ['fetch', '-p', 'origin', '+refs/pull/*/head:refs/pull/*']:
-            cmd.remove('-p')
-        return super(RunbotRepo, self)._git(cmd)
-
-    def _update_git(self):
-        """Download the gitlab merge request references to work with the
-        referrals of pull github"""
-        self.ensure_one()
-        repo = self
-        if os.path.isdir(os.path.join(repo.path, 'refs')) and repo.uses_gitlab:
-            repo._git(['fetch', '-p', 'origin',
-                       '+refs/merge-requests/*/head:refs/pull/*'])
-        return super(RunbotRepo, self)._update_git()
+        """Rewriting the parent method to get merge_request from gitlab"""
+        repos_gitlab = self.filtered('uses_gitlab')
+        for repo_gitlab in repos_gitlab:
+            cmd_gitlab = cmd.copy()
+            if cmd_gitlab == ['fetch', '-p', 'origin',
+                              '+refs/pull/*/head:refs/pull/*']:
+                cmd_gitlab.pop()
+                cmd_gitlab.append('+refs/merge-requests/*/head:refs/pull/*')
+            return super(RunbotRepo, repos_gitlab)._git(cmd_gitlab)
+        return super(RunbotRepo, self - repos_gitlab)._git(cmd)
 
     def _github(self, url, payload=None, ignore_errors=False):
         """This method is the same as the one in the odoo-extra/runbot.py
