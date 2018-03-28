@@ -80,8 +80,6 @@ class RunbotRepo(models.Model):
             output: N/A
         """
         records_gitlab = self.filtered('uses_gitlab')
-        super(RunbotRepo, self - records_gitlab)._github(
-            url, payload=payload, ignore_errors=ignore_errors)
         for repo in records_gitlab.filtered('token'):
             try:
                 url = _get_url(url, repo.base)
@@ -123,3 +121,5 @@ class RunbotRepo(models.Model):
                                       payload)
                 else:
                     raise
+        return super(RunbotRepo, self - records_gitlab)._github(
+            url, payload=payload, ignore_errors=ignore_errors)
