@@ -15,10 +15,10 @@ addons:
   apt:
     packages:
       - expect-dev  # provides unbuffer utility
-      - python-lxml  # because pip installation is slow
-      - python-simplejson
-      - python-serial
-      - python-matplotlib  # For runbot badges
+      - python3-lxml  # because pip installation is slow
+      - python3-simplejson
+      - python3-serial
+      - python3-matplotlib  # For runbot badges
 
 env:
   global:
