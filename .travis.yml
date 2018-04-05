@@ -33,8 +33,6 @@ install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
-  - pip install -r requirements.txt
-  - if [[ "${TESTS}" == "1"  ]]; then ${TRAVIS_BUILD_DIR}/.travis_requirements.sh; fi
 
 script:
   - travis_run_tests
