@@ -13,10 +13,9 @@ class RunbotBranch(models.Model):
 
     @api.multi
     def _get_branch_url(self):
-        _branch_urls = super(RunbotBranch, self)._get_branch_url()
         for branch in self:
             if not branch.repo_id.uses_gitlab:
-                branch.branch_url = _branch_urls[branch.id]
+                super(RunbotBranch, self)._get_branch_url()
             else:
                 if branch.branch_name.isdigit():
                     branch.branch_url = "https://%s/merge_requests/%s" % (
