@@ -16,10 +16,10 @@ _logger = logging.getLogger(__name__)
 def _get_url(url, base):
     match_object = re.search('([^/]+)/([^/]+)/([^/.]+(.git)?)', base)
     if match_object:
-        """When get is URL_GITHUB/api/v3/User/keys must be convert to
-        URL_GITLAB/User.keys Because the api of gitlab required admin token
-        for get the ssh keys
-        https://docs.gitlab.com/ee/api/users.html#list-ssh-keys"""
+        # When get is URL_GITHUB/api/v3/User/keys must be convert to
+        # URL_GITLAB/User.keys Because the api of gitlab required admin token
+        # for get the ssh keys
+        # https://docs.gitlab.com/ee/api/users.html#list-ssh-keys
         prefix = ('https://%s/api/v3%s'
                   if not url.endswith('/keys') else 'https://%s%s')
         project_name = (match_object.group(2) + '/' + match_object.group(3))
