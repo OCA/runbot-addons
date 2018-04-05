@@ -148,8 +148,9 @@ class RunbotRepo(models.Model):
                                 len(data) and data[0]['username'] or {}
                             }
                 if is_url_keys:
-                    json = [{'key': ssh_rsa} for ssh_rsa
-                             in json.split('\n')]
+                    json = [
+                        {'key': ssh_rsa} for ssh_rsa in json.split('\n')
+                    ]
                 return json
             except Exception:
                 if ignore_errors:
