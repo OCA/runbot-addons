@@ -113,6 +113,10 @@ class TestRunbotJobs(TransactionCase):
         self.assertEqual(
             self.build.state, u'pending', "State should be pending")
 
+        _logger.info("Downloading docker image...")
+        subprocess.call(['docker', 'pull', self.repo.travis2docker_image])
+        _logger.info("...Docker image downloaded")
+
         _logger.info("Repo Cron to change state to pending -> testing")
         self.repo._cron()
         # self.build.write({'uses_weblate': True})  # Weblate is down :(
