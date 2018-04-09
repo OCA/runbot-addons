@@ -7,6 +7,8 @@ from odoo import _, fields, models, api
 from odoo.exceptions import ValidationError, Warning as UserError
 from odoo.tools.misc import scan_languages
 
+DEFAULT_TRAVIS2DOCKER_IMAGE = 'vauxoo/odoo-80-image-shippable-auto'
+
 
 class RunbotRepo(models.Model):
     _inherit = "runbot.repo"
@@ -25,7 +27,7 @@ class RunbotRepo(models.Model):
 
     @api.model
     def _default_travis2docker_image(self):
-        return 'vauxoo/odoo-80-image-shippable-auto'
+        return DEFAULT_TRAVIS2DOCKER_IMAGE
 
     @api.multi
     @api.constrains('weblate_languages')
