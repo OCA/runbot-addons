@@ -1,5 +1,5 @@
-.. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
-   :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
+.. image:: https://img.shields.io/badge/license-AGPL--3-blue.png
+   :target: https://www.gnu.org/licenses/agpl
    :alt: License: AGPL-3
 
 =======================
@@ -29,9 +29,11 @@ To configure this module, you need to:
 Usage
 =====
 
-To use this module, you need to know the main functionallity of runbot base
-and know the main functionallity of travis and .travis.yml file
-and know the main funcitonallity of oca/maintainer-quality-tools.
+To use this module, you need to know
+
+1. Main functionality of runbot base.
+2. Main functionality of travis and .travis.yml file.
+3. Main functionality of oca/maintainer-quality-tools project.
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
@@ -40,7 +42,7 @@ and know the main funcitonallity of oca/maintainer-quality-tools.
 Known issues / Roadmap
 ======================
 
-* This module run just the first build with environment variable TESTS="1"
+* This module runs just the first build with environment variable TESTS="1"
 
 Bug Tracker
 ===========

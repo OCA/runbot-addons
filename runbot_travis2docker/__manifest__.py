@@ -1,13 +1,12 @@
-# © 2015 Vauxoo
-#   Coded by: moylop260@vauxoo.com
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# Copyright <2015> <Vauxoo info@vauxoo.com>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 {
     "name": "Runbot travis to docker",
     "summary": "Generate docker with odoo instance based on .travis.yml",
     "version": "11.0.1.0.0",
     "category": "runbot",
-    "website": "https://odoo-community.org/",
+    "website": "https://github.com/OCA/runbot-addons",
     "author": "Vauxoo,Odoo Community Association (OCA)",
     "license": "AGPL-3",
     "depends": [
@@ -15,10 +14,10 @@
     ],
     "external_dependencies": {
         "python": [
-            'travis2docker',
+            "travis2docker",
         ],
-        'bin': [
-            'docker',
+        "bin": [
+            "docker",
         ],
     },
     "data": [
