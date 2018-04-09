@@ -9,6 +9,8 @@ import subprocess
 
 from odoo import fields, models, api, tools
 
+DEFAULT_SSH_PORT = 22
+
 
 class RunbotBranch(models.Model):
     _inherit = "runbot.branch"
@@ -19,7 +21,7 @@ class RunbotBranch(models.Model):
     @api.multi
     @api.depends('repo_id.name', 'branch_name', 'uses_weblate')
     def _compute_name_weblate(self):
-        for branch in self:
+        for branch in self.filtered('uses_weblate'):
             name = branch.repo_id.name.replace(':', '/')
             name = re.sub('.+@', '', name)
             name = re.sub('.git$', '', name)
@@ -27,10 +29,10 @@ class RunbotBranch(models.Model):
             name = re.sub('^http://', '', name)
             match = re.search(
                 r'(?P<host>[^/]+)/(?P<owner>[^/]+)/(?P<repo>[^/]+)', name)
-        if match:
-            name = ("%(host)s:%(owner)s/%(repo)s (%(branch)s)" %
-                    dict(match.groupdict(), branch=branch['branch_name']))
-        branch.name_weblate = name
+            if match:
+                name = ("%(host)s:%(owner)s/%(repo)s (%(branch)s)" %
+                        dict(match.groupdict(), branch=branch['branch_name']))
+            branch.name_weblate = name
 
     @tools.ormcache('ssh')
     def _ssh_keyscan(self, ssh):
@@ -45,7 +47,7 @@ class RunbotBranch(models.Model):
         if not match:
             return False
         data = match.groupdict()
-        cmd.append(data['port'] or '22')
+        cmd.append(data['port'] or str(DEFAULT_SSH_PORT))
         cmd.append(data['host'])
         with open(os.path.expanduser('~/.ssh/known_hosts'), 'a+') as hosts:
             new_keys = subprocess.Popen(cmd, stdout=subprocess.PIPE,
@@ -106,11 +108,12 @@ class RunbotBranch(models.Model):
 
     @api.model
     def cron_weblate(self):
-        for branch in self.search([('uses_weblate', '=', True)]):
-            if (not branch.repo_id.weblate_token or
-                    not branch.repo_id.weblate_url or
-                    not branch.repo_id.weblate_ssh):
-                continue
+        for branch in self.search([
+                ('uses_weblate', '=', True),
+                ('repo_id.weblate_token', '!=', False),
+                ('repo_id.weblate_url', '!=', False),
+                ('repo_id.weblate_ssh', '!=', False),
+                ]):
             cmd = ['git', '--git-dir=%s' % branch.repo_id.path]
             projects = self.get_weblate_projects(branch.repo_id.weblate_url,
                                                  branch.repo_id.weblate_token)
