@@ -1,6 +1,5 @@
-# © 2015 Vauxoo
-#   Coded by: moylop260@vauxoo.com
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# Copyright <2015> <Vauxoo info@vauxoo.com>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import requests
 
@@ -56,8 +55,8 @@ class RunbotRepo(models.Model):
             response.raise_for_status()
             json = response.json()
             if 'projects' not in json:
-                raise ValidationError(_('Response json bad formated'))
-            raise UserError(_('Connection with weblate successful'))
+                raise ValidationError(_('Wrong JSON response format'))
+            raise UserError(_('Connection with Weblate server successful'))
 
     @api.multi
     def cron_weblate(self):

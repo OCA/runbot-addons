@@ -1,9 +1,5 @@
-# © 2015 Vauxoo
-#   Coded by: moylop260@vauxoo.com
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
-
-# Allow old api because is based original methods are old api from odoo
-# pylint: disable=old-api7-method-defined
+# Copyright <2015> <Vauxoo info@vauxoo.com>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import logging
 import os
@@ -80,7 +76,7 @@ class RunbotBuild(models.Model):
             return MAGIC_PID_RUN_NEXT_JOB
         subprocess.call(['docker', 'rm', '-vf', build.docker_container])
         return self._spawn(
-            build._get_run_cmd(), lock_path, log_path, cpu_limit=1200,
+            build._get_docker_run_cmd(), lock_path, log_path, cpu_limit=1200,
         )
 
     def _job_21_coverage(self, build, lock_path, log_path):
@@ -194,7 +190,7 @@ class RunbotBuild(models.Model):
                         not build.docker_executed_commands,
                         build.repo_id.is_travis2docker_build]):
                 continue
-            time.sleep(10)
+            time.sleep(10)  # Waiting container start
             build.docker_executed_commands = True
             subprocess.call([
                 'docker', 'exec', '-d', '--user', 'root',
@@ -214,7 +210,7 @@ class RunbotBuild(models.Model):
                 ])
         return res
 
-    def _get_run_cmd(self):
+    def _get_docker_run_cmd(self):
         """Returns the docker run command for this build.
 
         Use this in child modules to append to the command sent to Odoo.
