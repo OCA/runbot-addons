@@ -14,4 +14,10 @@ class RunbotController(RunbotController):
         result.qcontext['repos'] = result.qcontext['repos']\
             .sorted(operator.itemgetter('sequence'))\
             .filtered('website_published')
+        if not result.qcontext['repo'] & result.qcontext['repos']:
+            result.qcontext['repo'] = result.qcontext['repos'][:1]
+        result.qcontext['branches'] = filter(
+            lambda x: x['branch'].website_published,
+            result.qcontext['branches'],
+        )
         return result

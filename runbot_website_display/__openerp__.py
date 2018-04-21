@@ -12,6 +12,7 @@
         'runbot',
     ],
     "data": [
+        "views/runbot_branch.xml",
         "views/runbot_repo.xml",
     ],
     "installable": True,
