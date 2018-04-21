@@ -14,7 +14,7 @@ to work with pylint from runbot
 """
 
 import os
-
+import subprocess
 from openerp import api, fields, models
 
 
@@ -42,11 +42,22 @@ class RunbotRepo(models.Model):
         for repo in self:
             command_git = ['ls-tree', treeish, '--name-only']
             # get addons list from main repo
-            repo_paths_str = repo.git(command_git +
-                                      ['addons/', 'openerp/addons/'])
+            repo_paths_str = None
+            try:
+                repo_paths_str = repo.git(
+                    command_git + ['addons/', 'openerp/addons/']
+                )
+            except subprocess.CalledProcessError:
+                # ignore errors from nonexisting branches, rebases etc
+                pass
+
             if not repo_paths_str:
                 # get addons list from module repo
-                repo_paths_str = repo.git(command_git)
+                try:
+                    repo_paths_str = repo.git(command_git)
+                except subprocess.CalledProcessError:
+                    # ignore errors from nonexisting branches, rebases etc
+                    pass
             repo_paths_list = repo_paths_str and\
                 repo_paths_str.rstrip().split('\n') or []
             repo_paths_list = [os.path.basename(module)
