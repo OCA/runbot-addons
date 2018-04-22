@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <template id="build_button" inherit_id="runbot.build_button">
+            <xpath expr="//a[@class='runbot-rebuild']/parent::li" position="after">
+                <li t-if="bu['state'] in ['done'] and bu['buildout_version']">
+                    <a href="#" class="runbot-rerun-buildout" t-att-data-runbot-build="bu['id']">Rerun buildout <i class="fa fa-refresh"/></a>
+                </li>
+            </xpath>
+            <xpath expr="//a[contains(@t-attf-href, 'job_10_test_base.txt')]/parent::li" position="before">
+                <li t-if="bu['uses_buildout'] and not bu['buildout_version']">
+                    <a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_00_init.txt">Buildout logs <i class="fa fa-file-text-o"/></a>
+                </li>
+            </xpath>
+        </template>
+        <template id="build" inherit_id="runbot.build">
+            <xpath expr="//a[contains(@class, 'runbot-rebuild')]/parent::form" position="after">
+                <form class="navbar-form navbar-left form-inline" t-attf-action="/runbot/build/#{build['id']}/rerun_buildout" method="post" t-if="build['state'] in ['done'] and build['buildout_version']">
+                    <button class="btn btn-danger runbot-rerun-buildout" t-attf-data-runbot-build="#{build['id']}" > <i class='fa fa-refresh'/> Rerun buildout</button>
+                </form>
+            </xpath>
+        </template>
+    </data>
+</openerp>
