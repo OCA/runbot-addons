@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+    <!-- Add followers chatter to existing view for model runbot_build -->
+    <record model="ir.ui.view" id="runbot_send_form_view">
+        <field name="name">runbot.build.followers.inherit</field>
+        <field name="model">runbot.build</field>
+        <field name="inherit_id" ref="runbot.build_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="after">
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread" options='{"thread_level": 1}'/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add followers chatter to existing view for model runbot_repo -->
+    <record model="ir.ui.view" id="add_followers_runbot_repo">
+        <field name="name">runbot.repo.followers.inherit</field>
+        <field name="model">runbot.repo</field>
+        <field name="inherit_id" ref="runbot.repo_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="after">
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <template id="add_followings" inherit_id="runbot.build_button">
+        <xpath expr="//ul[hasclass('dropdown-menu')]/li[hasclass('divider')][3]" position="before">
+            <li t-if="website.user_id != user_id">
+                <a t-att-data-record="bu['id']" data-model="runbot.build" class="user_follow_unfollow" href="javascript:;">
+                    <t t-set="followers" t-value="user_id.env['runbot.build'].browse(bu['id']).message_partner_ids.ids"/>
+                    <t t-esc="'Unwatch' if user_id.partner_id.id in followers else 'Watch'"/>
+                    <i t-attf-class="fa fa-eye text-{{'success' if user_id.partner_id.id in followers else 'warning'}}"/>
+                </a>
+            </li>
+      </xpath>
+   </template>
+
+   <template id="add_followers_repo" inherit_id="runbot.repo">
+       <xpath expr="//div[@id='bs-example-navbar-collapse-1']" position="inside">
+           <button type="button" t-att-data-record="repo.id" data-model="runbot.repo"
+                class="btn btn-default user_follow_unfollow navbar-right mt8" t-if="website.user_id != user_id">
+                <t t-set="followers" t-value="repo.message_partner_ids.ids"/>
+                <t t-esc="'Unwatch' if user_id.partner_id.id in followers else 'Watch'"/>
+                <i t-attf-class="fa fa-eye text-{{'success' if user_id.partner_id.id in followers else 'warning'}}"/>
+            </button>
+       </xpath>
+   </template>
+
+</odoo>
