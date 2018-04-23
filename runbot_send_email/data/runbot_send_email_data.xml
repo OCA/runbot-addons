@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="runbot_send_notif" model="mail.template">
+        <field name="name">Send Email Notification Status</field>
+        <field name="model_id" ref="runbot.model_runbot_build"/>
+        <field name="email_to">${','.join(object.message_partner_ids.mapped('email')) | safe}</field>
+        <field name="subject">[runbot] ${'/'.join(object.repo_id.base.split('/')[1:])}# ${object.branch_id.branch_name} - ${object.name[:8]}</field>
+        <field name="body_html"><![CDATA[
+    <div style="font-size:2px;color:#FFFFFF">${object.state.capitalize()} @ ${object.name[:8]} - build_${object.sequence}</div>
+    <div style="font-size:19px;margin-bottom:15px;margin-top:15px">
+        <b><a href="https://${object.repo_id.base}" style="text-decoration:underline;color:#606060" target="_blank">${'/'.join(object.repo_id.base.split('/')[1:])}</a>
+        </b> (<a href="${object.branch_id.branch_url}" style="text-decoration:underline;color:#606060" target="_blank">${object.branch_id.branch_name}</a>)
+    </div>
+% if object.result=="ok":
+    <div style="border-radius:5px;padding:0px;width:570px;font-size:13px">
+        <div>
+          <table style="padding:0px;border:0px;width:100%;border-spacing:0">
+            <thead>
+              <tr style="padding:0px;border:0px;font-weight:700;font-size:18px;background-color:#baecb7;color:#32a32d">
+                  <td style="padding:0px;border:0px;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;width:50px;padding:0px;text-align:center;vertical-align:middle;padding-top:5px;border-left:1px solid #606060;border-top-left-radius:5px"><div style="width:25px;min-height:30px;margin-left:15px;margin-top:0px;vertical-align:middle"><img class="CToWUd" src="http://fa2png.io/media/icons/fa-thumbs-up/25/0/50ad57_none.png" height="25" width="25"></div></td>
+                <td style="padding:0px;border:0px;padding:0px 20px 10px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad">
+                    <span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="/runbot/build/${object.id}" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#32a32d" target="_blank">
+Build #${object.sequence} is ok
+</a></span>
+</td>
+                <td style="padding:0px;border:0px;font-weight:normal;font-size:12px;vertical-align:middle;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;border-right:1px solid #606060;border-top-right-radius:5px" align="right">
+                    <div style="vertical-align:middle;min-height:20px;width:20px;padding:20px;display:inline-block;width:20px;min-height:20px"></div> <span style="vertical-align:middle">Age: ${object.job_age}m</span>
+</td>
+   </tr>
+      </thead>
+            <tbody style="margin-bottom:40px">
+              <tr style="padding:0px;border:0px">
+                <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;padding-top:20px;padding-bottom:5px;text-align:center"></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;padding-top:20px;padding-bottom:5px"><strong>${object.committer}</strong></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="https://${object.repo_id.base}/commit/${object.name[:8]}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
+              </tr>
+              <tr style="padding:0px;border:0px">
+                <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;border-bottom-left-radius:5px;border-bottom:1px solid #adadad">&nbsp;</td>
+                <td colspan="2" style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-bottom:20px;padding-top:0px;border-bottom:1px solid #adadad;border-bottom-right-radius:5px">${object.subject}</td>
+              </tr>
+              </tbody>
+          </table>
+        </div>
+    </div>
+% elif object.result=="warn":
+    <div style="border-radius:5px;padding:0px;width:570px;font-size:13px">
+        <div>
+          <table style="padding:0px;border:0px;width:100%;border-spacing:0">
+            <thead>
+              <tr style="padding:0px;border:0px;font-weight:700;font-size:18px;background-color:#fbfddc;color:#99944b">
+                <td style="padding:0px;border:0px;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;width:50px;padding:0px;text-align:center;vertical-align:middle;padding-top:5px;border-left:1px solid #606060;border-top-left-radius:5px"><div style="width:25px;min-height:30px;margin-left:15px;margin-top:0px;vertical-align:middle"><img class="CToWUd" src="http://fa2png.io/media/icons/ion-alert-circled/25/0/99944b_none.png" height="25" width="25"></div></td>
+                <td style="padding:0px;border:0px;padding:0px 20px 10px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad">
+                    <span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="/runbot/build/${object.id}" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#99944b" target="_blank">
+Build #${object.sequence} has warnings
+</a></span>
+</td>
+                <td style="padding:0px;border:0px;font-weight:normal;font-size:12px;vertical-align:middle;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;border-right:1px solid #606060;border-top-right-radius:5px" align="right">
+                    <div style="vertical-align:middle;min-height:20px;width:20px;padding:20px;display:inline-block;width:20px;min-height:20px"></div> <span style="vertical-align:middle">Age: ${object.job_age}m</span>
+</td>
+   </tr>
+      </thead>
+            <tbody style="margin-bottom:40px">
+              <tr style="padding:0px;border:0px">
+                <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;padding-top:20px;padding-bottom:5px;text-align:center"></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;padding-top:20px;padding-bottom:5px"><strong>${object.committer}</strong></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="https://${object.repo_id.base}/commit/${object.name[:8]}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
+              </tr>
+              <tr style="padding:0px;border:0px">
+                <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;border-bottom-left-radius:5px;border-bottom:1px solid #adadad">&nbsp;</td>
+                <td colspan="2" style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-bottom:20px;padding-top:0px;border-bottom:1px solid #adadad;border-bottom-right-radius:5px">${object.subject}</td>
+              </tr>
+              </tbody>
+          </table>
+        </div>
+    </div>
+% else:
+    <div style="border-radius:5px;padding:0px;width:570px;font-size:13px">
+        <div>
+          <table style="padding:0px;border:0px;width:100%;border-spacing:0">
+            <thead>
+              <tr style="padding:0px;border:0px;font-weight:700;font-size:18px;background-color:#EFBABA;color:#FF0000">
+                  <td style="padding:0px;border:0px;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;width:50px;padding:0px;text-align:center;vertical-align:middle;padding-top:5px;border-left:1px solid #606060;border-top-left-radius:5px"><div style="width:25px;min-height:30px;margin-left:15px;margin-top:0px;vertical-align:middle"><img class="CToWUd" src="http://fa2png.io/media/icons/fa-thumbs-down/25/0/ff0000_none.png" height="25" width="25"></div></td>
+                <td style="padding:0px;border:0px;padding:0px 20px 10px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad">
+                    <span style="display:inline-block;margin-top:12px;vertical-align:middle"><a href="/runbot/build/${object.id}" style="text-decoration:underline;text-decoration:none;font-weight:bold;color:#57769d;text-decoration:underline;color:#FF0000" target="_blank">
+Build #${object.sequence} failed
+</a></span>
+</td>
+                <td style="padding:0px;border:0px;font-weight:normal;font-size:12px;vertical-align:middle;padding:0px 20px 0px 0px;vertical-align:middle;border-top:1px solid #808080;border-bottom:1px solid #adadad;border-right:1px solid #606060;border-top-right-radius:5px" align="right">
+                    <div style="vertical-align:middle;min-height:20px;width:20px;padding:20px;display:inline-block;width:20px;min-height:20px"></div> <span style="vertical-align:middle">Age: ${object.job_age}m</span>
+</td>
+    </tr>
+       </thead>
+            <tbody style="margin-bottom:40px">
+              <tr style="padding:0px;border:0px">
+                <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;padding-top:20px;padding-bottom:5px;text-align:center"></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;padding-top:20px;padding-bottom:5px"><strong>${object.committer}</strong></td>
+                <td style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-top:20px;padding-bottom:5px;font-size:12px" align="right">changeset <a href="https://${object.repo_id.base}/commit/${object.name[:8]}" style="text-decoration:underline;color:#606060" target="_blank">${object.name[:8]}</a></td>
+              </tr>
+              <tr style="padding:0px;border:0px">
+                <td style="padding:0px;border:0px;padding:10px 20px 10px 0px;height:20px;width:20px;padding:0px;border-left:1px solid #adadad;border-bottom-left-radius:5px;border-bottom:1px solid #adadad">&nbsp;</td>
+                <td colspan="2" style="padding:0px;border:0px;color:#808080;padding:10px 20px 10px 0px;height:20px;border-right:1px solid #adadad;padding-bottom:20px;padding-top:0px;border-bottom:1px solid #adadad;border-bottom-right-radius:5px">${object.subject}</td>
+              </tr>
+              </tbody>
+          </table>
+        </div>
+    </div>
+% endif
+
+<!-- System Message -->
+% if object.result=="ok":
+      <div style="width:528px;padding:10px 20px;border:1px solid #adadad;border-radius:5px;font-size:12px;margin-bottom:0px;background-color:#fbfddc;margin-top:20px">
+        <span style="color:#808080">
+          <b>System message:</b>
+          <p style="margin-top:5px;margin-bottom:0px">
+              Your Build is ${object.state} and runbot test completed successfully.
+              <br/>Thanks for your patience.
+          </p>
+        </span>
+    </div>
+% elif object.result=="warn":
+      <div style="width:528px;padding:10px 20px;border:1px solid #adadad;border-radius:5px;font-size:12px;margin-bottom:0px;background-color:#fbfddc;margin-top:20px">
+        <span style="color:#808080">
+          <b>System message:</b>
+          <p style="margin-top:5px;margin-bottom:0px">
+              Your Build is ${object.state} and runbot test completed with warnings. Please read the runbot logs and check.
+              <br/>Thanks for your patience.
+          </p>
+        </span>
+      </div>
+% else:
+      <div style="width:528px;padding:10px 20px;border:1px solid #adadad;border-radius:5px;font-size:12px;margin-bottom:0px;background-color:#fbfddc;margin-top:20px">
+        <span style="color:#808080">
+          <b>System message:</b>
+          <p style="margin-top:5px;margin-bottom:0px">
+              Your Build test completed unsuccessfully. Please read the runbot logs and fix the issues found.
+              <br/>Thanks for your patience.
+          </p>
+        </span>
+      </div>
+% endif
+
+<!-- functionally -->
+      <div style="padding-top:10px;width:570px">
+        <span>
+          <div style="margin-top:20px;border-radius:5px;border:1px solid #adadad;font-size:12px;padding:10px 20px;width:528px">
+              <p style="color:#808080;margin-top:0px;margin-bottom:5px"><strong style="font-size:14px">Wanting functionally or technically debug this instance?</strong></p>
+% if object.state!="testing":
+            <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">
+                <strong>Web Access:</strong> You can have access to this build directly throught <a href="http://${object.domain}/?db=${object.dest}-all" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.
+            </p>
+% endif
+            <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">
+                <strong>Log:</strong> You can have access to the logs of this build on plain text <a href="/runbot/static/build/${object.dest}/logs/job_10_test_base.txt" style="text-decoration:underline;color:#606060" target="_blank">Here</a> and <a href="/runbot/static/build/${object.dest}/logs/job_20_test_all.txt" style="text-decoration:underline;color:#606060" target="_blank">Here</a> or instance's logs <a href="/runbot/build/${object.id}" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.
+            </p>
+% if object.state!="testing":
+            <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">
+                <strong>SSH:</strong> By using <code style="font-family:monospace;background-color: #E0E0E0;"> ssh -p ${object.port+1} odoo@${object.host} </code> you can have access, if you got a 'connection refused' message then send an email to (<a href="mailto:moylop260@vauxoo.com" style="text-decoration:underline;color:#606060" target="_blank">moylop260@vauxoo.com</a>) with your public key as attachment.
+            </p>
+% endif
+          </div>
+        </span>
+      </div>
+
+<!-- Documentation -->
+      <table style="padding:0px;border:0px;width:100%;background-color:#e9e6e7;border-radius:5px;border:1px solid #adadad;padding:10px;margin-top:20px;font-size:12px;width:570px;line-height:16px" border="0">
+        <tbody><tr style="padding:0px;border:0px">
+          <td style="padding:0px;border:0px">
+          </td>
+          <td style="padding:0px;border:0px;color:#808080">
+              <a href="/runbot_doc/static/index.html" style="text-decoration:underline;color:#606060" target="_blank">Documentation</a> about <span class="il">Vauxoo's Runbot</span> and <a href="https://github.com/Vauxoo/travis2docker/wiki" style="text-decoration:underline;color:#606060" target="_blank">generated docker</a>. <br>
+                  For help please send a message to Vauxoo's telegram group, choose who receive this notification in your <a href="https://github.com/Vauxoo/travis2docker/wiki" style="text-decoration:underline;color:#606060" target="_blank">Config File</a>.
+          </td>
+        </tr>
+      </tbody></table>
+
+<!-- Issues -->
+      <div style="padding-top:10px;width:570px">
+        <div style="margin-top:20px;border-radius:5px;border:1px solid #adadad;font-size:12px;padding:10px 20px;width:528px">
+            <p style="color:#808080;margin-top:0px;margin-bottom:5px"><strong style="font-size:14px">Do you have an issue with Runbot?</strong></p>
+            <p style="color:#808080;margin-top:0px;margin-bottom:5px;margin-bottom:5px">Share your problem <a href="https://github.com/Vauxoo/runbot-addons/issues/new" style="text-decoration:underline;color:#606060" target="_blank">Here</a>.</p>
+        </div>
+      </div>
+            ]]></field>
+    </record>
+</odoo>
