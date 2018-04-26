@@ -28,3 +28,12 @@ class TestRunbotSkipBuild(TransactionCase):
             build.state, 'done', "State should be done")
         self.assertEqual(
             build.result, 'skipped', "Result should be skipped")
+        build = self.env["runbot.build"].create({
+            "name": "HEAD",
+            "branch_id": branch.id,
+            "subject": "Test no ci skip feature",
+        })
+        self.assertEqual(
+            build.state, 'pending', "State should be pending")
+        self.assertNotEqual(
+            build.result, 'skipped', "Result shouldn't be skipped")
