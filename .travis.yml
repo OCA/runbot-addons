@@ -33,6 +33,9 @@ before_install:
   - python3.5 -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
 
 install:
+  - pip install zc.recipe.egg --no-cache-dir
+  # the latest package on pip doesn't speak python3
+  - pip install https://github.com/anybox/anybox.recipe.odoo/tarball/master/anybox.recipe.odoo-1.9.3.dev0.tar.gz
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly

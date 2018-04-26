@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="build_button" inherit_id="runbot.build_button">
+        <xpath expr="//a[hasclass('runbot-rebuild')]/parent::li" position="after">
+            <li t-if="bu['state'] in ['done'] and bu['buildout_version']">
+                <a href="#" class="runbot-rerun-buildout" t-att-data-runbot-build="bu['id']">Rerun buildout <i class="fa fa-refresh"/></a>
+            </li>
+        </xpath>
+        <xpath expr="//a[contains(@t-attf-href, 'job_10_test_base.txt')]/parent::li" position="before">
+            <li t-if="bu['uses_buildout'] and not bu['buildout_version']">
+                <a t-attf-href="/runbot/static/build/#{bu['real_dest']}/logs/job_01_run_buildout.txt">Buildout logs <i class="fa fa-file-text-o"/></a>
+            </li>
+        </xpath>
+    </template>
+    <template id="assets_frontend" inherit_id="website.assets_frontend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/runbot_buildout/static/src/js/runbot_buildout.js"/>
+        </xpath>
+    </template>
+</odoo>
