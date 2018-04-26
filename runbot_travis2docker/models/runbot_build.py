@@ -8,7 +8,7 @@ import subprocess
 import time
 import sys
 
-from odoo import api, fields, models
+from odoo import fields, models
 from odoo.tools import config
 from odoo.addons.runbot.common import grep, rfind, time2str
 from odoo.addons.runbot.models.build import _re_error, _re_warning
@@ -25,7 +25,6 @@ except ImportError:
 _logger = logging.getLogger(__name__)
 
 MAGIC_PID_RUN_NEXT_JOB = -2
-SKIP_WORDS = ['[ci skip]', '[skip ci]']
 
 
 class RunbotBuild(models.Model):
@@ -278,20 +277,3 @@ class RunbotBuild(models.Model):
             list: Additional arguments to add into docker run command.
         """
         return []
-
-    def subject_skip(self):
-        """Skip build if there is a commit message with one SKIP_WORDS"""
-        for build in self:
-            subject = build.subject.lower()
-            for word in SKIP_WORDS:
-                if word in subject:
-                    build._log('subject_skip',
-                               'The commit message skip this build with '
-                               'the word "%s"' % word)
-                    build._skip()
-
-    @api.model
-    def create(self, values):
-        build = super().create(values)
-        build.subject_skip()
-        return build
