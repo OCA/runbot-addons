@@ -179,22 +179,16 @@ class RunbotRepo(models.Model):
                 _('Project %s not found') % self.gitlab_name)
 
         branches = {}
-        if not self.mr_only:
-            for branch in self._query_gitlab_api(
-                    'projects/%s/repository/branches' % project['id']):
-                branches[branch['commit']['id']] = branch
+        for branch in self._query_gitlab_api(
+                'projects/%s/repository/branches' % project['id']):
+            branches[branch['commit']['id']] = branch
         for merge_request in self._query_gitlab_api(
                 'projects/%s/merge_requests' % project['id'],
                 get_data={'state': 'opened'}):
-            # strangely enough, we can't query the commits with
-            # projects/%s/merge_request/%s/commits, so we fetch the
-            # source branch and get its last commit
-            branch = self._query_gitlab_api(
-                'projects/%s/repository/branches/%s' % (
-                    merge_request['source_project_id'],
-                    merge_request['source_branch']))
-            if not branch:
+            if merge_request['sha'] not in branches:
+                # this is a MR pointing to a deleted branch
                 continue
+            branch = branches[merge_request['sha']]
             branch['merge_request'] = merge_request
             branches[branch['commit']['id']] = branch
 
@@ -252,12 +246,12 @@ class RunbotRepo(models.Model):
             if not build_ids:
                 logger.debug(
                     'repo %s merge request %s new build found commit %s',
-                    branch_ids.repo_id.name,
-                    branch_ids.name,
+                    branch_ids[:1].repo_id.name,
+                    branch_ids[:1].name,
                     sha,
                 )
                 builds_created += self.env['runbot.build'].create({
-                    'branch_id': branch_ids.id,
+                    'branch_id': branch_ids[:1].id,
                     'name': sha,
                     'author': author,
                     'committer': committer,
@@ -320,6 +314,7 @@ class RunbotRepo(models.Model):
             'projects/%s/merge_requests' % project['id'],
             get_data={'state': 'closed'})
         self.env['runbot.branch'].search([
+            ('repo_id', 'in', self.ids),
             ('merge_request_id', 'in', map(
                 operator.itemgetter('iid'), merge_requests)),
         ]).unlink()
