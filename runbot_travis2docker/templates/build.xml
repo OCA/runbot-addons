@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="build_button_inherit" inherit_id="runbot.build_button">
+        <!-- This removes the db name parameter from the URL, if it's a t2d build, because the name won't match.
+             We look for the full URL because, if it changes in the future, it should fail.
+        -->
+        <xpath
+            expr="(//a[@t-attf-href=&quot;http://{{bu['domain']}}/?db={{bu['real_dest']}}-all&quot;])[2]"
+            position="attributes">
+            <attribute
+                name="t-attf-href"
+                remove="db={{bu['real_dest']}}-all"
+                add="{{'' if repo.is_travis2docker_build else 'db=%s-all' % bu['real_dest']}}"
+                separator="?"/>
+        </xpath>
+        <xpath
+            expr="(//a[@t-attf-href=&quot;http://{{bu['domain']}}/?db={{bu['real_dest']}}-all&quot;])[1]"
+            position="attributes">
+            <attribute
+                name="t-attf-href"
+                remove="db={{bu['real_dest']}}-all"
+                add="{{'' if repo.is_travis2docker_build else 'db=%s-all' % bu['real_dest']}}"
+                separator="?"/>
+        </xpath>
+
+        <!-- Hides the button if t2d was used, because the db *-base is not produced -->
+        <xpath
+            expr="//a[@t-attf-href=&quot;http://{{bu['domain']}}/?db={{bu['real_dest']}}-base&quot;]/.."
+            position="attributes">
+                <attribute name="t-if" add="repo.is_travis2docker_build" separator=" and "/>
+            </xpath>
+    </template>
+
+</odoo>
