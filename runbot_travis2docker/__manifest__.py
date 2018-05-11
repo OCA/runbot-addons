@@ -25,6 +25,7 @@
         "views/runbot_build_view.xml",
         "views/runbot_branch_view.xml",
         "data/ir_cron_data.xml",
+        "templates/build.xml",
     ],
     "demo": [
         "demo/runbot_repo_demo.xml",
