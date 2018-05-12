@@ -10,7 +10,6 @@ setuptools.setup(
     install_requires=[
         'odoo11-addon-runbot_gitlab',
         'odoo11-addon-runbot_send_email',
-        'odoo11-addon-runbot_subject_skip',
         'odoo11-addon-runbot_travis2docker',
     ],
     classifiers=[
