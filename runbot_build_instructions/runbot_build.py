@@ -28,7 +28,7 @@ import shutil
 import openerp
 from openerp import api
 from openerp.osv import orm, fields
-from openerp.addons.runbot.runbot import mkdirs
+from openerp.addons.runbot.runbot import grep, mkdirs
 
 _logger = logging.getLogger(__name__)
 MAGIC_PID_RUN_NEXT_JOB = -2
@@ -164,11 +164,12 @@ class runbot_build(orm.Model):
         cmd = [
             sys.executable,
             server_path,
-            "--no-xmlrpcs",
             "--xmlrpc-port=%d" % build.port,
             "--db_user=%s" % openerp.tools.config['db_user'],
             "--workers=0",
         ] + params
+        if grep(build.server("tools/config.py"), "no-xmlrpcs"):
+            cmd.append("--no-xmlrpcs")
         return cmd, mods
 
     @api.cr_uid_ids_context
