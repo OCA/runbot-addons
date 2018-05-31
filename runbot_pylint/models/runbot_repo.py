@@ -30,6 +30,8 @@ class RunbotRepo(models.Model):
 
     pylint_conf_path = fields.Char(
         help='Relative path to pylint conf file')
+    pylint_extra_parameters = fields.Char(
+        help='Pass extra parameters to pylint')
     check_pylint = fields.Boolean(
         help='Check pylint to modules of this repo')
 
