@@ -79,11 +79,18 @@ class RunbotBuild(models.Model):
             build._get_docker_run_cmd(), lock_path, log_path, cpu_limit=1200,
         )
 
-    def _job_21_coverage(self, build, lock_path, log_path):
+    def _job_21_coverage_html(self, build, lock_path, log_path):
         if not build.branch_id.repo_id.is_travis2docker_build:
             return super(RunbotBuild, self)._job_21_coverage(
                 build, lock_path, log_path)
-        _logger.info('docker build skipping job_21_coverage')
+        _logger.info('docker build skipping job_21_coverage_html')
+        return MAGIC_PID_RUN_NEXT_JOB
+
+    def _job_22_coverage_result(self, build, lock_path, log_path):
+        if not build.branch_id.repo_id.is_travis2docker_build:
+            return super(RunbotBuild, self)._job_22_coverage_result(
+                build, lock_path, log_path)
+        _logger.info('docker build skipping job_22_coverage_result')
         return MAGIC_PID_RUN_NEXT_JOB
 
     def _job_30_run(self, build, lock_path, log_path):
