@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='hook_time']" position="after">
                 <field name="uses_gitlab"/>
+                <field name="warnings_are_errors" attrs="{'invisible': [('uses_gitlab', '=', False)]}" />
             </xpath>
         </field>
     </record>
