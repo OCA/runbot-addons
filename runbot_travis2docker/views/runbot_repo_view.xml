@@ -13,15 +13,6 @@
                    attrs="{'invisible': [('is_travis2docker_build', '=', False)],
                            'required': [('is_travis2docker_build', '=', True)]
                            }"/>
-            <field name="weblate_url"/>
-            <field name="weblate_ssh"/>
-            <label for="weblate_token"/>
-            <div class="o_row">
-                <field name="weblate_token"/>
-                <button name="weblate_validation" string="Check"
-                    class="oe_link pull-right oe_edit_only" type="object"/>
-            </div>
-            <field name="weblate_languages"/>
           </group>
         </xpath>
       </field>
