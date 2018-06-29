@@ -33,7 +33,6 @@ class RunbotBuild(models.Model):
     dockerfile_path = fields.Char()
     docker_image = fields.Char()
     docker_container = fields.Char()
-    uses_weblate = fields.Boolean(help='Synchronize with weblate', copy=False)
     docker_executed_commands = fields.Boolean(
         help='True: Executed "docker exec CONTAINER_BUILD custom_commands"',
         readonly=True, copy=False)
@@ -235,23 +234,6 @@ class RunbotBuild(models.Model):
             self.repo_id.id
         )[1].split('/')[-1]
         wl_cmd_env = []
-        if self.uses_weblate and 'refs/pull' not in self.branch_id.name:
-            wl_cmd_env.extend([
-                '-e', 'WEBLATE=1',
-                '-e', ('WEBLATE_TOKEN=%s' %
-                       self.branch_id.repo_id.weblate_token),
-                '-e', ('WEBLATE_HOST=%s' %
-                       self.branch_id.repo_id.weblate_url),
-                '-e', ('WEBLATE_SSH=%s' %
-                       self.branch_id.repo_id.weblate_ssh)])
-            if self.branch_id.repo_id.weblate_languages:
-                wl_cmd_env.extend([
-                    '-e', 'LANG_ALLOWED=%s' %
-                    self.branch_id.repo_id.weblate_languages
-                ])
-            if self.branch_id.repo_id.token:
-                wl_cmd_env.extend([
-                    '-e', 'GITHUB_TOKEN=%s' % self.branch_id.repo_id.token])
         cmd = [
             'docker', 'run',
             '-e', 'INSTANCE_ALIVE=1',

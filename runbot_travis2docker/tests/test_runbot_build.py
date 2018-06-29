@@ -6,10 +6,8 @@ import os
 import subprocess
 import time
 import xmlrpc.client
-import mock
 
 from odoo.tests.common import TransactionCase
-from odoo.exceptions import ValidationError, Warning as UserError
 from odoo.tools.misc import mute_logger
 
 _logger = logging.getLogger(__name__)
@@ -28,46 +26,6 @@ class TestRunbotJobs(TransactionCase):
         self.cron = self.env.ref('runbot.runbot_repo_cron')
         self.cron.write({'active': False})
         self.build = None
-
-    @mute_logger('odoo.addons.runbot.models.repo')
-    def test_00_no_weblate_token(self):
-        token = self.repo.weblate_token
-        self.repo.weblate_token = None
-        self.assertEqual(self.repo.weblate_validation(), None)
-        self.assertEqual(self.repo.cron_weblate(), None)
-        self.repo.weblate_token = token
-
-    @mock.patch('requests.Session.get')
-    def test_10_ok_weblate_validation(self, response):
-
-        class Response(object):
-
-            def raise_for_status(self):
-                pass
-
-            def json(self):
-                return {'projects': []}
-
-        response.return_value = Response()
-        self.assertRaises(UserError, self.repo.weblate_validation)
-
-    @mock.patch('requests.Session.get')
-    def test_20_ko_weblate_validation(self, response):
-
-        class Response(object):
-
-            def raise_for_status(self):
-                pass
-
-            def json(self):
-                return {}
-
-        response.return_value = Response()
-        self.assertRaises(ValidationError, self.repo.weblate_validation)
-
-    @mute_logger('odoo.addons.runbot.models.repo')
-    def test_30_cron_weblate(self):
-        self.assertEqual(self.repo.cron_weblate(), None)
 
     def tearDown(self):
         super(TestRunbotJobs, self).tearDown()
