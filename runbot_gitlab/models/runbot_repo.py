@@ -13,13 +13,13 @@ _logger = logging.getLogger(__name__)
 
 
 def _get_url(url, base):
-    """When get is URL_GITHUB/api/v3/User/keys must be convert to
+    """When get is URL_GITHUB/api/v4/User/keys must be convert to
     URL_GITLAB/User.keys Because the api of gitlab required admin token
     for get the ssh keys
     https://docs.gitlab.com/ee/api/users.html#list-ssh-keys"""
     match_object = re.search('([^/]+)/([^/]+)/([^/.]+(.git)?)', base)
     if match_object:
-        prefix = ('https://%s/api/v3%s'
+        prefix = ('https://%s/api/v4%s'
                   if not url.endswith('/keys') else 'https://%s%s')
         project_name = (match_object.group(2) + '/' + match_object.group(3))
         url = url.replace(':owner', match_object.group(2))
