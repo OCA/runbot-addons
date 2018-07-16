@@ -167,11 +167,11 @@ class RunbotBuild(models.Model):
 
     def _local_cleanup(self):
         builds = self.filtered('branch_id.repo_id.is_travis2docker_build')
-        super(RunbotBuild, self - builds)._local_cleanup()
-        for build in builds:
-            if build.docker_container:
-                subprocess.call(['docker', 'rm', '-f', build.docker_container])
-                subprocess.call(['docker', 'rmi', '-f', build.docker_image])
+        if self - builds:
+            super(RunbotBuild, self - builds)._local_cleanup()
+        for build in builds.filtered('docker_container'):
+            subprocess.call(['docker', 'rm', '-vf', build.docker_container])
+            subprocess.call(['docker', 'rmi', '-f', build.docker_image])
 
     def _get_ssh_keys(self):
         self.ensure_one()
