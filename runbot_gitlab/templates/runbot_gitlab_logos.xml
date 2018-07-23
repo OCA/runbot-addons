@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="add_gitlab_logo_in_branch_menu" inherit_id="runbot.inherits_branch_in_menu" name="Add gitlab logo in branch menu">
+            <xpath expr="//i[hasclass('fa','fa-github')]" position="attributes">
+                <attribute name="t-att-class">'fa fa-gitlab' if re.uses_gitlab else 'fa fa-github'</attribute>
+            </xpath>
+        </template>
+        <template id="add_gitlab_logo_in_repo_view" inherit_id="runbot.repo" name="Add gitlab logo in repo view">
+            <xpath expr="//i[hasclass('fa','fa-github')]" position="attributes">
+                <attribute name="t-att-class">'fa fa-gitlab' if repo.uses_gitlab else 'fa fa-github'</attribute>
+            </xpath>
+        </template>
+        <template id="add_gitlab_logo_in_build_button" inherit_id="runbot.build_button" name="Add gitlab logo in build button">
+            <!-- odoo only matches the first node of the expr therefore we adapt elements 1 to 4 of the expression separately -->
+            <xpath expr="(//i[hasclass('fa','fa-github')])[1]" position="attributes">
+                <attribute name="t-att-class">'fa fa-gitlab' if repo.uses_gitlab else 'fa fa-github'</attribute>
+            </xpath>
+            <xpath expr="(//i[hasclass('fa','fa-github')])[2]" position="attributes">
+                <attribute name="t-att-class">'fa fa-gitlab' if repo.uses_gitlab else 'fa fa-github'</attribute>
+            </xpath>
+            <xpath expr="(//i[hasclass('fa','fa-github')])[3]" position="attributes">
+                <attribute name="t-att-class">'fa fa-gitlab' if repo.uses_gitlab else 'fa fa-github'</attribute>
+            </xpath>
+            <xpath expr="(//i[hasclass('fa','fa-github')])[4]" position="attributes">
+                <attribute name="t-att-class">'fa fa-gitlab' if repo.uses_gitlab else 'fa fa-github'</attribute>
+            </xpath>
+        </template>
+    </data>
+</odoo>
