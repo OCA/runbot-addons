@@ -28,6 +28,9 @@ env:
   - TESTS="1" ODOO_REPO="OCA/OCB"
   - TESTS="1" ODOO_REPO="odoo/odoo"
 
+before_install:
+  # Fix https://github.com/travis-ci/travis-ci/issues/8982#issuecomment-354357640
+  - python3.5 -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
 
 install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
