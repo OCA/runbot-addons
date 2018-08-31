@@ -185,8 +185,11 @@ class RunbotBuild(models.Model):
                 ssh_rsa = self.repo_id._github('/users/%(login)s/keys' %
                                                response[own_key])
                 keys += '\n' + '\n'.join(rsa['key'] for rsa in ssh_rsa)
-            except (TypeError, KeyError, requests.RequestException):
-                _logger.debug("Error fetching %s", own_key)
+            except (TypeError, KeyError, requests.RequestException) as err:
+                _logger.warning(
+                    "Error fetching %s (%s): %s",
+                    own_key, response and response.get(own_key), err)
+                _logger.warning("Response received: %s", response)
         return keys
 
     def _schedule(self):
