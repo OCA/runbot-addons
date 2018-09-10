@@ -1,1 +1,1 @@
-travis2docker
+travis2docker==4.1.0
