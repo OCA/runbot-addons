@@ -1,2 +1,2 @@
 matplotlib==2.2.2
-travis2docker==4.0.7
+travis2docker==4.1.0
