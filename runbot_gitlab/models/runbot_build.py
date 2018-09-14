@@ -49,6 +49,8 @@ class RunbotBuild(models.Model):
                     state = 'failed'
                     if build.result == 'ok':
                         state = 'success'
+                    if build.result == 'warn':
+                        state = 'success_with_warnings'
                     if build.result == 'ko':
                         state = 'failed'
                     if build.result == 'skipped':
