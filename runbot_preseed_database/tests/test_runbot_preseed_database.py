@@ -30,7 +30,7 @@ class TestRunbotPreseedDatabase(TransactionCase):
         repo = self.env['runbot.repo'].create({
             'name': 'https://github.com/oca/ocb',
             'modules_auto': 'none',
-            'modules': 'web',
+            'modules': 'base',
         })
         repo._update_git()
 
