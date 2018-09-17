@@ -66,7 +66,7 @@ class RunbotBuild(models.Model):
                     "context": "ci/runbot"
                 }
                 if build.coverage:
-                    status['coverage'] = build.coverage
+                    status['coverage'] = build.coverage_result
                 _logger.debug("gitlab updating status %s to %s", build.name,
                               state)
                 response = session.post(_url, status)
