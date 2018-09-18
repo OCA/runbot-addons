@@ -25,19 +25,22 @@ env:
   - VERSION="11.0" TESTS="0" LINT_CHECK="0"
   matrix:
   - LINT_CHECK="1"
-  - TESTS="1" ODOO_REPO="OCA/OCB"
-  - TESTS="1" ODOO_REPO="odoo/odoo"
+  - TESTS="1" ODOO_REPO="OCA/OCB" EXCLUDE="runbot_buildout"
+  - TESTS="1" ODOO_REPO="OCA/OCB" EXCLUDE="runbot_travis2docker"
 
 before_install:
   # Fix https://github.com/travis-ci/travis-ci/issues/8982#issuecomment-354357640
   - python3.5 -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
 
 install:
+  # the latest package on pip doesn't speak python3
+  - pip install https://github.com/anybox/anybox.recipe.odoo/tarball/master/anybox.recipe.odoo-1.9.3.dev0.tar.gz
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
 
 script:
+  # TODO: add some magic to skip buildout and/or travis2docker builds if none of them changed
   - travis_run_tests
 
 after_success:
