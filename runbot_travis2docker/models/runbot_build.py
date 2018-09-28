@@ -168,6 +168,9 @@ class RunbotBuild(models.Model):
                 branch_short_name, '--root-path=' + t2d_path,
                 '--exclude-after-success',
                 '--docker-image=%s' % build.repo_id.travis2docker_image,
+                # Avoid corruption of postgresql
+                '--runs-at-the-end-script=pg_isready -q && '
+                '/etc/init.d/postgresql stop'
             ]
             try:
                 path_scripts = t2d()
