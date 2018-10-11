@@ -50,6 +50,11 @@ class RunbotRepo(models.Model):
 
     uses_gitlab = fields.Boolean(help='Enable the ability to use gitlab '
                                       'instead of github')
+    warnings_are_errors = fields.Boolean(
+        'Treat warnings as errors',
+        default=True, help='When runbot reports warnings, report that as '
+        'error to gitlab',
+    )
 
     def _git(self, cmd):
         """Rewriting the parent method to get merge_request from gitlab"""
