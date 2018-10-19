@@ -12,6 +12,7 @@
     "depends": ["runbot"],
     "data": [
         "views/runbot_repo.xml",
+        "templates/build.xml",
         "templates/runbot_gitlab_logos.xml",
     ],
     "installable": True,

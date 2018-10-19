@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="build_button_inherit" inherit_id="runbot.build_button">
+        <!-- Replace icon and change title: Open commit on GitHub -> GitLab -->
+        <xpath expr="//a[@aria-label='Open commit on GitHub']" position="attributes">
+            <attribute name="t-att-invisible" add="(repo.uses_gitlab and 1)" separator=" or "/>
+        </xpath>
+        <xpath expr="//a[@aria-label='Open commit on GitHub']" position="after">
+            <a t-att-invisible="not repo.uses_gitlab and 1"
+                t-attf-href="https://#{repo.base}/commit/#{bu['name']}"
+                class="btn btn-default"
+                title="Open commit on GitLab"
+                aria-label="Open commit on GitLab">
+                <i class="fa fa-gitlab"/>
+            </a>
+        </xpath>
+    </template>
+
+</odoo>
