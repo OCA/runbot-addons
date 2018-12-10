@@ -101,7 +101,17 @@ class RunbotRepo(models.Model):
                         else response.text)
                 if 'merge_requests?iid=' in url:
                     json = json[0]
-                    json['head'] = {'ref': json['target_branch']}
+
+                    json['head'] = {
+                        'ref': json['target_branch'],
+                        # github api returns a label like
+                        # 'source-project-name:source-branch-name' the closest
+                        # we got in gitlab api is
+                        # 'source_project_id:source_branch'
+                        # (without additional http/db requests)
+                        'label': '%s:%s' % (
+                            json['source_project_id'], json['source_branch']),
+                    }
                     json['base'] = {'ref': json['source_branch']}
                 if '/commits/' in url:
                     for own_key in ['author', 'committer']:
