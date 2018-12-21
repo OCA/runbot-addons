@@ -34,7 +34,7 @@ def _get_url(url, base):
             url = url + '.keys'
         if '/pulls/' in url:
             urls = url.split('/pulls/')
-            url = urls[0] + '/merge_requests?iid=' + urls[1]
+            url = urls[0] + '/merge_requests/' + urls[1]
     return url
 
 
@@ -99,9 +99,7 @@ class RunbotRepo(models.Model):
                 response.raise_for_status()
                 json = (response.json() if not is_url_keys
                         else response.text)
-                if 'merge_requests?iid=' in url:
-                    json = json[0]
-
+                if 'merge_requests/' in url:
                     json['head'] = {
                         'ref': json['target_branch'],
                         # github api returns a label like
