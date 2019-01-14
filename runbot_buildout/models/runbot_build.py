@@ -414,7 +414,7 @@ class RunbotBuild(models.Model):
                 'options.without_demo = False\n'
                 'options.data_dir = %(datadir)s\n'
                 'options.dbfilter = %(dbfilter)s\n'
-                'options.lang = en_US' % dict(
+                'options.load_language = en_US' % dict(
                     buildout_cfg=self._path('buildout.cfg'),
                     buildout_section=self.buildout_section,
                     target_repo=self.repo_id.name,
