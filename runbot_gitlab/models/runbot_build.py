@@ -18,6 +18,16 @@ class RunbotBuild(models.Model):
         super(RunbotBuild, self - records_gitlab)._github_status()
         runbot_domain = self.env['runbot.repo']._domain()
         for build in records_gitlab.filtered('repo_id.token'):
+            # runbot's _job_30_run calls this for duplicates, but searches by
+            # name, so this will be called for the old build(s) too if we
+            # rebuild a build, resulting in the status of the first build
+            # always winning. So without this, you'll never get it green
+            if self.search([
+                    ('id', '>', build.id),
+                    ('name', '=', build.name),
+                    ('repo_id', '=', build.repo_id.id),
+            ]):
+                continue
             is_merge_request = build.branch_id.branch_name.isdigit()
             source_project_id = False
             _url = _get_url('/projects/:owner/:repo/statuses/%s' % build.name,
