@@ -1,1 +1,1 @@
-runbot https://github.com/odoo/runbot master
+runbot https://github.com/odoo/runbot pre-docker
