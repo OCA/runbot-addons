@@ -1,5 +1,5 @@
-# Copyright 2017-2018 Therp BV <http://therp.nl>
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# Copyright 2017-2019 Therp BV <https://therp.nl>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 import glob
 import os
 import requests
@@ -15,6 +15,7 @@ except ImportError:
 from multiprocessing import Process
 from odoo import api, fields, models
 from odoo.addons.runbot.common import lock, grep
+
 
 MAGIC_PID_RUN_NEXT_JOB = -2
 
@@ -248,7 +249,7 @@ class RunbotBuild(models.Model):
         self._log('buildout', 'Bootstrapping buildout')
         return self._spawn(
             [
-                self._get_interpreter(),
+                self.branch_id.get_interpreter(),
                 self._path(bootstrap_file),
                 '-c', self._path('buildout.cfg'),
                 '--allow-site-packages',
@@ -446,12 +447,3 @@ class RunbotBuild(models.Model):
                 'job_end': fields.Datetime.now(),
             })
         return super(RunbotBuild, self)._local_cleanup()
-
-    @api.multi
-    def _get_interpreter(self):
-        self.ensure_one()
-        name = self.branch_id.pull_head_name or self.branch_id.name
-        if name.startswith('1') and not name.startswith('10'):
-            return '/usr/bin/python3'
-        else:
-            return '/usr/bin/python2'
