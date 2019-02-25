@@ -253,8 +253,8 @@ class RunbotBuild(models.Model):
                 self._path(bootstrap_file),
                 '-c', self._path('buildout.cfg'),
                 '--allow-site-packages',
-                '--setuptools-version=39.2.0',
-                '--buildout-version=2.12.1',
+                '--setuptools-version=40.8.0',
+                '--buildout-version=2.13.1',
             ],
             lock_path, log_path
         )
