@@ -144,8 +144,7 @@ class RunbotBuild(models.Model):
                     if '/%s/' % parts_path in dirname:
                         repo_modules.append(basename)
             explicit_modules = (
-                (build.branch_id.modules or '') + ',' +
-                (build.repo_id.modules or '')
+                build.branch_id.modules or build.repo_id.modules or ''
             )
             explicit_modules = set(filter(None, explicit_modules.split(',')))
             if build.repo_id.modules_auto == 'all':
