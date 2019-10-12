@@ -11,5 +11,3 @@ Dependencies
 * Dependencies
      * Python
          * matplotlib (through runbot)
-
-
