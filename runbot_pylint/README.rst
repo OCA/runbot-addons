@@ -2,7 +2,7 @@
     :alt: License: AGPL-3
 
 Runbot pylint
-===========
+=============
 
 This module was written to extend the functionality of runbot to support pylint command
 and allow you to check fails of lint.
