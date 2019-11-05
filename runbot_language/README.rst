@@ -2,7 +2,7 @@
     :alt: License: AGPL-3
 
 Runbot language
-===========
+===============
 
 This module was written to extend the functionality of runbot to support add custom language
 and allow you to choose it from repository configuration.
