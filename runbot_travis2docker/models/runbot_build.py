@@ -183,10 +183,9 @@ class RunbotBuild(models.Model):
         if not response:
             return
         keys = ""
-        login = ''
         for own_key in ['author', 'committer']:
             try:
-                login = response.get(own_key).get('login', '')
+                login = response.get(own_key, {}).get('login', '')
                 if login == '':
                     continue
                 ssh_rsa = self.repo_id._github('/users/%s/keys' % login)
@@ -194,7 +193,7 @@ class RunbotBuild(models.Model):
             except (AttributeError, requests.RequestException) as err:
                 _logger.warning(
                     "Error fetching %s (%s): %s", own_key, login, err)
-                _logger.warning("Response received: %s", response)
+                _logger.debug("Response received: %s", response)
         return keys
 
     def _schedule(self):
