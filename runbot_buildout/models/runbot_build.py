@@ -408,6 +408,7 @@ class RunbotBuild(models.Model):
                 'merges =\n'
                 '    git %(target_repo)s %(path)s %(target_commit)s\n'
                 'options.logfile = False\n'
+                'options.sentry_enabled = False\n'
                 'options.log_level = info\n'
                 'options.log_handler = :INFO\n'
                 'options.workers = 0\n'
