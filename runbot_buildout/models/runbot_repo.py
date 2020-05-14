@@ -20,3 +20,11 @@ class RunbotRepo(models.Model):
         default='odoo',
         help='The buildout section you use to create your odoo instance'
     )
+    buildout_branch_id = fields.Many2one(
+        'runbot.branch', 'Default buildout branch',
+        domain="[('repo_id', '=', id), ('buildout_version', '!=', False)]",
+        help='Set this to use the latest green build of this branch for '
+        'buildouts. Note you can set a specific buildout branch on branch '
+        'level too, so you should configure your testing buildout branch here,'
+        ' and configure the production buildout for your production branch.',
+    )

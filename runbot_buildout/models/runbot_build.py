@@ -286,7 +286,8 @@ class RunbotBuild(models.Model):
     @api.multi
     def _get_buildout_build(self):
         self.ensure_one()
-        buildout_branch = self.branch_id.buildout_branch_id
+        buildout_branch = self.branch_id.buildout_branch_id or\
+            self.branch_id.repo_id.buildout_branch_id
         version = None
         if not buildout_branch:
             pi = self.branch_id._get_pull_info()
@@ -296,9 +297,7 @@ class RunbotBuild(models.Model):
             buildout_branch = self.env['runbot.branch'].search([
                 ('repo_id', '=', self.repo_id.id),
                 ('buildout_version', '=', version),
-            ], order='buildout_default desc, name asc')
-            if buildout_branch.filtered('buildout_default'):
-                buildout_branch = buildout_branch.filtered('buildout_default')
+            ], order='name asc', limit=1)
         buildout_build = self.search([
             ('repo_id', '=', self.repo_id.id),
             ('state', '=', 'done'),

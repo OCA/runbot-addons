@@ -8,6 +8,7 @@
                 <field name="uses_buildout" />
                 <field name="buildout_branch_pattern" attrs="{'invisible': [('uses_buildout', '=', False)]}" />
                 <field name="buildout_section" attrs="{'invisible': [('uses_buildout', '=', False)]}" />
+                <field name="buildout_branch_id" attrs="{'invisible': [('uses_buildout', '=', False)]}" />
             </field>
             <field name="dependency_ids" position="attributes">
                 <attribute name="attrs">{'invisible': [('uses_buildout', '=', True)]}</attribute>
