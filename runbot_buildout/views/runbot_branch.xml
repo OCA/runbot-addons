@@ -5,7 +5,6 @@
         <field name="inherit_id" ref="runbot.branch_form" />
         <field name="arch" type="xml">
             <field name="sticky" position="after">
-                <field name="buildout_default" attrs="{'invisible': [('buildout_version', '=', False)]}" />
                 <field name="buildout_branch_id" attrs="{'invisible': [('buildout_version', '=', True)]}" />
                 <field name="buildout_section" />
             </field>

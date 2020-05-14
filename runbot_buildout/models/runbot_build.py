@@ -181,7 +181,7 @@ class RunbotBuild(models.Model):
             if self._check_buildout_success(build):
                 build.write({'result': 'ok'})
                 return self._spawn(
-                    'for part in %s/*; do git -C $part repack -a --threads=1; '
+                    'for part in %s/*; do git -C $part repack -A --threads=1; '
                     'done' % (
                         build._path('parts')
                     ), lock_path, log_path, shell=True,
@@ -221,7 +221,7 @@ class RunbotBuild(models.Model):
             return subprocess.Popen(
                 cmd, stdout=out, stderr=out, cwd=self._path(),
                 preexec_fn=preexec, close_fds=False,
-                env=self._get_buildout_environment(),
+                env=self._get_buildout_environment(log_build=True),
             ).pid
 
     @api.multi
@@ -259,7 +259,7 @@ class RunbotBuild(models.Model):
         )
 
     @api.multi
-    def _get_buildout_environment(self):
+    def _get_buildout_environment(self, log_build=False):
         self.ensure_one()
         build_environment = dict(os.environ)
         previous_build = self.search([
@@ -269,6 +269,12 @@ class RunbotBuild(models.Model):
             ('id', '!=', self.id),
         ], order='create_date desc', limit=1)
         if previous_build:
+            if log_build:
+                self._log(
+                    'buildout',
+                    'Using alternate objects from build #%(id)s' %
+                    previous_build,
+                )
             build_environment['GIT_ALTERNATE_OBJECT_DIRECTORIES'] = ':'.join([
                 ':'.join(glob.glob(
                     previous_build._path('parts', '*', '.git', 'objects')
@@ -280,7 +286,8 @@ class RunbotBuild(models.Model):
     @api.multi
     def _get_buildout_build(self):
         self.ensure_one()
-        buildout_branch = self.branch_id.buildout_branch_id
+        buildout_branch = self.branch_id.buildout_branch_id or\
+            self.branch_id.repo_id.buildout_branch_id
         version = None
         if not buildout_branch:
             pi = self.branch_id._get_pull_info()
@@ -290,9 +297,7 @@ class RunbotBuild(models.Model):
             buildout_branch = self.env['runbot.branch'].search([
                 ('repo_id', '=', self.repo_id.id),
                 ('buildout_version', '=', version),
-            ], order='buildout_default desc, name asc')
-            if buildout_branch.filtered('buildout_default'):
-                buildout_branch = buildout_branch.filtered('buildout_default')
+            ], order='name asc', limit=1)
         buildout_build = self.search([
             ('repo_id', '=', self.repo_id.id),
             ('state', '=', 'done'),
@@ -408,6 +413,7 @@ class RunbotBuild(models.Model):
                 'merges =\n'
                 '    git %(target_repo)s %(path)s %(target_commit)s\n'
                 'options.logfile = False\n'
+                'options.sentry_enabled = False\n'
                 'options.log_level = info\n'
                 'options.log_handler = :INFO\n'
                 'options.workers = 0\n'

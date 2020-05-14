@@ -16,7 +16,7 @@ To configure this module, you need to:
 #. turn on `Use buildouts` on a repository
 #. fill in a regex that allows to differentiate a normal branch name: For runbot, branches should be named ``$version-$sometext`` anyways, so this module's suggestion is to call buildout branches ``buildout-$version-$sometext``
 #. check the value of the field `Buildout section`, this must be the name you use in your buildouts
-#. if you use multiple buildouts for the same version to implement some kind of DTAP scenario (you should), you can mark some buildout branch as the one to be used for tests by navigating to the branch and checking `Default for this version`
+#. if you use multiple buildouts for the same version to implement some kind of DTAP scenario (you should), you can mark some buildout branch as the one to be used for tests by navigating to the repository and selecting a default buildout branch. In case you deal with multiple versions, set the default to a buildout from your current version, and set the buildout branch for branches of the new version manually
 #. when converting a repository to use buildouts, be sure to remove all dependency branches first. Otherwise, runbot will copy all of them unnecessarily. Then, rebuild some buildout branch, and when it is green, rebuild another branch that is supposed to use the buildout
 
 Background

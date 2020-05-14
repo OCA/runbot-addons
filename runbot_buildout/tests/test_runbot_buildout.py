@@ -29,11 +29,11 @@ class TestRunbotBuildout(SingleTransactionCase):
                 os.path.join(git_dir, 'buildout.cfg'), 'a'
         ) as buildout_cfg:
             buildout_cfg.write(
-                '\naddons = git %s parts/test 9.0\n' % git_dir,
+                '\naddons = git %s parts/test 11.0\n' % git_dir,
             )
 
         _git('init')
-        _git('checkout', '-b', 'buildout-9.0-testing')
+        _git('checkout', '-b', 'buildout-11.0-testing')
         _git('add', '.')
         _git('commit', '-m', 'initial commit')
 
@@ -45,7 +45,7 @@ class TestRunbotBuildout(SingleTransactionCase):
         cls.repo._update(cls.repo)
         cls.repo._scheduler(cls.repo.ids)
 
-        _git('checkout', '--orphan', '9.0')
+        _git('checkout', '--orphan', '11.0')
         _git('commit', '-m', 'initial commit')
 
     def test_00_buildout(self):

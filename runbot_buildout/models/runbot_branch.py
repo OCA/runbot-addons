@@ -11,7 +11,6 @@ PYTHON3 = '/usr/bin/python3'
 class RunbotBranch(models.Model):
     _inherit = 'runbot.branch'
 
-    buildout_default = fields.Boolean('Default buildout')
     buildout_version = fields.Char(
         compute='_compute_buildout_version', store=True,
     )
@@ -22,7 +21,7 @@ class RunbotBranch(models.Model):
     )
     buildout_branch_id = fields.Many2one(
         'runbot.branch', help='Default buildout branch',
-        domain='[("repo_id", "=", repo_id)]',
+        domain="[('repo_id', '=', repo_id), ('buildout_version', '!=', False)]"
     )
 
     @api.multi
