@@ -221,7 +221,7 @@ class RunbotBuild(models.Model):
             return subprocess.Popen(
                 cmd, stdout=out, stderr=out, cwd=self._path(),
                 preexec_fn=preexec, close_fds=False,
-                env=self._get_buildout_environment(),
+                env=self._get_buildout_environment(log_build=True),
             ).pid
 
     @api.multi
@@ -259,7 +259,7 @@ class RunbotBuild(models.Model):
         )
 
     @api.multi
-    def _get_buildout_environment(self):
+    def _get_buildout_environment(self, log_build=False):
         self.ensure_one()
         build_environment = dict(os.environ)
         previous_build = self.search([
@@ -269,6 +269,12 @@ class RunbotBuild(models.Model):
             ('id', '!=', self.id),
         ], order='create_date desc', limit=1)
         if previous_build:
+            if log_build:
+                self._log(
+                    'buildout',
+                    'Using alternate objects from build #%(id)s' %
+                    previous_build,
+                )
             build_environment['GIT_ALTERNATE_OBJECT_DIRECTORIES'] = ':'.join([
                 ':'.join(glob.glob(
                     previous_build._path('parts', '*', '.git', 'objects')
