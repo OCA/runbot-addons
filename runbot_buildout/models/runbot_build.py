@@ -181,7 +181,7 @@ class RunbotBuild(models.Model):
             if self._check_buildout_success(build):
                 build.write({'result': 'ok'})
                 return self._spawn(
-                    'for part in %s/*; do git -C $part repack -a --threads=1; '
+                    'for part in %s/*; do git -C $part repack -A --threads=1; '
                     'done' % (
                         build._path('parts')
                     ), lock_path, log_path, shell=True,
