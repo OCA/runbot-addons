@@ -149,7 +149,7 @@ class RunbotBuild(models.Model):
                 '/etc/init.d/postgresql stop'
             ]
             try:
-                path_scripts = t2d()
+                path_scripts = t2d(return_result=True)
             except BaseException:  # TODO: Add custom exception to t2d
                 path_scripts = []
             for path_script in path_scripts:
