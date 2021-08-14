@@ -16,15 +16,15 @@ Dependencies
 
 Available addons
 ----------------
-addon | version | summary
---- | --- | ---
-[runbot_build_instructions](runbot_build_instructions/) | 8.0.1.3.0 | Runbot with custom build and run instructions
-[runbot_coverage](runbot_coverage/) | 8.0.1.0.0 | Collect coverage information during test_all
-[runbot_gitlab](runbot_gitlab/) | 8.0.1.1.0 | Runbot with Gitlab integration
-[runbot_language](runbot_language/) | 8.0.1.1.0 | Runbot
-[runbot_pylint](runbot_pylint/) | 8.0.1.0.0 | Runbot
-[runbot_secure](runbot_secure/) | 8.0.1.0.0 | Provide https links
-[runbot_skip_tests](runbot_skip_tests/) | 8.0.1.0.0 | Skip tests on runbot builds
-[runbot_website_display](runbot_website_display/) | 8.0.1.0.0 | Allows to reorder and hide runbot repositories
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[runbot_build_instructions](runbot_build_instructions/) | 8.0.1.3.0 |  | Runbot with custom build and run instructions
+[runbot_coverage](runbot_coverage/) | 8.0.1.0.0 |  | Collect coverage information during test_all
+[runbot_gitlab](runbot_gitlab/) | 8.0.1.1.0 |  | Runbot with Gitlab integration
+[runbot_language](runbot_language/) | 8.0.1.1.0 |  | Runbot
+[runbot_pylint](runbot_pylint/) | 8.0.1.0.0 |  | Runbot
+[runbot_secure](runbot_secure/) | 8.0.1.0.0 |  | Provide https links
+[runbot_skip_tests](runbot_skip_tests/) | 8.0.1.0.0 |  | Skip tests on runbot builds
+[runbot_website_display](runbot_website_display/) | 8.0.1.0.0 |  | Allows to reorder and hide runbot repositories
 
 [//]: # (end addons)
