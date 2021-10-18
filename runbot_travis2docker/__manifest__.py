@@ -4,7 +4,7 @@
 {
     "name": "Runbot travis to docker",
     "summary": "Generate docker with odoo instance based on .travis.yml",
-    "version": "11.0.1.0.0",
+    "version": "11.0.1.1.0",
     "category": "runbot",
     "website": "https://github.com/OCA/runbot-addons",
     "author": "Vauxoo,Odoo Community Association (OCA)",
