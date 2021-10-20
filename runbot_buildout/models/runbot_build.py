@@ -237,15 +237,23 @@ class RunbotBuild(models.Model):
         bootstrap_file = self.env['ir.config_parameter'].get_param(
             'runbot_buildout.bootstrap_file', 'bootstrap.py',
         )
-        if not os.path.exists(self._path(bootstrap_file)):
-            with open(self._path(bootstrap_file), 'w') as bootstrap:
-                bootstrap.write(
-                    requests.get(
-                        'https://raw.githubusercontent.com/buildout/buildout/'
-                        'master/bootstrap/bootstrap.py'
-                    ).text
-                )
         self._log('buildout', 'Bootstrapping buildout')
+        if not os.path.exists(self._path(bootstrap_file)):
+            # Python 3 buildouts don't have bootstrap.py.
+            # Bootstrap.py has been deprecated. this used to perform a wget,
+            # is now no longer working. Our new buildouts just have a
+            # self-sufficient bootstrap.sh.  if there is no bootstrap.py, just
+            # execute that.
+            bootstrap_sh_file = self.env['ir.config_parameter'].get_param(
+                'runbot_buildout.bootstrap_sh_file', 'bootstrap.sh',
+            )
+            return self._spawn(
+                [
+                    '.',
+                    self._path(bootstrap_sh_file),
+                ],
+                lock_path, log_path
+            )
         return self._spawn(
             [
                 self.branch_id.get_interpreter(),
