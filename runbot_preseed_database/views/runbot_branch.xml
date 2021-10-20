@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="branch_form" model="ir.ui.view">
+        <field name="model">runbot.branch</field>
+        <field name="inherit_id" ref="runbot.branch_form" />
+        <field name="arch" type="xml">
+            <field name="modules" position="after">
+                <field name="preseed_database" />
+                <field name="preseed_database_build_id" attrs="{'invisible': [('preseed_database_build_id', '=', False)]}" />
+                <field name="preseed_database_module_ids" attrs="{'invisible': [('preseed_database', '=', False)]}" widget="many2many_tags" />
+                <label for="" attrs="{'invisible': [('preseed_database_module_ids', '=', False)]}" />
+                <button name="%(action_runbot_preseed_database)s" type="action" string="Refresh automatically" class="oe_link" attrs="{'invisible': [('preseed_database_module_ids', '=', False)]}" />
+            </field>
+        </field>
+    </record>
+</odoo>

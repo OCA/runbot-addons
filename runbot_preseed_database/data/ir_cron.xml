@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <record id="server_action_cron" model="ir.actions.server">
+        <field name="name">Regenerate preseed databases</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="runbot_preseed_database.model_runbot_preseed_database_refresh" />
+        <field name="code">model._refresh_preseed_database()</field>
+    </record>
+    <record id="cron" model="ir.cron">
+        <field name="ir_actions_server_id" ref="server_action_cron" />
+        <field name="interval_type">months</field>
+        <field name="numbercall">-1</field>
+    </record>
+</odoo>
