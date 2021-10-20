@@ -27,7 +27,7 @@ env:
   matrix:
   - LINT_CHECK="1"
   - TESTS="1" ODOO_REPO="OCA/OCB" EXCLUDE="runbot_buildout"
-  - TESTS="1" ODOO_REPO="OCA/OCB" EXCLUDE="runbot_travis2docker"
+  - TESTS="1" ODOO_REPO="OCA/OCB" EXCLUDE="runbot_travis2docker,runbot_push_pot"
 
 before_install:
   # Fix https://github.com/travis-ci/travis-ci/issues/8982#issuecomment-354357640
